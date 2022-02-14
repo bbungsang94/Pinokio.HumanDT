@@ -46,9 +46,10 @@ def load_img(path):
 
 
 def display_image(image):
-    fig = plt.figure(figsize=(20, 15))
-    plt.grid(False)
-    plt.imshow(image)
+    return None
+    # fig = plt.figure(figsize=(20, 15))
+    # plt.grid(False)
+    # plt.imshow(image)
 
 
 def download_and_resize_image(url,
@@ -98,6 +99,12 @@ class VehicleDetector:
             print("Font not found, using default font.")
             self.Font = ImageFont.load_default()
 
+    def __post_process(self, classes, scores):
+        score_idx = scores > self.args.detect_min_score
+        class_idx = (10 > classes) & (classes > 1)
+        total_idx = score_idx & class_idx
+        return total_idx
+
     def detection(self, path, display=False, save=False):
         """Determines the locations of the vehicle in the image
 
@@ -112,19 +119,31 @@ class VehicleDetector:
         img = load_img(self.args.image_path + path)
 
         converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
-        start_time = time.time()
-        result = self.Detector(converted_img)
-        end_time = time.time()
+        if self.args.model_name == "efficientdet":
+            start_time = time.time()
+            boxes, scores, classes, num_detections = self.Detector(converted_img)
+            end_time = time.time()
+            print("Found %d objects." % num_detections)
+            boxes = boxes[0].numpy()
+            classes = classes[0].numpy()
+            scores = scores[0].numpy()
+        else:
+            start_time = time.time()
+            result = self.Detector(converted_img)
+            end_time = time.time()
+            result = {key: value.numpy() for key, value in result.items()}
+            print("Found %d objects." % len(result["detection_scores"]))
+            boxes = result["detection_boxes"][0]
+            classes = result["detection_classes"][0]
+            scores = result["detection_scores"][0]
 
-        result = {key: value.numpy() for key, value in result.items()}
-
-        print("Found %d objects." % len(result["detection_scores"]))
         print("Inference time: ", end_time - start_time)
 
-        boxes = result["detection_boxes"][0]
-        classes = result["detection_classes"][0]
-        scores = result["detection_scores"][0]
-
+        del_idx = self.__post_process(classes, scores)
+        boxes = boxes[del_idx]
+        classes = classes[del_idx]
+        classes[:] = 2.
+        scores = scores[del_idx]
         if display:
             image_with_boxes = self.draw_boxes(img.numpy(), boxes, classes, scores)
             display_image(image_with_boxes)
@@ -139,8 +158,11 @@ class VehicleDetector:
         """Adds a bounding box to an image."""
         draw = ImageDraw.Draw(image)
         im_width, im_height = image.size
-        (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
-                                      ymin * im_height, ymax * im_height)
+        if self.args.model_name == "efficientdet":
+            (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
+        else:
+            (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
+                                          ymin * im_height, ymax * im_height)
         draw.line([(left, top), (left, bottom), (right, bottom), (right, top),
                    (left, top)],
                   width=thickness,
@@ -192,15 +214,19 @@ class VehicleDetector:
         return image
 
     def get_zboxes(self, image, boxes, max_boxes=10):
-        image = Image.fromarray(np.uint8(image)).convert("RGB")
-        z_boxes = []
-        for i in range(min(boxes.shape[0], max_boxes)):
-            ymin, xmin, ymax, xmax = tuple(boxes[i])
-            im_width, im_height = image.size
-            (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
-                                          ymin * im_height, ymax * im_height)
-            z_boxes.append([top, left, bottom, right])
-        return np.array(z_boxes)
+        if self.args.model_name == "efficientdet":
+            return boxes
+        else:
+            image = Image.fromarray(np.uint8(image)).convert("RGB")
+            z_boxes = []
+            for i in range(min(boxes.shape[0], max_boxes)):
+                ymin, xmin, ymax, xmax = tuple(boxes[i])
+                im_width, im_height = image.size
+                (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
+                                              ymin * im_height, ymax * im_height)
+                z_boxes.append([top, left, bottom, right])
+            return np.array(z_boxes)
+
 
 class CarDetector(object):
     def __init__(self):

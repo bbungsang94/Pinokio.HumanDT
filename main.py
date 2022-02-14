@@ -190,23 +190,30 @@ def pipeline(path, plan_image, transform_matrix, args):
 
 @dataclass
 class TestParams:
+    model_name: str = ''
     hub_mode: bool = None
     model_handle: str = None
     image_path: str = None
     label_path: str = None
     detected_path: str = None
     tracking_path: str = None
+    detect_min_score: float = 0.0
 
 
 if __name__ == "__main__":
 
     args = TestParams
+    args.model_name = "efficientdet"
     args.hub_mode = True
-    args.model_handle = "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
+    #"https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
+    #"https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
+    #"https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
+    args.model_handle = "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
     args.image_path = "./test_images/"
     args.label_path = "./params/mscoco_label_map.yaml"
     args.detected_path = "./detected_images/"
     args.tracking_path = "./tracking_result/"
+    args.detect_min_score = 0.3
 
     # 민구 transform
     plan_image = detector.load_img("./plan/testPlan.JPG")
