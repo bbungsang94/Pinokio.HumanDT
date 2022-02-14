@@ -114,11 +114,18 @@ def convert_to_cv2bbox(bbox, img_dim=(1280, 720)):
     return left, top, right, bottom
 
 
+def hex_to_rgb(h):
+    h = h.lstrip('#')
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
 def draw_box_label(img, bbox_cv2, box_color=(0, 255, 255), show_label=True):
     """
     Helper function for drawing the bounding boxes and the labels
     bbox_cv2 = [left, top, right, bottom]
     """
+    if isinstance(box_color, tuple) is False:
+        box_color = hex_to_rgb(box_color)
     # box_color= (0, 255, 255)
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_size = 0.7

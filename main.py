@@ -170,8 +170,7 @@ def pipeline(path, args):
             if debug:
                 print('updated box: ', x_cv2)
                 print()
-            #image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            image = helpers.draw_box_label(image, x_cv2)
+            image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
     # Book keeping
     deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
 
