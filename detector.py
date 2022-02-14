@@ -75,17 +75,29 @@ class VehicleDetector:
         print(tf.__version__)
         print("사용가능한 GPU : %s" % tf.test.gpu_device_name())
         if args.hub_mode:
-            self.Detector = hub.load(args.model_handle)
+            self.Detector = hub.load(args.model_main_handle)
+            self.SubDetector = hub.load(args.model_sub_handle)
         else:
             raise NotImplementedError
 
-        img_list = os.listdir(args.image_path)
-        for file in img_list:
-            if file.endswith(".jpg") or file.endswith(".jpeg"):
-                continue
-            else:
-                img_list.remove(file)
-        self.Dataset = img_list
+        self.Dataset = []
+        if args.merged_mode:
+            for title in args.merged_list:
+                img_list = os.listdir(args.image_path + title)
+                for file in img_list:
+                    if file.endswith(".jpg") or file.endswith(".jpeg"):
+                        continue
+                    else:
+                        img_list.remove(file)
+                self.Dataset.append(img_list.copy())
+        else:
+            img_list = os.listdir(args.image_path)
+            for file in img_list:
+                if file.endswith(".jpg") or file.endswith(".jpeg"):
+                    continue
+                else:
+                    img_list.remove(file)
+            self.Dataset = img_list
 
         with open(args.label_path) as f:
             self.LabelList = yaml.load(f, Loader=yaml.FullLoader)
@@ -99,11 +111,32 @@ class VehicleDetector:
             print("Font not found, using default font.")
             self.Font = ImageFont.load_default()
 
-    def __post_process(self, classes, scores):
-        score_idx = scores > self.args.detect_min_score
+    def __post_process(self, classes, scores, min_score = None):
+        if min_score is None:
+            min_score = self.args.detect_min_score
+        score_idx = scores > min_score
         class_idx = (10 > classes) & (classes > 1)
         total_idx = score_idx & class_idx
         return total_idx
+
+    def post_detection(self, img):
+        converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
+
+        result = self.SubDetector(converted_img)
+        end_time = time.time()
+        result = {key: value.numpy() for key, value in result.items()}
+
+        boxes = result["detection_boxes"][0]
+        classes = result["detection_classes"][0]
+        scores = result["detection_scores"][0]
+
+        del_idx = self.__post_process(classes, scores, min_score=0.01)
+        boxes = boxes[del_idx]
+        classes = classes[del_idx]
+        classes[:] = 2.
+        scores = scores[del_idx]
+
+        return boxes
 
     def detection(self, path, display=False, save=False):
         """Determines the locations of the vehicle in the image
@@ -116,27 +149,38 @@ class VehicleDetector:
             list of bounding boxes: coordinates [y_up, x_left, y_down, x_right]
 
         """
-        img = load_img(self.args.image_path + path)
+        if self.args.merged_mode:
+            temp_img = []
+            for i in range(len(self.args.merged_list)):
+                try:
+                    temp_img.append(load_img(self.args.image_path + self.args.merged_list[i] + self.Dataset[i].pop(0)))
+                except IndexError:
+                    raise NotImplementedError
+            img = tf.concat([temp_img[0], temp_img[1], temp_img[2]], axis=1)
+        else:
+            img = load_img(self.args.image_path + path)
 
         converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
-        if self.args.model_name == "efficientdet":
-            start_time = time.time()
-            boxes, scores, classes, num_detections = self.Detector(converted_img)
-            end_time = time.time()
-            print("Found %d objects." % num_detections)
-            boxes = boxes[0].numpy()
-            classes = classes[0].numpy()
-            scores = scores[0].numpy()
-        else:
-            start_time = time.time()
-            result = self.Detector(converted_img)
-            end_time = time.time()
-            result = {key: value.numpy() for key, value in result.items()}
-            print("Found %d objects." % len(result["detection_scores"]))
-            boxes = result["detection_boxes"][0]
-            classes = result["detection_classes"][0]
-            scores = result["detection_scores"][0]
-
+        try:
+            if self.args.model_name == "efficientdet":
+                start_time = time.time()
+                boxes, scores, classes, num_detections = self.Detector(converted_img)
+                end_time = time.time()
+                print("Found %d objects." % num_detections)
+                boxes = boxes[0].numpy()
+                classes = classes[0].numpy()
+                scores = scores[0].numpy()
+            else:
+                start_time = time.time()
+                result = self.Detector(converted_img)
+                end_time = time.time()
+                result = {key: value.numpy() for key, value in result.items()}
+                print("Found %d objects." % len(result["detection_scores"]))
+                boxes = result["detection_boxes"][0]
+                classes = result["detection_classes"][0]
+                scores = result["detection_scores"][0]
+        except AttributeError:
+            raise "Wrong Model Name"
         print("Inference time: ", end_time - start_time)
 
         del_idx = self.__post_process(classes, scores)
@@ -213,8 +257,11 @@ class VehicleDetector:
                 np.copyto(image, np.array(image_pil))
         return image
 
-    def get_zboxes(self, image, boxes, max_boxes=10):
-        if self.args.model_name == "efficientdet":
+    def get_zboxes(self, image, boxes, max_boxes=10, post=None):
+        model_name = self.args.model_name
+        if post is not None:
+            model_name = post
+        if model_name == "efficientdet":
             return boxes
         else:
             image = Image.fromarray(np.uint8(image)).convert("RGB")

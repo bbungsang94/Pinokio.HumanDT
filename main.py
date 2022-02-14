@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """@author: kyleguan
 """
+import math
 import time
 import argparse
 from dataclasses import dataclass
@@ -22,7 +23,8 @@ import pickle
 # Global variables to be used by funcitons of VideoFileClop
 frame_count = 0  # frame counter
 
-max_age = 4  # no.of consecutive unmatched detection before 
+
+max_age = 14  # no.of consecutive unmatched detection before
 # a track is deleted
 
 min_hits = 1  # no. of consecutive matches needed to establish a track
@@ -98,7 +100,8 @@ def pipeline(path, plan_image, transform_matrix, args):
 
     frame_count += 1
 
-    image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
+
+    raw_image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
     z_box = det.get_zboxes(image=image, boxes=boxes)
     if debug:
         print('Frame:', frame_count)
@@ -161,9 +164,29 @@ def pipeline(path, plan_image, transform_matrix, args):
             tmp_trk.box = xx
             x_box[trk_idx] = xx
 
-    # The list of tracks to be annotated  
+    # Book keeping
+    deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
+
+    for trk in deleted_tracks:
+        # SSD Network 에도 잡히지 않는지 확인
+        boxes = det.post_detection(raw_image)
+        post_box = det.get_zboxes(image=raw_image, boxes=boxes, post='SSDNet')
+        post_pass, box = helpers.post_iou_checker(trk.box, post_box, offset=0.9)
+        if post_pass:
+            x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
+            trk.x_state = x
+            trk.predict_only()
+            xx = trk.x_state
+            xx = xx.T[0].tolist()
+            xx = [xx[0], xx[2], xx[4], xx[6]]
+            trk.box = xx
+            trk.no_losses -= 2
+        else:
+            track_id_list.append(trk.id)
+
+    # The list of tracks to be annotated
     good_tracker_list = []
-    image = image.numpy()
+    np_image = raw_image.numpy()
     for trk in tracker_list:
         if (trk.hits >= min_hits) and (trk.no_losses <= max_age):
             good_tracker_list.append(trk)
@@ -173,31 +196,28 @@ def pipeline(path, plan_image, transform_matrix, args):
                 print()
             image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
             plan_image = helpers.transform(x_cv2, image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
-    # Book keeping
-    deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
-
-    for trk in deleted_tracks:
-        track_id_list.append(trk.id)
-
     tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
 
     if debug:
         print('Ending tracker_list: ', len(tracker_list))
         print('Ending good tracker_list: ', len(good_tracker_list))
 
-    return image
+    return np_image
 
 
 @dataclass
 class TestParams:
     model_name: str = ''
     hub_mode: bool = None
-    model_handle: str = None
+    model_main_handle: str = None
+    model_sub_handle: str = None
     image_path: str = None
     label_path: str = None
     detected_path: str = None
     tracking_path: str = None
     detect_min_score: float = 0.0
+    merged_mode: bool = None
+    merged_list: list = None
 
 
 if __name__ == "__main__":
@@ -208,12 +228,18 @@ if __name__ == "__main__":
     #"https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
     #"https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
     #"https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
-    args.model_handle = "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
+    #"https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1" # 별?루
+    #"https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
+    args.model_main_handle = "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
+    args.model_sub_handle = "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/fpnlite_640x640/1"
+    #args.image_path = "./merged_test/"
     args.image_path = "./test_images/"
     args.label_path = "./params/mscoco_label_map.yaml"
     args.detected_path = "./detected_images/"
     args.tracking_path = "./tracking_result/"
     args.detect_min_score = 0.3
+    args.merged_mode = False
+    args.merged_list = ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"]
 
     # 민구 transform
     plan_image = detector.load_img("./plan/testPlan.JPG")
@@ -222,10 +248,14 @@ if __name__ == "__main__":
         transform_matrix = pickle.load(matrix)
 
     det = detector.VehicleDetector(args=args)
-
     if debug:  # test on a sequence of images
         images = det.Dataset
-
+        if args.merged_mode:
+            min_len = math.inf
+            for image_list in det.Dataset:
+                if len(image_list) < min_len:
+                    min_len = len(image_list)
+                    images = image_list
         for image in images:
             result_img = pipeline(image, plan_image, transform_matrix, args)
             if args.tracking_path != '':
@@ -241,3 +271,8 @@ if __name__ == "__main__":
         end = time.time()
 
         print(round(end - start, 2), 'Seconds to finish')
+# 파이프라이닝 작업해야됨
+# 노이즈 트랙킹 제거
+# z 좌표 확실하게
+# KPI 산출
+# 자체모델 학습

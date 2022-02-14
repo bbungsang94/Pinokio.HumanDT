@@ -64,6 +64,23 @@ def box_iou2(a, b):
     return float(s_intsec) / (s_a + s_b - s_intsec)
 
 
+def post_iou_checker(target, candidates, thr=0.5, offset=0.2):
+    width = abs(target[2] - target[0])
+    height = abs(target[3] - target[1])
+    surface = width * height
+    for candidate in candidates:
+        iou = box_iou2(target, candidate)
+        if iou >= thr:
+            # surface calculating
+            w = abs(candidate[2] - candidate[0])
+            h = abs(candidate[3] - candidate[1])
+            if (surface * (1-offset)) < (w*h) < (surface * (1+offset)):
+                return True, candidate
+            else:
+                print(surface/(w*h))
+    return False, None
+
+
 def convert_to_pixel(box_yolo, img, crop_range):
     """
     Helper function to convert (scaled) coordinates of a bounding box
