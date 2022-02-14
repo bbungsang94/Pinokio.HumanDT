@@ -205,7 +205,9 @@ if __name__ == "__main__":
 
     det = detector.VehicleDetector(args=args)
 
-    if debug:  # test on a sequence of images
+    # 민구 테스트
+
+   if debug:  # test on a sequence of images
         images = det.Dataset
 
         for image in images:
