@@ -194,7 +194,8 @@ def pipeline(path, plan_image, transform_matrix, args):
                 print()
 
             np_image = helpers.draw_box_label(np_image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])    tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
+            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
+            tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
 
     if debug:
         print('Ending tracker_list: ', len(tracker_list))

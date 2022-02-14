@@ -144,7 +144,10 @@ def transform(bbox_cv2, img, plan_img, matrix, box_color=(0, 255, 255)):
         box_color = hex_to_rgb(box_color)
     left, top, right, bottom = bbox_cv2[1], bbox_cv2[0], bbox_cv2[3], bbox_cv2[2]
     xPt = (left + right) / 2
-    yPt = (top + bottom) / 2
+    # yPt = (top + bottom) / 2
+
+    # 아래 하단
+    yPt = bottom
 
     img_height = img.shape[0]
     yPt = img_height - yPt
