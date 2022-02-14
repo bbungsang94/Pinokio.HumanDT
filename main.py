@@ -18,6 +18,7 @@ from scipy.optimize import linear_sum_assignment
 import helpers
 import detector
 import tracker
+import pickle
 
 # Global variables to be used by funcitons of VideoFileClop
 frame_count = 0  # frame counter
@@ -85,7 +86,7 @@ def assign_detections_to_trackers(trackers, detections, iou_thrd=0.3):
     return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
 
 
-def pipeline(path, args):
+def pipeline(path, plan_image, transform_matrix, args):
     """
     Pipeline function for detection and tracking
     """
@@ -238,6 +239,12 @@ if __name__ == "__main__":
     args.merged_mode = False
     args.merged_list = ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"]
 
+    # 민구 transform
+    plan_image = detector.load_img("./plan/testPlan.JPG")
+    plan_image = plan_image.numpy()
+    with open('./transform_matrix/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
+        transform_matrix = pickle.load(matrix)
+
     det = detector.VehicleDetector(args=args)
     if debug:  # test on a sequence of images
         images = det.Dataset
@@ -248,7 +255,7 @@ if __name__ == "__main__":
                     min_len = len(image_list)
                     images = image_list
         for image in images:
-            result_img = pipeline(image, args)
+            result_img = pipeline(image, plan_image, transform_matrix, args)
             if args.tracking_path != '':
                 imageio.imwrite(args.tracking_path + image, result_img)
 
