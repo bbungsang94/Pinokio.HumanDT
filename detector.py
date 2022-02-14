@@ -5,6 +5,7 @@ import os
 import time
 import tempfile
 import yaml
+import imageio
 
 from glob import glob
 from PIL import Image, ImageColor
@@ -69,6 +70,7 @@ def download_and_resize_image(url,
 
 class VehicleDetector:
     def __init__(self, args):
+        self.args = args
         print(tf.__version__)
         print("사용가능한 GPU : %s" % tf.test.gpu_device_name())
         if args.hub_mode:
@@ -96,8 +98,18 @@ class VehicleDetector:
             print("Font not found, using default font.")
             self.Font = ImageFont.load_default()
 
-    def detection(self, path, display=False):
-        img = load_img(path)
+    def detection(self, path, display=False, save=False):
+        """Determines the locations of the vehicle in the image
+
+        Args:
+            path: image path
+            display: show figure option
+            save: on display, furthermore you want to save image
+        Returns:
+            list of bounding boxes: coordinates [y_up, x_left, y_down, x_right]
+
+        """
+        img = load_img(self.args.image_path + path)
 
         converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
         start_time = time.time()
@@ -109,13 +121,17 @@ class VehicleDetector:
         print("Found %d objects." % len(result["detection_scores"]))
         print("Inference time: ", end_time - start_time)
 
-        if display:
-            image_with_boxes = self.draw_boxes(
-                img.numpy(), result["detection_boxes"][0],
-                result["detection_class_entities"][0], result["detection_scores"][0])
-            display_image(image_with_boxes)
+        boxes = result["detection_boxes"][0]
+        classes = result["detection_classes"][0]
+        scores = result["detection_scores"][0]
 
-        return result["detection_boxes"][0]
+        if display:
+            image_with_boxes = self.draw_boxes(img.numpy(), boxes, classes, scores)
+            display_image(image_with_boxes)
+            if save:
+                imageio.imwrite(self.args.detected_path + path, image_with_boxes)
+
+        return img, boxes, classes, scores
 
     def draw_bounding_box_on_image(self, image,
                                    ymin, xmin, ymax, xmax,
@@ -156,6 +172,7 @@ class VehicleDetector:
 
     def draw_boxes(self, image, boxes, class_idx, scores, max_boxes=10, min_score=0.1):
         """Overlay labeled boxes on an image with formatted scores and label names."""
+        class_idx = class_idx.astype(np.int32)
         for i in range(min(boxes.shape[0], max_boxes)):
             if scores[i] >= min_score:
                 ymin, xmin, ymax, xmax = tuple(boxes[i])
@@ -174,6 +191,16 @@ class VehicleDetector:
                 np.copyto(image, np.array(image_pil))
         return image
 
+    def get_zboxes(self, image, boxes, max_boxes=10):
+        image = Image.fromarray(np.uint8(image)).convert("RGB")
+        z_boxes = []
+        for i in range(min(boxes.shape[0], max_boxes)):
+            ymin, xmin, ymax, xmax = tuple(boxes[i])
+            im_width, im_height = image.size
+            (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
+                                          ymin * im_height, ymax * im_height)
+            z_boxes.append([top, left, bottom, right])
+        return np.array(z_boxes)
 
 class CarDetector(object):
     def __init__(self):

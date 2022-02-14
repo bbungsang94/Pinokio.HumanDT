@@ -26,7 +26,7 @@ min_hits = 1  # no. of consecutive matches needed to establish a track
 
 tracker_list = []  # list for trackers
 # list for track ID
-track_id_list = deque(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'])
+track_id_list = deque(range(255))
 
 debug = True
 
@@ -82,7 +82,7 @@ def assign_detections_to_trackers(trackers, detections, iou_thrd=0.3):
     return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
 
 
-def pipeline(args, path):
+def pipeline(path, args):
     """
     Pipeline function for detection and tracking
     """
@@ -95,16 +95,12 @@ def pipeline(args, path):
 
     frame_count += 1
 
-    z_box = det.detection(args.image_path + path)  # box 여러개
+    image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
+    z_box = det.get_zboxes(image=image, boxes=boxes)
     if debug:
         print('Frame:', frame_count)
 
     x_box = []
-    if debug:
-        for i in range(len(z_box)):
-            img1 = det.draw_boxes(img, z_box[i], box_color=(255, 0, 0))
-            plt.imshow(img1)
-        plt.show()
 
     if len(tracker_list) > 0:
         for trk in tracker_list:
@@ -171,8 +167,7 @@ def pipeline(args, path):
             if debug:
                 print('updated box: ', x_cv2)
                 print()
-            img = helpers.draw_box_label(img, x_cv2)  # Draw the bounding boxes on the
-            # images
+            image = helpers.draw_box_label(image, x_cv2, save_path=args.tracking_path + path)
     # Book keeping
     deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
 
@@ -185,7 +180,7 @@ def pipeline(args, path):
         print('Ending tracker_list: ', len(tracker_list))
         print('Ending good tracker_list: ', len(good_tracker_list))
 
-    return img
+    return image
 
 
 @dataclass
@@ -194,6 +189,8 @@ class TestParams:
     model_handle: str = None
     image_path: str = None
     label_path: str = None
+    detected_path: str = None
+    tracking_path: str = None
 
 
 if __name__ == "__main__":
@@ -203,13 +200,16 @@ if __name__ == "__main__":
     args.model_handle = "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
     args.image_path = "./test_images/"
     args.label_path = "./params/mscoco_label_map.yaml"
+    args.detected_path = "./detected_images/"
+    args.tracking_path = "./tracking_result/"
+
     det = detector.VehicleDetector(args=args)
 
     if debug:  # test on a sequence of images
         images = det.Dataset
 
         for image in images:
-            image_box = pipeline(args, image)
+            image_box = pipeline(image, args)
             plt.imshow(image_box)
             plt.show()
 
