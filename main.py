@@ -172,7 +172,7 @@ def pipeline(path, plan_image, transform_matrix, args):
                 print('updated box: ', x_cv2)
                 print()
             image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
+            plan_image = helpers.transform(x_cv2, image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
     # Book keeping
     deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
 
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     #"https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
     #"https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
     #"https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
-    args.model_handle = "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
+    args.model_handle = "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
     args.image_path = "./test_images/"
     args.label_path = "./params/mscoco_label_map.yaml"
     args.detected_path = "./detected_images/"
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     # 민구 transform
     plan_image = detector.load_img("./plan/testPlan.JPG")
     plan_image = plan_image.numpy()
-    with open('./transform_matrix/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
+    with open('./params/LOADING DOCK F3 Rampa 11-12.pickle', 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
 
     det = detector.VehicleDetector(args=args)

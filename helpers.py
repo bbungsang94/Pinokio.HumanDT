@@ -8,6 +8,8 @@ import imageio
 import numpy as np
 import cv2
 
+global count
+count = 1
 
 class Box:
     def __init__(self):
@@ -119,20 +121,24 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def transform(bbox_cv2, img, matrix, box_color=(0, 255, 255)):
+def transform(bbox_cv2, img, plan_img, matrix, box_color=(0, 255, 255)):
+    global count
     if isinstance(box_color, tuple) is False:
         box_color = hex_to_rgb(box_color)
     left, top, right, bottom = bbox_cv2[1], bbox_cv2[0], bbox_cv2[3], bbox_cv2[2]
     xPt = (left + right) / 2
     yPt = (top + bottom) / 2
 
+    img_height = img.shape[0]
+    yPt = img_height - yPt
+    plan_img_height = plan_img.shape[0]
     w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
     x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
     y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
 
-    plan_image = cv2.circle(img, (int(x), int(y)), 5, box_color, thickness=-1)
-    # plan_image = cv2.line(img, x, y, box_color, 5)
-    imageio.imwrite("./plan/testPlan_result.JPG", plan_image)
+    plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 5, box_color, thickness=-1)
+    imageio.imwrite("./plan/LOADING DOCK F3 Rampa 11-12/testPlan_result{}.JPG".format(count), plan_image)
+    count = count + 1
     return plan_image
 
 
