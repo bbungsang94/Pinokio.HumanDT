@@ -23,7 +23,6 @@ import pickle
 # Global variables to be used by funcitons of VideoFileClop
 frame_count = 0  # frame counter
 
-
 max_age = 14  # no.of consecutive unmatched detection before
 # a track is deleted
 
@@ -100,9 +99,8 @@ def pipeline(path, plan_image, transform_matrix, args):
 
     frame_count += 1
 
-
     raw_image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
-    z_box = det.get_zboxes(image=image, boxes=boxes)
+    z_box = det.get_zboxes(image=raw_image, boxes=boxes)
     if debug:
         print('Frame:', frame_count)
 
@@ -194,15 +192,16 @@ def pipeline(path, plan_image, transform_matrix, args):
             if debug:
                 print('updated box: ', x_cv2)
                 print()
-            image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
+            np_image = helpers.draw_box_label(np_image, x_cv2, det.Colors[trk.id % len(det.Colors)])
+            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix,
+                                           det.Colors[trk.id % len(det.Colors)])
     tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
 
     if debug:
         print('Ending tracker_list: ', len(tracker_list))
         print('Ending good tracker_list: ', len(good_tracker_list))
 
-    return np_image
+    return np_image, plan_image
 
 
 @dataclass
@@ -218,31 +217,32 @@ class TestParams:
     detect_min_score: float = 0.0
     merged_mode: bool = None
     merged_list: list = None
-
+    plan_path: str = None
 
 if __name__ == "__main__":
 
     args = TestParams
     args.model_name = "efficientdet"
     args.hub_mode = True
-    #"https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
-    #"https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
-    #"https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
-    #"https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1" # 별?루
-    #"https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
+    # "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
+    # "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
+    # "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
+    # "https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1" # 별?루
+    # "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
     args.model_main_handle = "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
     args.model_sub_handle = "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/fpnlite_640x640/1"
-    #args.image_path = "./merged_test/"
+    # args.image_path = "./merged_test/"
     args.image_path = "./test_images/"
     args.label_path = "./params/mscoco_label_map.yaml"
     args.detected_path = "./detected_images/"
     args.tracking_path = "./tracking_result/"
+    args.plan_path = "./plan_result/"
     args.detect_min_score = 0.3
     args.merged_mode = False
     args.merged_list = ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"]
 
     # 민구 transform
-    plan_image = detector.load_img("./plan/testPlan.JPG")
+    plan_image = detector.load_img("./params/testPlan.JPG")
     plan_image = plan_image.numpy()
     with open('./params/LOADING DOCK F3 Rampa 11-12.pickle', 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
@@ -257,9 +257,11 @@ if __name__ == "__main__":
                     min_len = len(image_list)
                     images = image_list
         for image in images:
-            result_img = pipeline(image, plan_image, transform_matrix, args)
+            result_img, plan_img = pipeline(image, plan_image, transform_matrix, args)
             if args.tracking_path != '':
                 imageio.imwrite(args.tracking_path + image, result_img)
+                imageio.imwrite(args.plan_path + image, plan_img)
+
 
     else:  # test on a video file.
 
