@@ -5,6 +5,8 @@
 import time
 import argparse
 from dataclasses import dataclass
+
+import imageio
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -160,6 +162,7 @@ def pipeline(path, args):
 
     # The list of tracks to be annotated  
     good_tracker_list = []
+    image = image.numpy()
     for trk in tracker_list:
         if (trk.hits >= min_hits) and (trk.no_losses <= max_age):
             good_tracker_list.append(trk)
@@ -167,7 +170,8 @@ def pipeline(path, args):
             if debug:
                 print('updated box: ', x_cv2)
                 print()
-            image = helpers.draw_box_label(image, x_cv2, save_path=args.tracking_path + path)
+            #image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
+            image = helpers.draw_box_label(image, x_cv2)
     # Book keeping
     deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
 
@@ -205,15 +209,13 @@ if __name__ == "__main__":
 
     det = detector.VehicleDetector(args=args)
 
-    # 민구 테스트
-
-   if debug:  # test on a sequence of images
+    if debug:  # test on a sequence of images
         images = det.Dataset
 
         for image in images:
-            image_box = pipeline(image, args)
-            plt.imshow(image_box)
-            plt.show()
+            result_img = pipeline(image, args)
+            if args.tracking_path != '':
+                imageio.imwrite(args.tracking_path + image, result_img)
 
     else:  # test on a video file.
 
