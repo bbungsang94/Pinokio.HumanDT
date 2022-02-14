@@ -154,7 +154,7 @@ def transform(bbox_cv2, img, plan_img, matrix, box_color=(0, 255, 255)):
     y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
 
     plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 5, box_color, thickness=-1)
-    imageio.imwrite("./plan/LOADING DOCK F3 Rampa 11-12/testPlan_result{}.JPG".format(count), plan_image)
+    imageio.imwrite("./plan/LOADING DOCK F3 Rampa 9-10/testPlan_result{}.JPG".format(count), plan_image)
     count = count + 1
     return plan_image
 

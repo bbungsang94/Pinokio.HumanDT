@@ -102,7 +102,7 @@ def pipeline(path, plan_image, transform_matrix, args):
 
 
     raw_image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
-    z_box = det.get_zboxes(image=image, boxes=boxes)
+    z_box = det.get_zboxes(image=raw_image, boxes=boxes)
     if debug:
         print('Frame:', frame_count)
 
@@ -194,8 +194,8 @@ def pipeline(path, plan_image, transform_matrix, args):
             if debug:
                 print('updated box: ', x_cv2)
                 print()
-            image = helpers.draw_box_label(image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
+            np_image = helpers.draw_box_label(np_image, x_cv2, det.Colors[trk.id % len(det.Colors)])
+            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
     tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
 
     if debug:
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     # 민구 transform
     plan_image = detector.load_img("./plan/testPlan.JPG")
     plan_image = plan_image.numpy()
-    with open('./params/LOADING DOCK F3 Rampa 11-12.pickle', 'rb') as matrix:
+    with open('./params/LOADING DOCK F3 Rampa 9-10.pickle', 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
 
     det = detector.VehicleDetector(args=args)
