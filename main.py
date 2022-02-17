@@ -22,6 +22,7 @@ import tracker
 import pickle
 
 from utilities.media_handler import PipeliningVideoManager, ImageManager
+import utilities.config_mapper as config_mapper
 import threading
 debug = True
 
@@ -195,62 +196,6 @@ def pipeline(path, plan_image, transform_matrix, args):
 
     return np_image, plan_image
 
-
-def get_args_parser():
-    """
-    Hub_model links:
-    # "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
-    # "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
-    # "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
-    # "https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1"
-    # "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
-    """
-    parser = argparse.ArgumentParser('HumanDT', add_help=False)
-    # Get a model on internet
-    parser.add_argument('--hub_mode', default=True, type=bool,
-                        help="get a model from tensorflow-hub")
-    # Model parameters
-    parser.add_argument('--model_name', default="efficientdet", type=str,
-                        help="name using the model(efficientdet / centernet / ssd_mobilenet")
-    parser.add_argument('--model_primary_handle', default="https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1",
-                        type=str, help="primary model path about checkpoint or retrained model")
-    parser.add_argument('--model_recovery_handle', default="https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2",
-                        type=str, help="recovery model path about checkpoint or retrained model")
-
-    # DataSet path
-    parser.add_argument('--merged_mode', default=False, type=bool)
-    parser.add_argument('--merged_list', default=["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"], type=str)
-    parser.add_argument('--video_path', default="", type=str)
-    parser.add_argument('--image_path', default="./test_images/", type=str)
-    parser.add_argument('--label_path', default="./params/mscoco_label_map.yaml", type=str)
-    parser.add_argument('--plan_path', default="./params/testPlan.JPG", type=float)
-
-    # Output path
-    parser.add_argument('--output_base_path', default="./output/", type=str)
-    parser.add_argument('--run_name', default="", type=str)
-    parser.add_argument('--detected_path', default="/detected_images/", type=str)
-    parser.add_argument('--tracking_path', default="/tracking_result/", type=str)
-    parser.add_argument('--trajectory_path', default="/plan_result/", type=str)
-
-    # Detection / Tracking parameters
-    parser.add_argument('--min_score', default=0.3, type=float)
-    parser.add_argument('--primary_doi', default=0.3, type=float)
-    parser.add_argument('--recovery_doi', default=0.3, type=float)
-    parser.add_argument('--recovery_offset', default=0.3, type=float)
-    parser.add_argument('--max_age', default=4, type=int)
-    parser.add_argument('--min_hits', default=1, type=int)
-
-    # Developer menu
-    parser.add_argument('--debug', default=True, type=bool)
-    parser.add_argument('--log', default=True, type=bool)
-    parser.add_argument('--visible', default=False, type=bool)
-    parser.add_argument('--save', default=True, type=bool)
-    parser.add_argument('--pipeline', default=True, type=bool)
-    parser.add_argument('--citation', default=True, type=bool)
-
-    return parser
-
-
 def clear_folder(folder_list, root = None):
     import shutil
     for folder in folder_list:
@@ -259,9 +204,20 @@ def clear_folder(folder_list, root = None):
         os.mkdir(root + folder)
 
 def pipelining(args):
+    # 0. Init
+    tracker = Trac
+
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
-    video_handle.update_video_property(args.)
+    video_handle.load_video(args.video_path)
+    video_handle.activate_video_object()
+    _, image = video_handle.pop()
+
+    if args.debug:
+        ImageManager.save_image(image, args.image_path)
+
+    # Detection에 넘기기
+    bbox,
     # 2. Threading 활성화
     # 2-1. 비디오에서 이미지 만드는 쓰레드
     # 2-2. 이미지 불러와서 디텍션 + 트랙킹하는 쓰레드
@@ -270,10 +226,14 @@ def pipelining(args):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser('Pinokio.HumanDT Inference', parents=[get_args_parser()])
-    args = parser.parse_args()
-    args.run_name = datetime.datetime.now().strftime('%m-%d %H%M%S')
+    detectors = ['efficient', 'ssd_mobile']
+    config = config_mapper.config_copy(config_mapper.get_config(detection_names=detectors))
 
+    primary_model_args = config[config['primary_model_name']]
+    recovery_model_args = config[config['recovery_model_name']]
+
+    args.run_name = datetime.datetime.now().strftime('%m-%d %H%M%S')
+    args.video_path = "LOADING DOCK F3 Rampa 11-12.avi"
     # 빠른 처리에는 존재할 수가 있음
     clear_folder(args.output_base_path + args.run_name,
                  [args.detected_path, args.tracking_path, args.trajectory_path])
@@ -281,37 +241,53 @@ if __name__ == "__main__":
     pipelining(args=args)
 
 
-    # 민구 transform
-    plan_image = detector.load_img("./params/testPlan.JPG")
-    plan_image = plan_image.numpy()
-    with open('./params/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
-        transform_matrix = pickle.load(matrix)
-
-    det = detector.VehicleDetector(args=args)
-    if debug:  # test on a sequence of images
-        images = det.Dataset
-        if args.merged_mode:
-            min_len = math.inf
-            for image_list in det.Dataset:
-                if len(image_list) < min_len:
-                    min_len = len(image_list)
-                    images = image_list
-        for image in images:
-            result_img, plan_img = pipeline(image, plan_image, transform_matrix, args)
-            if args.tracking_path != '':
-                imageio.imwrite(args.tracking_path + image, result_img)
-                imageio.imwrite(args.plan_path + image, plan_img)
-
-    else:  # test on a video file.
-
-        start = time.time()
-        output = 'test_v7.mp4'
-        clip1 = VideoFileClip("project_video.mp4")  # .subclip(4,49) # The first 8 seconds doesn't have any cars...
-        clip = clip1.fl_image(pipeline)
-        clip.write_videofile(output, audio=False)
-        end = time.time()
-
-        print(round(end - start, 2), 'Seconds to finish')
+    # # 민구 transform
+    # plan_image = detector.load_img("./params/testPlan.JPG")
+    # plan_image = plan_image.numpy()
+    # with open('./params/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
+    #     transform_matrix = pickle.load(matrix)
+    #
+    # det = dict
+    # det_list = ['primary', 'recovery', 'box']
+    # for i, model in enumerate(args.model_name):
+    #     det[det_list[i]] = det_REGISTRY[model](**args.detector_args)
+    #
+    # det['recovery'].detection(img)
+    #
+    # args.model_name = "efficient"
+    # args.model_handle = "primary link"
+    # det = detector.VehicleDetector(args=args)
+    # vehicleDetector = EFF(args)
+    # SSDDetector
+    # MobileDetector
+    # EffDetector
+    # args.model_name = "mobile"
+    # args.model_handle = "recovery link"
+    # det = detector.VehicleDetector(args=args)
+    # if debug:  # test on a sequence of images
+    #     images = det.Dataset
+    #     if args.merged_mode:
+    #         min_len = math.inf
+    #         for image_list in det.Dataset:
+    #             if len(image_list) < min_len:
+    #                 min_len = len(image_list)
+    #                 images = image_list
+    #     for image in images:
+    #         result_img, plan_img = pipeline(image, plan_image, transform_matrix, args)
+    #         if args.tracking_path != '':
+    #             imageio.imwrite(args.tracking_path + image, result_img)
+    #             imageio.imwrite(args.plan_path + image, plan_img)
+    #
+    # else:  # test on a video file.
+    #
+    #     start = time.time()
+    #     output = 'test_v7.mp4'
+    #     clip1 = VideoFileClip("project_video.mp4")  # .subclip(4,49) # The first 8 seconds doesn't have any cars...
+    #     clip = clip1.fl_image(pipeline)
+    #     clip.write_videofile(output, audio=False)
+    #     end = time.time()
+    #
+    #     print(round(end - start, 2), 'Seconds to finish')
 # 파이프라이닝 작업해야됨
 # 노이즈 트랙킹 제거
 # z 좌표 확실하게
