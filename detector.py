@@ -33,7 +33,7 @@ def load_image_into_numpy_array(image):
     # Helper function to convert normalized box coordinates to pixels
 
 
-def box_normal_to_pixel(box, dim):
+def load_image_into_numpy_array(box, dim):
     height, width = dim[0], dim[1]
     box_pixel = [int(box[0] * height), int(box[1] * width), int(box[2] * height), int(box[3] * width)]
     return np.array(box_pixel)

@@ -244,7 +244,7 @@ if __name__ == "__main__":
     # 민구 transform
     plan_image = detector.load_img("./params/testPlan.JPG")
     plan_image = plan_image.numpy()
-    with open('./params/LOADING DOCK F3 Rampa 9-10.pickle', 'rb') as matrix:
+    with open('./params/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
 
     det = detector.VehicleDetector(args=args)
