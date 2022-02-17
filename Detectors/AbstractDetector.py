@@ -12,11 +12,3 @@ class AbstractDetector(object):
 
                 """
         raise NotImplementedError
-
-    def draw_bounding_box_on_image(self, image,
-                                   ymin, xmin, ymax, xmax,
-                                   color, thickness=4, display_str_list=()):
-        """Adds a bounding box to an image."""
-        raise NotImplementedError
-
-
