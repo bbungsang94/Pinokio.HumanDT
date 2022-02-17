@@ -3,9 +3,10 @@
 """@author: kyleguan
 """
 import math
+import os
 import time
 import argparse
-from dataclasses import dataclass
+import datetime
 
 import imageio
 import numpy as np
@@ -20,18 +21,8 @@ import detector
 import tracker
 import pickle
 
-# Global variables to be used by funcitons of VideoFileClop
-frame_count = 0  # frame counter
-
-max_age = 14  # no.of consecutive unmatched detection before
-# a track is deleted
-
-min_hits = 1  # no. of consecutive matches needed to establish a track
-
-tracker_list = []  # list for trackers
-# list for track ID
-track_id_list = deque(range(255))
-
+from utilities.media_handler import PipeliningVideoManager, ImageManager
+import threading
 debug = True
 
 
@@ -162,14 +153,14 @@ def pipeline(path, plan_image, transform_matrix, args):
             tmp_trk.box = xx
             x_box[trk_idx] = xx
 
-    # Book keeping
+    # Bookkeeping
     deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
 
     for trk in deleted_tracks:
         # SSD Network 에도 잡히지 않는지 확인
         boxes = det.post_detection(raw_image)
         post_box = det.get_zboxes(image=raw_image, boxes=boxes, post='SSDNet')
-        post_pass, box = helpers.post_iou_checker(trk.box, post_box, offset=0.9)
+        post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
         if post_pass:
             x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
             trk.x_state = x
@@ -194,7 +185,8 @@ def pipeline(path, plan_image, transform_matrix, args):
                 print()
 
             np_image = helpers.draw_box_label(np_image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
+            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix,
+                                           det.Colors[trk.id % len(det.Colors)])
             tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
 
     if debug:
@@ -204,42 +196,90 @@ def pipeline(path, plan_image, transform_matrix, args):
     return np_image, plan_image
 
 
-@dataclass
-class TestParams:
-    model_name: str = ''
-    hub_mode: bool = None
-    model_main_handle: str = None
-    model_sub_handle: str = None
-    image_path: str = None
-    label_path: str = None
-    detected_path: str = None
-    tracking_path: str = None
-    detect_min_score: float = 0.0
-    merged_mode: bool = None
-    merged_list: list = None
-    plan_path: str = None
-
-if __name__ == "__main__":
-
-    args = TestParams
-    args.model_name = "efficientdet"
-    args.hub_mode = True
+def get_args_parser():
+    """
+    Hub_model links:
     # "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
     # "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
     # "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
-    # "https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1" # 별?루
+    # "https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1"
     # "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
-    args.model_main_handle = "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
-    args.model_sub_handle = "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/fpnlite_640x640/1"
-    # args.image_path = "./merged_test/"
-    args.image_path = "./test_images/"
-    args.label_path = "./params/mscoco_label_map.yaml"
-    args.detected_path = "./detected_images/"
-    args.tracking_path = "./tracking_result/"
-    args.plan_path = "./plan_result/"
-    args.detect_min_score = 0.3
-    args.merged_mode = False
-    args.merged_list = ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"]
+    """
+    parser = argparse.ArgumentParser('HumanDT', add_help=False)
+    # Get a model on internet
+    parser.add_argument('--hub_mode', default=True, type=bool,
+                        help="get a model from tensorflow-hub")
+    # Model parameters
+    parser.add_argument('--model_name', default="efficientdet", type=str,
+                        help="name using the model(efficientdet / centernet / ssd_mobilenet")
+    parser.add_argument('--model_primary_handle', default="https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1",
+                        type=str, help="primary model path about checkpoint or retrained model")
+    parser.add_argument('--model_recovery_handle', default="https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2",
+                        type=str, help="recovery model path about checkpoint or retrained model")
+
+    # DataSet path
+    parser.add_argument('--merged_mode', default=False, type=bool)
+    parser.add_argument('--merged_list', default=["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"], type=str)
+    parser.add_argument('--video_path', default="", type=str)
+    parser.add_argument('--image_path', default="./test_images/", type=str)
+    parser.add_argument('--label_path', default="./params/mscoco_label_map.yaml", type=str)
+    parser.add_argument('--plan_path', default="./params/testPlan.JPG", type=float)
+
+    # Output path
+    parser.add_argument('--output_base_path', default="./output/", type=str)
+    parser.add_argument('--run_name', default="", type=str)
+    parser.add_argument('--detected_path', default="/detected_images/", type=str)
+    parser.add_argument('--tracking_path', default="/tracking_result/", type=str)
+    parser.add_argument('--trajectory_path', default="/plan_result/", type=str)
+
+    # Detection / Tracking parameters
+    parser.add_argument('--min_score', default=0.3, type=float)
+    parser.add_argument('--primary_doi', default=0.3, type=float)
+    parser.add_argument('--recovery_doi', default=0.3, type=float)
+    parser.add_argument('--recovery_offset', default=0.3, type=float)
+    parser.add_argument('--max_age', default=4, type=int)
+    parser.add_argument('--min_hits', default=1, type=int)
+
+    # Developer menu
+    parser.add_argument('--debug', default=True, type=bool)
+    parser.add_argument('--log', default=True, type=bool)
+    parser.add_argument('--visible', default=False, type=bool)
+    parser.add_argument('--save', default=True, type=bool)
+    parser.add_argument('--pipeline', default=True, type=bool)
+    parser.add_argument('--citation', default=True, type=bool)
+
+    return parser
+
+
+def clear_folder(folder_list, root = None):
+    import shutil
+    for folder in folder_list:
+        if os.path.exists(root + folder):
+            shutil.rmtree(root + folder)
+        os.mkdir(root + folder)
+
+def pipelining(args):
+    # 1. Video loaded
+    video_handle = PipeliningVideoManager()
+    video_handle.update_video_property(args.)
+    # 2. Threading 활성화
+    # 2-1. 비디오에서 이미지 만드는 쓰레드
+    # 2-2. 이미지 불러와서 디텍션 + 트랙킹하는 쓰레드
+    # 2-3. 처리하는대로 바로 파이프라인 비디오 매니저에 append
+    # 3. 종료시 쓰레드 클리어, 비디오 생성
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser('Pinokio.HumanDT Inference', parents=[get_args_parser()])
+    args = parser.parse_args()
+    args.run_name = datetime.datetime.now().strftime('%m-%d %H%M%S')
+
+    # 빠른 처리에는 존재할 수가 있음
+    clear_folder(args.output_base_path + args.run_name,
+                 [args.detected_path, args.tracking_path, args.trajectory_path])
+
+    pipelining(args=args)
+
 
     # 민구 transform
     plan_image = detector.load_img("./params/testPlan.JPG")
@@ -262,7 +302,6 @@ if __name__ == "__main__":
                 imageio.imwrite(args.tracking_path + image, result_img)
                 imageio.imwrite(args.plan_path + image, plan_img)
 
-
     else:  # test on a video file.
 
         start = time.time()
@@ -277,4 +316,4 @@ if __name__ == "__main__":
 # 노이즈 트랙킹 제거
 # z 좌표 확실하게
 # KPI 산출
-# 자체모델 학습
+# 자체모델 학습 / 공용 모델 단점
