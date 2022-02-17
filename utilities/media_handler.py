@@ -1,5 +1,7 @@
 import os
 import cv2
+import imageio
+import numpy as np
 
 import tensorflow as tf
 from matplotlib import pyplot as plt
@@ -11,8 +13,10 @@ class VideoManger:
         self.__frame_list = []
         self.__video_object = None
         self.__frame_rate = 0
-        self.__image_width = 0
-        self.__image_height = 0
+
+        self._frame_rate = None
+        self._image_width = 0
+        self._image_height = 0
 
     def scan_video(self, path):
         """ Scanning videos(mp4 and avi) of path
@@ -48,15 +52,17 @@ class VideoManger:
         print("Image Width using video.get(cv2.CAP_PROP_FRAME_WIDTH) : {0}".format(width))
         print("Image Height using video.get(cv2.CAP_PROP_FRAME_HEIGHT) : {0}".format(height))
 
-        self.__frame_rate = fps
-        self.__image_width = width
-        self.__image_height = height
+        self._frame_rate = fps
+        self._image_width = width
+        self._image_height = height
 
         return True
 
     def update_video_property(self, path):
         if self.load_video(path):
             self.__video_object = None
+            return True
+        return False
 
     def append(self, img):
         """ for making output video, append image object
@@ -68,18 +74,25 @@ class VideoManger:
         """
         self.__frame_list.append(img)
 
-    def write_video(self, size, path):
+    def pop(self):
+        if self.__video_object is None:
+            return False, None
+        else:
+            rtn, img = self.__video_object.read()
+            return rtn, img
+
+    def write_video(self, path):
         """ for making output video, append image object
 
                 Args:
-                    size: an image size tuple using opencv2: (width, height)
                     path: save path conclude video name
                 Returns:
                     process result: boolean {True, False}
         """
-        out = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*'DIVX'), self.__frame_rate, size)
+        out = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*'DIVX'),
+                              self._frame_rate, (self._image_width, self._image_height))
         for i in range(len(self.__frame_list)):
-            # writing to a image array
+            # writing to an image array
             out.write(self.__frame_list[i])
         out.release()
 
@@ -89,12 +102,15 @@ class PipeliningVideoManager(VideoManger):
         super().__init__()
         self.__OutputVideo = None
 
-    def activate_video_object(self, path, size):
-        if self.__OutputVideo is not None:
-
-            self.__OutputVideo = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*'DIVX'), self.__frame_rate, size)
+    def activate_video_object(self, path):
+        if self.__OutputVideo is None or self._frame_rate is None:
+            return False
+        else:
+            self.__OutputVideo = cv2.VideoWriter(path,
+                                                 cv2.VideoWriter_fourcc(*'DIVX'),
+                                                 self._frame_rate,
+                                                 (self._image_width, self._image_height))
             return True
-        return False
 
     def append(self, img):
         self.__OutputVideo.write(img)
@@ -126,6 +142,10 @@ class ImageManager:
     def convert_uint(img):
         converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
         return converted_img
+
+    @staticmethod
+    def save_image(img: np.array, path):
+        imageio.imwrite(path, img)
 
     def display_image(self, img):
         self.figure = plt.figure(figsize=(20, 15))
