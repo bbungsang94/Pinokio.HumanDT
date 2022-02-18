@@ -1,3 +1,6 @@
+import yaml
+from PIL import ImageColor
+
 from Detectors.Abstract.AbstractDetector import AbstractDetector
 from utilities.media_handler import *
 import tensorflow_hub as hub
@@ -26,8 +29,11 @@ class EfficientDetector(AbstractDetector):
 
         if self.hub_mode is True:
             self.Detector = hub.load(self.model_handle)
-        else:# 로컬 모델
-            self.Detector = None
+        else:  # 로컬 모델
+            raise NotImplementedError
+
+        with open(self.label_path) as f:
+            self.LabelList = yaml.load(f, Loader=yaml.FullLoader)
 
     def detection(self, image):
         """Determines the locations of the vehicle in the image
@@ -57,12 +63,13 @@ class EfficientDetector(AbstractDetector):
         del_idx = self.__post_process(classes, scores, self.min_score)
         boxes = boxes[del_idx]
         classes = classes[del_idx]
-        classes[:] = 2.
+        classes[:] = self.LabelList[2]
+
         scores = scores[del_idx]
 
-        return image, boxes, classes, scores
+        return converted_img, boxes, classes, scores
 
-    def __post_process(self, classes, scores, min_score = None):
+    def __post_process(self, classes, scores, min_score=None):
         if min_score is None:
             min_score = self.min_score
         # score_idx = scores > min_score
@@ -74,8 +81,3 @@ class EfficientDetector(AbstractDetector):
 
     def get_zboxes(self, boxes, im_width, im_height):
         return boxes
-
-
-
-
-

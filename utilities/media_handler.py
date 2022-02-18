@@ -5,6 +5,7 @@ import imageio
 import numpy as np
 
 import tensorflow as tf
+from PIL import ImageColor, ImageFont, ImageDraw, Image
 from matplotlib import pyplot as plt
 
 
@@ -48,8 +49,8 @@ class VideoManger:
         self.__frame_list.clear()
         self.__video_object = cv2.VideoCapture(path)
         fps = self.__video_object.get(cv2.CAP_PROP_FPS)
-        width = self.__video_object.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = self.__video_object.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        width = int(self.__video_object.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(self.__video_object.get(cv2.CAP_PROP_FRAME_HEIGHT))
         print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
         print("Image Width using video.get(cv2.CAP_PROP_FRAME_WIDTH) : {0}".format(width))
         print("Image Height using video.get(cv2.CAP_PROP_FRAME_HEIGHT) : {0}".format(height))
@@ -115,10 +116,16 @@ class PipeliningVideoManager(VideoManger):
         super().__init__()
         self.__OutputVideo = None
 
-    def activate_video_object(self, path):
-        if self.__OutputVideo is None or self._frame_rate is None:
+    def activate_video_object(self, path, v_info: tuple = None):
+        if v_info is not None:
+            self._frame_rate = v_info[0]
+            self._image_width = v_info[1]
+            self._image_height = v_info[2]
+
+        if self._frame_rate is None:
             return False
         else:
+            cv2.VideoWriter()
             self.__OutputVideo = cv2.VideoWriter(path,
                                                  cv2.VideoWriter_fourcc(*'DIVX'),
                                                  self._frame_rate,
@@ -139,6 +146,14 @@ class ImageManager:
     def __init__(self):
         self.test = True
         self.figure = None
+        self.Colors = list(ImageColor.colormap.values())
+
+        try:
+            self.Font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/liberation/LiberationSansNarrow-Regular.ttf", 25)
+        except IOError:
+            print("Font not found, using default font.")
+            self.Font = ImageFont.load_default()
 
     @staticmethod
     def load_tensor(path):
@@ -164,6 +179,60 @@ class ImageManager:
     @staticmethod
     def save_image(img: np.array, path):
         cv2.imwrite(path, img)
+
+    @staticmethod
+    def save_tensor(img, path):
+        imageio.imwrite(path, img)
+
+
+    def draw_bounding_box_on_image(self, image,
+                                   top, left, bottom, right, color,
+                                   thickness=4, display_str_list=()):
+        """Adds a bounding box to an image."""
+        draw = ImageDraw.Draw(image)
+
+        draw.line([(left, top), (left, bottom), (right, bottom), (right, top),
+                   (left, top)],
+                  width=thickness,
+                  fill=color)
+
+        # If the total height of the display strings added to the top of the bounding
+        # box exceeds the top of the image, stack the strings below the bounding box
+        # instead of above.
+        display_str_heights = [self.Font.getsize(ds)[1] for ds in display_str_list]
+        # Each display_str has a top and bottom margin of 0.05x.
+        total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
+
+        if top > total_display_str_height:
+            text_bottom = top
+        else:
+            text_bottom = bottom + total_display_str_height
+        # Reverse list and print from bottom to top.
+        for display_str in display_str_list[::-1]:
+            text_width, text_height = self.Font.getsize(display_str)
+            margin = np.ceil(0.05 * text_height)
+            draw.rectangle([(left, text_bottom - text_height - 2 * margin),
+                            (left + text_width, text_bottom)],
+                           fill=color)
+            draw.text((left + margin, text_bottom - text_height - margin),
+                      display_str,
+                      fill="black",
+                      font=self.Font)
+            text_bottom -= text_height - 2 * margin
+
+    def draw_boxes(self, image, boxes, classes, scores):
+        """Overlay labeled boxes on an image with formatted scores and label names."""
+
+        for i in range(boxes.shape[0]):
+                display_str = "{}: {}%".format(classes[i], int(100 * scores[i]))
+                color = self.Colors[2 % len(self.Colors)]
+                image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
+                top, left, bottom, right = tuple(boxes[i])
+                self.draw_bounding_box_on_image(
+                    image_pil, top, left, bottom, right,
+                    color, display_str_list=[display_str])
+                np.copyto(image, np.array(image_pil))
+        return image
 
     def display_image(self, img):
         self.figure = plt.figure(figsize=(20, 15))

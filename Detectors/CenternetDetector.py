@@ -1,3 +1,6 @@
+import yaml
+from PIL import ImageColor
+
 from Detectors.Abstract.AbstractDetector import AbstractDetector
 from utilities.media_handler import *
 import tensorflow_hub as hub
@@ -27,7 +30,10 @@ class CenternetDetector(AbstractDetector):
         if self.hub_mode is True:
             self.Detector = hub.load(self.model_handle)
         else:  # 로컬 모델
-            self.Detector = None
+            raise NotImplementedError
+
+        with open(self.label_path) as f:
+            self.LabelList = yaml.load(f, Loader=yaml.FullLoader)
 
     def detection(self, image):
         """Determines the locations of the vehicle in the image
@@ -61,7 +67,7 @@ class CenternetDetector(AbstractDetector):
         classes[:] = 2.
         scores = scores[del_idx]
 
-        return image, boxes, classes, scores
+        return converted_img, boxes, classes, scores
 
     def __post_process(self, classes, scores, min_score=None):
         if min_score is None:

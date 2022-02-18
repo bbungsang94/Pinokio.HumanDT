@@ -79,115 +79,6 @@ def assign_detections_to_trackers(trackers, detections, iou_thrd=0.3):
     return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
 
 
-def pipeline(path, plan_image, transform_matrix, args):
-    """
-    Pipeline function for detection and tracking
-    """
-
-    raw_image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
-    z_box = det.get_zboxes(image=raw_image, boxes=boxes)
-
-    x_box = []
-
-    if len(tracker_list) > 0:
-        for trk in tracker_list:
-            x_box.append(trk.box)
-
-    matched, unmatched_dets, unmatched_trks \
-        = assign_detections_to_trackers(x_box, z_box, iou_thrd=0.3)
-    if debug:
-        print('Detection: ', z_box)
-        print('x_box: ', x_box)
-        print('matched:', matched)
-        print('unmatched_det:', unmatched_dets)
-        print('unmatched_trks:', unmatched_trks)
-
-    # Deal with matched detections     
-    if matched.size > 0:
-        for trk_idx, det_idx in matched:
-            z = z_box[det_idx]
-            z = np.expand_dims(z, axis=0).T
-            tmp_trk = tracker_list[trk_idx]
-            tmp_trk.kalman_filter(z)
-            xx = tmp_trk.x_state.T[0].tolist()
-            xx = [xx[0], xx[2], xx[4], xx[6]]
-            x_box[trk_idx] = xx
-            tmp_trk.box = xx
-            tmp_trk.hits += 1
-            tmp_trk.no_losses = 0
-
-    # Deal with unmatched detections      
-    if len(unmatched_dets) > 0:
-        for idx in unmatched_dets:
-            z = z_box[idx]
-            z = np.expand_dims(z, axis=0).T
-            tmp_trk = tracker.Tracker()  # Create a new tracker
-            x = np.array([[z[0], 0, z[1], 0, z[2], 0, z[3], 0]]).T
-            tmp_trk.x_state = x
-            tmp_trk.predict_only()
-            xx = tmp_trk.x_state
-            xx = xx.T[0].tolist()
-            xx = [xx[0], xx[2], xx[4], xx[6]]
-            tmp_trk.box = xx
-            tmp_trk.id = track_id_list.popleft()  # assign an ID for the tracker
-            tracker_list.append(tmp_trk)
-            x_box.append(xx)
-
-    # Deal with unmatched tracks       
-    if len(unmatched_trks) > 0:
-        for trk_idx in unmatched_trks:
-            tmp_trk = tracker_list[trk_idx]
-            tmp_trk.no_losses += 1
-            tmp_trk.predict_only()
-            xx = tmp_trk.x_state
-            xx = xx.T[0].tolist()
-            xx = [xx[0], xx[2], xx[4], xx[6]]
-            tmp_trk.box = xx
-            x_box[trk_idx] = xx
-
-    # Bookkeeping
-    deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
-
-    for trk in deleted_tracks:
-        # SSD Network 에도 잡히지 않는지 확인
-        boxes = det.post_detection(raw_image)
-        post_box = det.get_zboxes(image=raw_image, boxes=boxes, post='SSDNet')
-        post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
-        if post_pass:
-            x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
-            trk.x_state = x
-            trk.predict_only()
-            xx = trk.x_state
-            xx = xx.T[0].tolist()
-            xx = [xx[0], xx[2], xx[4], xx[6]]
-            trk.box = xx
-            trk.no_losses -= 2
-        else:
-            track_id_list.append(trk.id)
-
-    # The list of tracks to be annotated
-    good_tracker_list = []
-    np_image = raw_image.numpy()
-    for trk in tracker_list:
-        if (trk.hits >= min_hits) and (trk.no_losses <= max_age):
-            good_tracker_list.append(trk)
-            x_cv2 = trk.box
-            if debug:
-                print('updated box: ', x_cv2)
-                print()
-
-            np_image = helpers.draw_box_label(np_image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix,
-                                           det.Colors[trk.id % len(det.Colors)])
-            tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
-
-    if debug:
-        print('Ending tracker_list: ', len(tracker_list))
-        print('Ending good tracker_list: ', len(good_tracker_list))
-
-    return np_image, plan_image
-
-
 def clear_folder(folder_list: list, root: str):
     import shutil
     if root != '' and os.path.exists(root) is False:
@@ -220,10 +111,14 @@ def pipelining(args):
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
     plan_handle = PipeliningVideoManager()
+    image_handle = ImageManager()
     frame_rate, image_size = video_handle.load_video(args['video_path'] + args['video_name'])
     # 1-1. Making Output video object
-    video_handle.activate_video_object(args['tracking_path'] + args['video_name'])
-    plan_handle.activate_video_object(args['trajectory_path'] + args['video_name'])
+    video_handle.activate_video_object(config['output_base_path'] + config['run_name'] +
+                                       args['tracking_path'] + args['video_name'])
+    plan_handle.activate_video_object(config['output_base_path'] + config['run_name'] +
+                                      args['trajectory_path'] + args['video_name'],
+                                      v_info=(frame_rate, image_size[0], image_size[1]))
 
     while True:
         _, np_image = video_handle.pop()
@@ -231,17 +126,24 @@ def pipelining(args):
             break
 
         if args['save']:
-            ImageManager.save_image(np_image, args['image_path'] + video_handle.make_image_name())
+            ImageManager.save_image(np_image, config['output_base_path'] + config['run_name'] +
+                                    args['image_path'] + video_handle.make_image_name())
 
         # 2. To detection
+        # np_image # cv2
+        # tensor_image # RGB 배열을 바꾼 tensor로 변환해야됨
         tensor_image = ImageManager.convert_tensor(np_image)
         raw_image, boxes, classes, scores = primary_detector.detection(tensor_image)
-        if args['debug']:
-            test = 1
+        z_box = primary_detector.get_zboxes(boxes, image_size[0], image_size[1])
 
-        z_box = primary_detector.get_zboxes(boxes=boxes, im_width=image_size[0], im_heigt=image_size[1])
+        if args['save']:
+            temp_img = raw_image.numpy()
+            detected_img = image_handle.draw_boxes(temp_img[0], z_box, classes, scores)
+            ImageManager.save_tensor(detected_img, args['output_base_path'] + config['run_name'] +
+                                     args['detected_path'] + video_handle.make_image_name())
 
         # 3. To Tracker
+        x_box.clear()
         if len(tracker_list) > 0:
             for trk in tracker_list:
                 x_box.append(trk.box)
@@ -297,7 +199,7 @@ def pipelining(args):
         for trk in deleted_tracks:
             # SSD Network 에도 잡히지 않는지 확인
             recovery_image, boxes, classes, scores = recovery_detector.detection(tensor_image)
-            post_box = recovery_detector.get_zboxes(boxes=boxes, im_width=image_size[0], im_heigt=image_size[1])
+            post_box = recovery_detector.get_zboxes(boxes, image_size[0], image_size[1])
             post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
             if post_pass:
                 x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
@@ -335,9 +237,11 @@ def pipelining(args):
 
         if args['save']:
             ImageManager.save_image(np_image,
-                                    args['output_base_path'] + args['tracking_path'] + video_handle.make_image_name())
+                                    args['output_base_path'] + config['run_name'] +
+                                    args['tracking_path'] + video_handle.make_image_name())
             ImageManager.save_image(plan_image,
-                                    args['output_base_path'] + args['trajectory_path'] + video_handle.make_image_name())
+                                    args['output_base_path'] + config['run_name'] +
+                                    args['trajectory_path'] + video_handle.make_image_name())
         video_handle.append(np_image)
         plan_handle.append(plan_image)
     # ---- 쓰레드 안써도 될듯 ---
@@ -354,67 +258,14 @@ if __name__ == "__main__":
     detectors = ['efficient', 'ssd_mobile', 'centernet']
     config = config_mapper.config_copy(config_mapper.get_config(detection_names=detectors))
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
+    config['run_name'] = config['run_name'] + '/'
     config['video_name'] = "LOADING DOCK F3 Rampa 11-12.avi"
 
     primary_model_args = config[config['primary_model_name']]
     recovery_model_args = config[config['recovery_model_name']]
 
     # 빠른 처리에는 존재할 수가 있음
-    clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path']],
+    clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
                  config['output_base_path'] + config['run_name'])
-    clear_folder([config['image_path']], "")
 
     pipelining(args=config)
-
-    # # 민구 transform
-    # plan_image = detector.load_img("./params/testPlan.JPG")
-    # plan_image = plan_image.numpy()
-    # with open('./params/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
-    #     transform_matrix = pickle.load(matrix)
-    #
-    # det = dict
-    # det_list = ['primary', 'recovery', 'box']
-    # for i, model in enumerate(args.model_name):
-    #     det[det_list[i]] = det_REGISTRY[model](**args.detector_args)
-    #
-    # det['recovery'].detection(img)
-    #
-    # args.model_name = "efficient"
-    # args.model_handle = "primary link"
-    # det = detector.VehicleDetector(args=args)
-    # vehicleDetector = EFF(args)
-    # SSDDetector
-    # MobileDetector
-    # EffDetector
-    # args.model_name = "mobile"
-    # args.model_handle = "recovery link"
-    # det = detector.VehicleDetector(args=args)
-    # if debug:  # test on a sequence of images
-    #     images = det.Dataset
-    #     if args.merged_mode:
-    #         min_len = math.inf
-    #         for image_list in det.Dataset:
-    #             if len(image_list) < min_len:
-    #                 min_len = len(image_list)
-    #                 images = image_list
-    #     for image in images:
-    #         result_img, plan_img = pipeline(image, plan_image, transform_matrix, args)
-    #         if args.tracking_path != '':
-    #             imageio.imwrite(args.tracking_path + image, result_img)
-    #             imageio.imwrite(args.plan_path + image, plan_img)
-    #
-    # else:  # test on a video file.
-    #
-    #     start = time.time()
-    #     output = 'test_v7.mp4'
-    #     clip1 = VideoFileClip("project_video.mp4")  # .subclip(4,49) # The first 8 seconds doesn't have any cars...
-    #     clip = clip1.fl_image(pipeline)
-    #     clip.write_videofile(output, audio=False)
-    #     end = time.time()
-    #
-    #     print(round(end - start, 2), 'Seconds to finish')
-# 파이프라이닝 작업해야됨
-# 노이즈 트랙킹 제거
-# z 좌표 확실하게
-# KPI 산출
-# 자체모델 학습 / 공용 모델 단점
