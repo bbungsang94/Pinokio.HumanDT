@@ -18,6 +18,7 @@ class VideoManger:
         self._frame_rate = None
         self._image_width = 0
         self._image_height = 0
+        self._frame_count = -1
 
     def scan_video(self, path):
         """ Scanning videos(mp4 and avi) of path
@@ -57,7 +58,7 @@ class VideoManger:
         self._image_width = width
         self._image_height = height
 
-        return True
+        return fps, (width, height)
 
     def update_video_property(self, path):
         if self.load_video(path):
@@ -77,10 +78,14 @@ class VideoManger:
 
     def pop(self):
         if self.__video_object is None:
-            return False, None
+            return 0, None
         else:
+            self._frame_count += 1
             rtn, img = self.__video_object.read()
-            return rtn, img
+            if rtn:
+                return self._frame_count, img
+            else:
+                return 0, None
 
     def write_video(self, path):
         """ for making output video, append image object
@@ -96,6 +101,13 @@ class VideoManger:
             # writing to an image array
             out.write(self.__frame_list[i])
         out.release()
+
+    def make_image_name(self):
+        time_val = self._frame_count / self._frame_rate
+        time_str = "{:011.5f}".format(time_val)
+        time_str = time_str.replace('.', '-')
+        time_str = time_str + '.jpeg'
+        return time_str
 
 
 class PipeliningVideoManager(VideoManger):
@@ -151,7 +163,7 @@ class ImageManager:
 
     @staticmethod
     def save_image(img: np.array, path):
-        imageio.imwrite(path, img)
+        cv2.imwrite(path, img)
 
     def display_image(self, img):
         self.figure = plt.figure(figsize=(20, 15))

@@ -85,19 +85,14 @@ def pipeline(path, plan_image, transform_matrix, args):
     """
     Pipeline function for detection and tracking
     """
-    global frame_count
     global tracker_list
     global max_age
     global min_hits
     global track_id_list
     global debug
 
-    frame_count += 1
-
     raw_image, boxes, classes, scores = det.detection(path, display=debug, save=True)  # box 여러개
     z_box = det.get_zboxes(image=raw_image, boxes=boxes)
-    if debug:
-        print('Frame:', frame_count)
 
     x_box = []
 
@@ -220,12 +215,12 @@ def pipelining(args):
 
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
-    video_handle.load_video(args['video_path'])
+    frame_rate, img_size = video_handle.load_video(args['video_path'])
     video_handle.activate_video_object(args['video_path'])
-    _, np_image = video_handle.pop()
+    frame_count, np_image = video_handle.pop()
 
     if args['debug']:
-        ImageManager.save_image(np_image, args['image_path'])
+        ImageManager.save_image(np_image, args['image_path'] + video_handle.make_image_name())
     # 2. To detection
     tensor_image = ImageManager.convert_tensor(np_image)
     primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
