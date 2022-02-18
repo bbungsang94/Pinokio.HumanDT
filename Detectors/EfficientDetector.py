@@ -54,13 +54,23 @@ class EfficientDetector(AbstractDetector):
             raise "Wrong Model Name"
         print("Inference time: ", end_time - start_time)
 
-        del_idx = self.__post_process(classes, scores)
+        del_idx = self.__post_process(classes, scores, self.min_score)
         boxes = boxes[del_idx]
         classes = classes[del_idx]
         classes[:] = 2.
         scores = scores[del_idx]
 
         return image, boxes, classes, scores
+
+    def __post_process(self, classes, scores, min_score = None):
+        if min_score is None:
+            min_score = self.min_score
+        # score_idx = scores > min_score
+        score_idx = scores > 0
+
+        class_idx = (10 > classes) & (classes > 1)
+        total_idx = score_idx & class_idx
+        return total_idx
 
 
 

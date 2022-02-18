@@ -225,11 +225,13 @@ def pipelining(args):
     video_handle.activate_video_object(args['video_path'])
     _, np_image = video_handle.pop()
 
-    if args['debug']:
-        ImageManager.save_image(np_image, args.image_path)
+    # if args['debug']:
+        # ImageManager.save_image(np_image, args['image_path'])
     # 2. To detection
     tensor_image = ImageManager.convert_tensor(np_image)
-    raw_image, boxes, classes, scores = det.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    # recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
+    raw_image, boxes, classes, scores = primary_detector.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
 
     # ---- 쓰레드 안써도 될듯 ---
     # 2. Threading 활성화
@@ -249,11 +251,12 @@ if __name__ == "__main__":
     primary_model_args = config[config['primary_model_name']]
     recovery_model_args = config[config['recovery_model_name']]
 
-    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)    # 빠른 처리에는 존재할 수가 있음
+
+    # 빠른 처리에는 존재할 수가 있음
     clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path']],
                  config['output_base_path'] + config['run_name'])
     clear_folder([config['image_path']], "")
+
 
     pipelining(args=config)
 
