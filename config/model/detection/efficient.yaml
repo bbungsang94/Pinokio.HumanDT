@@ -1,7 +1,7 @@
 efficient:
   model_name: "efficient"
   hub_mode: True
-  model_handle: "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
+  model_handle: "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/2"
   label_path: "./params/label/mscoco_label_map.yaml" # model label path
   min_score: 0.3
   iou_score: 0.3

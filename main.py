@@ -224,12 +224,12 @@ def pipelining(args):
     video_handle.activate_video_object(args['video_path'])
     _, np_image = video_handle.pop()
 
-    # if args['debug']:
-        # ImageManager.save_image(np_image, args['image_path'])
+    if args['debug']:
+        ImageManager.save_image(np_image, args['image_path'])
     # 2. To detection
     tensor_image = ImageManager.convert_tensor(np_image)
     primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-    # recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
     raw_image, boxes, classes, scores = primary_detector.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
 
     # ---- 쓰레드 안써도 될듯 ---
