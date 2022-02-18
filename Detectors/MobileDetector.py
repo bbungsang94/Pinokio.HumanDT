@@ -72,12 +72,10 @@ class MobileDetector(AbstractDetector):
         return total_idx
 
     @staticmethod
-    def get_zboxes(image, boxes, max_boxes=10):
-        image = ImageManager.convert_uint(np.uint8(image)).convert("RGB")
+    def get_zboxes(boxes, im_width, im_height, max_boxes=10):
         z_boxes = []
         for i in range(min(boxes.shape[0], max_boxes)):
             ymin, xmin, ymax, xmax = tuple(boxes[i])
-            im_width, im_height = image.size
             (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
                                           ymin * im_height, ymax * im_height)
             z_boxes.append([top, left, bottom, right])

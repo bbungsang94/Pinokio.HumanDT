@@ -27,6 +27,7 @@ from Detectors import REGISTRY as det_REGISTRY
 import utilities.config_mapper as config_mapper
 import threading
 
+
 def assign_detections_to_trackers(trackers, detections, iou_thrd=0.3):
     """
     From current list of trackers and new detections, output matched detections,
@@ -209,6 +210,8 @@ def pipelining(args):
     tracker_list = []  # list for trackers
     track_id_list = deque(range(255))  # list for track ID
     plan_image = ImageManager.load_cv(args['plan_path'])
+    x_box = []
+
     with open(args['projection_path'] + args['video_name'], 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
 
@@ -235,12 +238,15 @@ def pipelining(args):
         if args['debug']:
             test = 1
 
-        z_box = primary_detector.get_zboxes(image=raw_image, boxes=boxes)
+        z_box = primary_detector.get_zboxes(boxes=boxes, im_width=image_size.width, im_heigt=image_size.heigt)
+
+        # 3. To Tracker
+        if len(tracker_list) > 0:
+            for trk in tracker_list:
+                x_box.append(trk.box)
 
         matched, unmatched_dets, unmatched_trks \
             = assign_detections_to_trackers(x_box, z_box, iou_thrd=0.3)
-
-        # 3. To Tracker
         # Deal with matched detections
         if matched.size > 0:
             for trk_idx, det_idx in matched:
@@ -292,7 +298,7 @@ def pipelining(args):
             recovery_image, boxes, classes, scores = recovery_detector.detection(tensor_image,
                                                                                  display=args['visible'],
                                                                                  save=args['save'])
-            post_box = recovery_detector.get_zboxes(image=recovery_image, boxes=boxes)
+            post_box = recovery_detector.get_zboxes(boxes=boxes, im_width=image_size.width, im_heigt=image_size.heigt)
             post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
             if post_pass:
                 x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
