@@ -3,12 +3,14 @@
 """@author: kyleguan
 """
 import math
+import os
 import time
 import argparse
-from dataclasses import dataclass
+import datetime
 
 import imageio
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 import glob
 from moviepy.editor import VideoFileClip
@@ -20,17 +22,10 @@ import detector
 import tracker
 import pickle
 
-# Global variables to be used by funcitons of VideoFileClop
-frame_count = 0  # frame counter
-
-max_age = 14  # no.of consecutive unmatched detection before
-# a track is deleted
-
-min_hits = 1  # no. of consecutive matches needed to establish a track
-
-tracker_list = []  # list for trackers
-# list for track ID
-track_id_list = deque(range(255))
+from utilities.media_handler import PipeliningVideoManager, ImageManager
+from Detectors import REGISTRY as det_REGISTRY
+import utilities.config_mapper as config_mapper
+import threading
 
 debug = True
 
@@ -162,14 +157,14 @@ def pipeline(path, plan_image, transform_matrix, args):
             tmp_trk.box = xx
             x_box[trk_idx] = xx
 
-    # Book keeping
+    # Bookkeeping
     deleted_tracks = filter(lambda x: x.no_losses > max_age, tracker_list)
 
     for trk in deleted_tracks:
         # SSD Network 에도 잡히지 않는지 확인
         boxes = det.post_detection(raw_image)
         post_box = det.get_zboxes(image=raw_image, boxes=boxes, post='SSDNet')
-        post_pass, box = helpers.post_iou_checker(trk.box, post_box, offset=0.9)
+        post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
         if post_pass:
             x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
             trk.x_state = x
@@ -194,7 +189,8 @@ def pipeline(path, plan_image, transform_matrix, args):
                 print()
 
             np_image = helpers.draw_box_label(np_image, x_cv2, det.Colors[trk.id % len(det.Colors)])
-            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix, det.Colors[trk.id % len(det.Colors)])
+            plan_image = helpers.transform(x_cv2, np_image, plan_image, transform_matrix,
+                                           det.Colors[trk.id % len(det.Colors)])
             tracker_list = [x for x in tracker_list if x.no_losses <= max_age]
 
     if debug:
@@ -204,77 +200,111 @@ def pipeline(path, plan_image, transform_matrix, args):
     return np_image, plan_image
 
 
-@dataclass
-class TestParams:
-    model_name: str = ''
-    hub_mode: bool = None
-    model_main_handle: str = None
-    model_sub_handle: str = None
-    image_path: str = None
-    label_path: str = None
-    detected_path: str = None
-    tracking_path: str = None
-    detect_min_score: float = 0.0
-    merged_mode: bool = None
-    merged_list: list = None
-    plan_path: str = None
+
+def clear_folder(folder_list: list, root: str):
+    import shutil
+    if root != '' and os.path.exists(root) is False:
+        os.mkdir(root)
+    for folder in folder_list:
+        if os.path.exists(root + folder):
+            shutil.rmtree(root + folder)
+        os.mkdir(root + folder)
+
+
+class DictToStruct:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+def pipelining(args):
+    # 0. Init
+
+    # 1. Video loaded
+    video_handle = PipeliningVideoManager()
+    video_handle.load_video(args['video_path'])
+    video_handle.activate_video_object(args['video_path'])
+    _, np_image = video_handle.pop()
+
+    if args['debug']:
+        ImageManager.save_image(np_image, args.image_path)
+    # 2. To detection
+    tensor_image = ImageManager.convert_tensor(np_image)
+    raw_image, boxes, classes, scores = det.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
+
+    # ---- 쓰레드 안써도 될듯 ---
+    # 2. Threading 활성화
+    # 2-1. 비디오에서 이미지 만드는 쓰레드
+    # 2-2. 이미지 불러와서 디텍션 + 트랙킹하는 쓰레드
+    # 2-3. 처리하는대로 바로 파이프라인 비디오 매니저에 append
+    # 3. 종료시 쓰레드 클리어, 비디오 생성
+    video_handle.release_video_object()
+
 
 if __name__ == "__main__":
+    detectors = ['efficient', 'ssd_mobile']
+    config = config_mapper.config_copy(config_mapper.get_config(detection_names=detectors))
+    config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
+    config['video_path'] = "./video/LOADING DOCK F3 Rampa 11-12.avi"
 
-    args = TestParams
-    args.model_name = "efficientdet"
-    args.hub_mode = True
-    # "https://tfhub.dev/tensorflow/efficientdet/lite4/detection/1"
-    # "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
-    # "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
-    # "https://tfhub.dev/tensorflow/centernet/hourglass_512x512/1" # 별?루
-    # "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
-    args.model_main_handle = "https://tfhub.dev/tensorflow/efficientdet/lite3/detection/1"
-    args.model_sub_handle = "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/fpnlite_640x640/1"
-    # args.image_path = "./merged_test/"
-    args.image_path = "./test_images/"
-    args.label_path = "./params/mscoco_label_map.yaml"
-    args.detected_path = "./detected_images/"
-    args.tracking_path = "./tracking_result/"
-    args.plan_path = "./plan_result/"
-    args.detect_min_score = 0.3
-    args.merged_mode = False
-    args.merged_list = ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"]
+    primary_model_args = config[config['primary_model_name']]
+    recovery_model_args = config[config['recovery_model_name']]
 
-    # 민구 transform
-    plan_image = detector.load_img("./params/testPlan.JPG")
-    plan_image = plan_image.numpy()
-    with open('./params/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
-        transform_matrix = pickle.load(matrix)
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)    # 빠른 처리에는 존재할 수가 있음
+    clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path']],
+                 config['output_base_path'] + config['run_name'])
+    clear_folder([config['image_path']], "")
 
-    det = detector.VehicleDetector(args=args)
-    if debug:  # test on a sequence of images
-        images = det.Dataset
-        if args.merged_mode:
-            min_len = math.inf
-            for image_list in det.Dataset:
-                if len(image_list) < min_len:
-                    min_len = len(image_list)
-                    images = image_list
-        for image in images:
-            result_img, plan_img = pipeline(image, plan_image, transform_matrix, args)
-            if args.tracking_path != '':
-                imageio.imwrite(args.tracking_path + image, result_img)
-                imageio.imwrite(args.plan_path + image, plan_img)
+    pipelining(args=config)
 
-
-    else:  # test on a video file.
-
-        start = time.time()
-        output = 'test_v7.mp4'
-        clip1 = VideoFileClip("project_video.mp4")  # .subclip(4,49) # The first 8 seconds doesn't have any cars...
-        clip = clip1.fl_image(pipeline)
-        clip.write_videofile(output, audio=False)
-        end = time.time()
-
-        print(round(end - start, 2), 'Seconds to finish')
+    # # 민구 transform
+    # plan_image = detector.load_img("./params/testPlan.JPG")
+    # plan_image = plan_image.numpy()
+    # with open('./params/LOADING DOCK F3 Rampa 13 - 14.pickle', 'rb') as matrix:
+    #     transform_matrix = pickle.load(matrix)
+    #
+    # det = dict
+    # det_list = ['primary', 'recovery', 'box']
+    # for i, model in enumerate(args.model_name):
+    #     det[det_list[i]] = det_REGISTRY[model](**args.detector_args)
+    #
+    # det['recovery'].detection(img)
+    #
+    # args.model_name = "efficient"
+    # args.model_handle = "primary link"
+    # det = detector.VehicleDetector(args=args)
+    # vehicleDetector = EFF(args)
+    # SSDDetector
+    # MobileDetector
+    # EffDetector
+    # args.model_name = "mobile"
+    # args.model_handle = "recovery link"
+    # det = detector.VehicleDetector(args=args)
+    # if debug:  # test on a sequence of images
+    #     images = det.Dataset
+    #     if args.merged_mode:
+    #         min_len = math.inf
+    #         for image_list in det.Dataset:
+    #             if len(image_list) < min_len:
+    #                 min_len = len(image_list)
+    #                 images = image_list
+    #     for image in images:
+    #         result_img, plan_img = pipeline(image, plan_image, transform_matrix, args)
+    #         if args.tracking_path != '':
+    #             imageio.imwrite(args.tracking_path + image, result_img)
+    #             imageio.imwrite(args.plan_path + image, plan_img)
+    #
+    # else:  # test on a video file.
+    #
+    #     start = time.time()
+    #     output = 'test_v7.mp4'
+    #     clip1 = VideoFileClip("project_video.mp4")  # .subclip(4,49) # The first 8 seconds doesn't have any cars...
+    #     clip = clip1.fl_image(pipeline)
+    #     clip.write_videofile(output, audio=False)
+    #     end = time.time()
+    #
+    #     print(round(end - start, 2), 'Seconds to finish')
 # 파이프라이닝 작업해야됨
 # 노이즈 트랙킹 제거
 # z 좌표 확실하게
 # KPI 산출
-# 자체모델 학습
+# 자체모델 학습 / 공용 모델 단점

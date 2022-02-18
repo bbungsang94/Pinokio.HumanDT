@@ -1,0 +1,32 @@
+
+# Detection
+primary_model_name: "efficient"  # "primary model args"
+recovery_model_name: "ssd_mobile" # "recovery model args"
+box_model_name: ""      # "box model args"
+
+# DataSet path
+merged_mode: False # when you merged mode
+merged_list: ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"] # merged folder list
+video_path: "" # target video path
+image_path: "./test_images/" # test images path
+plan_path: "./params/testPlan.JPG"
+projection_path: "./params/projection/"
+
+# Output path
+output_base_path: "./output/" # 
+run_name: "" # 
+detected_path: "/detected_images/" # 
+tracking_path: "/tracking_result/" # 
+trajectory_path: "/plan_result/" # 
+
+# Detection / Tracking parameters
+max_age: 4
+min_hits: 1
+
+# Developer menu
+debug: True
+log: True
+visible: False
+save: True
+pipeline: True
+citation: True
