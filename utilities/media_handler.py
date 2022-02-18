@@ -1,5 +1,6 @@
 import os
 import cv2
+import torch
 import imageio
 import numpy as np
 
@@ -47,7 +48,7 @@ class VideoManger:
         self.__video_object = cv2.VideoCapture(path)
         fps = self.__video_object.get(cv2.CAP_PROP_FPS)
         width = self.__video_object.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = self.__video_object.get(cv2.CAP_PROP_FRAME_HEIGHTE)
+        height = self.__video_object.get(cv2.CAP_PROP_FRAME_HEIGHT)
         print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
         print("Image Width using video.get(cv2.CAP_PROP_FRAME_WIDTH) : {0}".format(width))
         print("Image Height using video.get(cv2.CAP_PROP_FRAME_HEIGHT) : {0}".format(height))
@@ -141,6 +142,11 @@ class ImageManager:
     @staticmethod
     def convert_uint(img):
         converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
+        return converted_img
+
+    @staticmethod
+    def convert_tensor(img: np.array):
+        converted_img = torch.from_numpy(img)
         return converted_img
 
     @staticmethod
