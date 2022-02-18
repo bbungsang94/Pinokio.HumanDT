@@ -204,13 +204,14 @@ class DictToStruct:
 
 def pipelining(args):
     # 0. Init
-primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
     recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
     tracker_list = []  # list for trackers
     track_id_list = deque(range(255))  # list for track ID
     plan_image = ImageManager.load_cv(args['plan_path'])
     with open(args['projection_path'] + args['video_name'], 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
+
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
     plan_handle = PipeliningVideoManager()
@@ -223,14 +224,6 @@ primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_mode
         _, np_image = video_handle.pop()
         if np_image is None:
             break
-
-
-
-
-
-
-
-
 
         if args['save']:
             ImageManager.save_image(np_image, args['image_path'] + video_handle.make_image_name())
@@ -341,7 +334,8 @@ primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_mode
             ImageManager.save_image(plan_image,
                                     args['output_base_path'] + args['trajectory_path'] + video_handle.make_image_name())
         video_handle.append(np_image)
-        plan_handle.append(plan_image)    # ---- 쓰레드 안써도 될듯 ---
+        plan_handle.append(plan_image)
+    # ---- 쓰레드 안써도 될듯 ---
     # 2. Threading 활성화
     # 2-1. 비디오에서 이미지 만드는 쓰레드
     # 2-2. 이미지 불러와서 디텍션 + 트랙킹하는 쓰레드
