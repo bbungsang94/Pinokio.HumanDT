@@ -52,6 +52,7 @@ class MobileDetector(AbstractDetector):
             else:
                 return
         except AttributeError:
+            test = result["detection_scores"]
             raise "Wrong Model Name"
         print("Inference time: ", end_time - start_time)
 
@@ -66,12 +67,20 @@ class MobileDetector(AbstractDetector):
     def __post_process(self, classes, scores, min_score = None):
         if min_score is None:
             min_score = self.min_score
-        # score_idx = scores > min_score
-        score_idx = scores > 0
+        score_idx = scores > min_score
 
         class_idx = (10 > classes) & (classes > 1)
         total_idx = score_idx & class_idx
         return total_idx
 
-
-
+    @staticmethod
+    def get_zboxes(image, boxes, max_boxes=10):
+        image = ImageManager.convert_uint(np.uint8(image)).convert("RGB")
+        z_boxes = []
+        for i in range(min(boxes.shape[0], max_boxes)):
+            ymin, xmin, ymax, xmax = tuple(boxes[i])
+            im_width, im_height = image.size
+            (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
+                                          ymin * im_height, ymax * im_height)
+            z_boxes.append([top, left, bottom, right])
+        return np.array(z_boxes)

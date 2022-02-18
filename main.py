@@ -212,6 +212,8 @@ class DictToStruct:
 
 def pipelining(args):
     # 0. Init
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
 
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
@@ -223,13 +225,15 @@ def pipelining(args):
         ImageManager.save_image(np_image, args['image_path'] + video_handle.make_image_name())
     # 2. To detection
     tensor_image = ImageManager.convert_tensor(np_image)
-    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
+
     raw_image, boxes, classes, scores = primary_detector.detection(tensor_image,
                                                                    display=args['visible'], save=args['save'])
+    primary_z_box = primary_detector.get_zboxes(raw_image, boxes)
     raw_image, boxes, classes, scores = recovery_detector.detection(tensor_image,
                                                                     display=args['visible'], save=args['save'])
-    if args['debug']:
+    recovery_z_box = recovery_detector.get_zboxes(raw_image, boxes)
+
+    # if args['debug']:
 
     # ---- 쓰레드 안써도 될듯 ---
     # 2. Threading 활성화

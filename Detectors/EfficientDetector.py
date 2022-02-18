@@ -72,6 +72,11 @@ class EfficientDetector(AbstractDetector):
         total_idx = score_idx & class_idx
         return total_idx
 
+    @staticmethod
+    def get_zboxes(image, boxes, max_boxes=10):
+        return boxes
+
+
 
 
 
