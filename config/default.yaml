@@ -7,7 +7,8 @@ box_model_name: ""      # "box model args"
 # DataSet path
 merged_mode: False # when you merged mode
 merged_list: ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"] # merged folder list
-video_path: "" # target video path
+video_name: ""
+video_path: "./video/" # target video path
 image_path: "./test_images/" # test images path
 plan_path: "./params/testPlan.JPG"
 projection_path: "./params/projection/"

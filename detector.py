@@ -264,11 +264,9 @@ class VehicleDetector:
         if model_name == "efficientdet":
             return boxes
         else:
-            image = Image.fromarray(np.uint8(image)).convert("RGB")
             z_boxes = []
             for i in range(min(boxes.shape[0], max_boxes)):
                 ymin, xmin, ymax, xmax = tuple(boxes[i])
-                im_width, im_height = image.size
                 (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
                                               ymin * im_height, ymax * im_height)
                 z_boxes.append([top, left, bottom, right])
