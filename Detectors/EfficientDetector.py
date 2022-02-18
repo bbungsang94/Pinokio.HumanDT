@@ -12,7 +12,8 @@ class EfficientDetector(AbstractDetector):
                  label_path: "",
                  min_score: 0,
                  iou_score: 0,
-                 offset_score: 0
+                 offset_score: 0,
+                 max_boxes: 0
                  ):
         self.model_name = model_name
         self.hub_mode = hub_mode
@@ -21,6 +22,7 @@ class EfficientDetector(AbstractDetector):
         self.min_score = min_score
         self.iou_score = iou_score
         self.offset_score = offset_score
+        self.max_boxes = max_boxes
 
         if self.hub_mode is True:
             self.Detector = hub.load(self.model_handle)
@@ -72,8 +74,7 @@ class EfficientDetector(AbstractDetector):
         total_idx = score_idx & class_idx
         return total_idx
 
-    @staticmethod
-    def get_zboxes(boxes):
+    def get_zboxes(self, boxes, im_width, im_height):
         return boxes
 
 

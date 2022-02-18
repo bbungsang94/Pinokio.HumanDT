@@ -233,8 +233,7 @@ def pipelining(args):
 
         # 2. To detection
         tensor_image = ImageManager.convert_tensor(np_image)
-        raw_image, boxes, classes, scores = primary_detector.detection(tensor_image,
-                                                                       display=args['visible'], save=args['save'])
+        raw_image, boxes, classes, scores = primary_detector.detection(tensor_image)
         if args['debug']:
             test = 1
 
