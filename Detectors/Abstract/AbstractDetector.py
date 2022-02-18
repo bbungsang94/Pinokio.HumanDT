@@ -1,10 +1,10 @@
 class AbstractDetector(object):
 
-    def detection(self, path, display=False, save=False):
+    def detection(self, image, display=False, save=False):
         """Determines the locations of the vehicle in the image
 
                 Args:
-                    path: image path
+                    image: image path
                     display: show figure option
                     save: on display, furthermore you want to save image
                 Returns:

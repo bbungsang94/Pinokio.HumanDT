@@ -22,6 +22,7 @@ import tracker
 import pickle
 
 from utilities.media_handler import PipeliningVideoManager, ImageManager
+from Detectors import REGISTRY as det_REGISTRY
 import utilities.config_mapper as config_mapper
 import threading
 debug = True
@@ -231,6 +232,11 @@ if __name__ == "__main__":
 
     primary_model_args = config[config['primary_model_name']]
     recovery_model_args = config[config['recovery_model_name']]
+
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
+
+    test = 1
 
     args.run_name = datetime.datetime.now().strftime('%m-%d %H%M%S')
     args.video_path = "LOADING DOCK F3 Rampa 11-12.avi"
