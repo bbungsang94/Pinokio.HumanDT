@@ -42,12 +42,13 @@ class CenternetDetector(AbstractDetector):
         try:
             if self.Detector is not None:
                 start_time = time.time()
-                boxes, scores, classes, num_detections = self.Detector(converted_img)
+                result = self.Detector(converted_img)
                 end_time = time.time()
-                print("Found %d objects." % num_detections)
-                boxes = boxes[0].numpy()
-                classes = classes[0].numpy()
-                scores = scores[0].numpy()
+                result = {key: value.numpy() for key, value in result.items()}
+                print("Found %d objects." % len(result["detection_scores"]))
+                boxes = result["detection_boxes"][0]
+                classes = result["detection_classes"][0]
+                scores = result["detection_scores"][0]
             else:
                 return
         except AttributeError:
@@ -62,6 +63,12 @@ class CenternetDetector(AbstractDetector):
 
         return image, boxes, classes, scores
 
+    def __post_process(self, classes, scores, min_score=None):
+        if min_score is None:
+            min_score = self.min_score
+        # score_idx = scores > min_score
+        score_idx = scores > 0
 
-
-
+        class_idx = (10 > classes) & (classes > 1)
+        total_idx = score_idx & class_idx
+        return total_idx
