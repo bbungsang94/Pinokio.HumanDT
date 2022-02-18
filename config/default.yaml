@@ -1,6 +1,6 @@
 
 # Detection
-primary_model_name: "efficient"  # "primary model args"
+primary_model_name: "centernet"  # "primary model args"
 recovery_model_name: "ssd_mobile" # "recovery model args"
 box_model_name: ""      # "box model args"
 
@@ -24,7 +24,7 @@ max_age: 4
 min_hits: 1
 
 # Developer menu
-debug: True
+debug: False
 log: True
 visible: False
 save: True

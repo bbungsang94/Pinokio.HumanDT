@@ -63,6 +63,15 @@ class MobileDetector(AbstractDetector):
 
         return image, boxes, classes, scores
 
+    def __post_process(self, classes, scores, min_score = None):
+        if min_score is None:
+            min_score = self.min_score
+        # score_idx = scores > min_score
+        score_idx = scores > 0
+
+        class_idx = (10 > classes) & (classes > 1)
+        total_idx = score_idx & class_idx
+        return total_idx
 
 
 

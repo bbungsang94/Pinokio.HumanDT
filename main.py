@@ -226,6 +226,7 @@ def pipelining(args):
     primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
     recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
     raw_image, boxes, classes, scores = primary_detector.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
+    raw_image, boxes, classes, scores = recovery_detector.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
 
     # ---- 쓰레드 안써도 될듯 ---
     # 2. Threading 활성화
@@ -237,7 +238,7 @@ def pipelining(args):
 
 
 if __name__ == "__main__":
-    detectors = ['efficient', 'ssd_mobile']
+    detectors = ['efficient', 'ssd_mobile', 'centernet']
     config = config_mapper.config_copy(config_mapper.get_config(detection_names=detectors))
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['video_path'] = "./video/LOADING DOCK F3 Rampa 11-12.avi"
