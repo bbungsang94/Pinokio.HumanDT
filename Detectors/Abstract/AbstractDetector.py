@@ -10,3 +10,6 @@ class AbstractDetector(object):
 
                 """
         raise NotImplementedError
+
+    def get_zboxes(self, boxes, im_width, im_height):
+        raise NotImplementedError

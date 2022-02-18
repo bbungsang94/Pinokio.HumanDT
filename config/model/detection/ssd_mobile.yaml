@@ -6,3 +6,4 @@ ssd_mobile:
   min_score: 0.3
   iou_score: 0.3
   offset_score: 0.3
+  max_boxes: 10

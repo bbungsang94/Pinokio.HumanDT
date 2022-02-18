@@ -12,7 +12,8 @@ class MobileDetector(AbstractDetector):
                  label_path: "",
                  min_score: 0,
                  iou_score: 0,
-                 offset_score: 0
+                 offset_score: 0,
+                 max_boxes: 0
                  ):
         self.model_name = model_name
         self.hub_mode = hub_mode
@@ -21,6 +22,7 @@ class MobileDetector(AbstractDetector):
         self.min_score = min_score
         self.iou_score = iou_score
         self.offset_score = offset_score
+        self.max_boxes = max_boxes
 
         if self.hub_mode is True:
             self.Detector = hub.load(self.model_handle)
@@ -71,10 +73,9 @@ class MobileDetector(AbstractDetector):
         total_idx = score_idx & class_idx
         return total_idx
 
-    @staticmethod
-    def get_zboxes(boxes, im_width, im_height, max_boxes=10):
+    def get_zboxes(self, boxes, im_width, im_height):
         z_boxes = []
-        for i in range(min(boxes.shape[0], max_boxes)):
+        for i in range(min(boxes.shape[0], self.max_boxes)):
             ymin, xmin, ymax, xmax = tuple(boxes[i])
             (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
                                           ymin * im_height, ymax * im_height)
