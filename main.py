@@ -133,6 +133,7 @@ def pipelining(args):
         # np_image # cv2
         # tensor_image # RGB 배열을 바꾼 tensor로 변환해야됨
         tensor_image = ImageManager.convert_tensor(np_image)
+        test = tensor_image.shape
         raw_image, boxes, classes, scores = primary_detector.detection(tensor_image)
         z_box = primary_detector.get_zboxes(boxes, image_size[0], image_size[1])
 
@@ -225,10 +226,10 @@ def pipelining(args):
 
                 np_image = helpers.draw_box_label(np_image,
                                                   x_cv2,
-                                                  primary_detector.Colors[trk.id % len(primary_detector.Colors)])
+                                                  image_handle.Colors[trk.id % len(image_handle.Colors)])
                 plan_image = helpers.transform(x_cv2, np_image,
                                                plan_image, transform_matrix,
-                                               primary_detector.Colors[trk.id % len(primary_detector.Colors)])
+                                               image_handle.Colors[trk.id % len(image_handle.Colors)])
                 tracker_list = [x for x in tracker_list if x.no_losses <= args['max_age']]
 
         if args['debug']:

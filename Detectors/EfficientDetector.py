@@ -63,8 +63,8 @@ class EfficientDetector(AbstractDetector):
         del_idx = self.__post_process(classes, scores, self.min_score)
         boxes = boxes[del_idx]
         classes = classes[del_idx]
-        classes[:] = self.LabelList[2]
-
+        classes = classes.astype(np.str)
+        classes[:] = self.LabelList[3]
         scores = scores[del_idx]
 
         return converted_img, boxes, classes, scores
@@ -72,8 +72,7 @@ class EfficientDetector(AbstractDetector):
     def __post_process(self, classes, scores, min_score=None):
         if min_score is None:
             min_score = self.min_score
-        # score_idx = scores > min_score
-        score_idx = scores > 0
+        score_idx = scores > min_score
 
         class_idx = (10 > classes) & (classes > 1)
         total_idx = score_idx & class_idx

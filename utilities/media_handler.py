@@ -173,6 +173,8 @@ class ImageManager:
 
     @staticmethod
     def convert_tensor(img: np.array):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
         converted_img = torch.from_numpy(img)
         return converted_img
 
@@ -183,7 +185,6 @@ class ImageManager:
     @staticmethod
     def save_tensor(img, path):
         imageio.imwrite(path, img)
-
 
     def draw_bounding_box_on_image(self, image,
                                    top, left, bottom, right, color,

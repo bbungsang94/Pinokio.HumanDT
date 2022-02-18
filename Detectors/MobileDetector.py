@@ -64,7 +64,8 @@ class MobileDetector(AbstractDetector):
         del_idx = self.__post_process(classes, scores)
         boxes = boxes[del_idx]
         classes = classes[del_idx]
-        classes[:] = 2.
+        classes = classes.astype(np.str)
+        classes[:] = self.LabelList[3]
         scores = scores[del_idx]
 
         return converted_img, boxes, classes, scores
