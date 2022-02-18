@@ -5,12 +5,26 @@ import time
 
 
 class CenternetDetector(AbstractDetector):
-    def __init__(self, args):
-        self.args = args
+    def __init__(self,
+                 model_name: "",
+                 hub_mode: True,
+                 model_handle: "",
+                 label_path: "",
+                 min_score: 0,
+                 iou_score: 0,
+                 offset_score: 0
+                 ):
+        self.model_name = model_name
+        self.hub_mode = hub_mode
+        self.model_handle = model_handle
+        self.label_path = label_path
+        self.min_score = min_score
+        self.iou_score = iou_score
+        self.offset_score = offset_score
 
-        if args['hub_mode'] is True:
-            self.Detector = hub.load(args['model_handle'])
-        else:# 로컬 모델
+        if self.hub_mode is True:
+            self.Detector = hub.load(self.model_handle)
+        else:  # 로컬 모델
             self.Detector = None
 
     def detection(self, image, display=False, save=False):

@@ -246,7 +246,10 @@ if __name__ == "__main__":
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['video_path'] = "./video/LOADING DOCK F3 Rampa 11-12.avi"
 
-    args.video_path = "LOADING DOCK F3 Rampa 11-12.avi"	primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    primary_model_args = config[config['primary_model_name']]
+    recovery_model_args = config[config['recovery_model_name']]
+
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
     recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)    # 빠른 처리에는 존재할 수가 있음
     clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path']],
                  config['output_base_path'] + config['run_name'])
