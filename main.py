@@ -10,6 +10,7 @@ import datetime
 
 import imageio
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 import glob
 from moviepy.editor import VideoFileClip
@@ -25,6 +26,7 @@ from utilities.media_handler import PipeliningVideoManager, ImageManager
 from Detectors import REGISTRY as det_REGISTRY
 import utilities.config_mapper as config_mapper
 import threading
+
 debug = True
 
 
@@ -197,55 +199,60 @@ def pipeline(path, plan_image, transform_matrix, args):
 
     return np_image, plan_image
 
-def clear_folder(folder_list, root = None):
+
+
+def clear_folder(folder_list: list, root: str):
     import shutil
+    if root != '' and os.path.exists(root) is False:
+        os.mkdir(root)
     for folder in folder_list:
         if os.path.exists(root + folder):
             shutil.rmtree(root + folder)
         os.mkdir(root + folder)
 
+
+class DictToStruct:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+
 def pipelining(args):
     # 0. Init
-    tracker = Trac
 
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
-    video_handle.load_video(args.video_path)
-    video_handle.activate_video_object()
-    _, image = video_handle.pop()
+    video_handle.load_video(args['video_path'])
+    video_handle.activate_video_object(args['video_path'])
+    _, np_image = video_handle.pop()
 
-    if args.debug:
-        ImageManager.save_image(image, args.image_path)
+    if args['debug']:
+        ImageManager.save_image(np_image, args.image_path)
+    # 2. To detection
+    tensor_image = ImageManager.convert_tensor(np_image)
+    raw_image, boxes, classes, scores = det.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
 
-    # Detection에 넘기기
-    bbox,
+    # ---- 쓰레드 안써도 될듯 ---
     # 2. Threading 활성화
     # 2-1. 비디오에서 이미지 만드는 쓰레드
     # 2-2. 이미지 불러와서 디텍션 + 트랙킹하는 쓰레드
     # 2-3. 처리하는대로 바로 파이프라인 비디오 매니저에 append
     # 3. 종료시 쓰레드 클리어, 비디오 생성
+    video_handle.release_video_object()
+
 
 if __name__ == "__main__":
-
     detectors = ['efficient', 'ssd_mobile']
     config = config_mapper.config_copy(config_mapper.get_config(detection_names=detectors))
+    config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
+    config['video_path'] = "./video/LOADING DOCK F3 Rampa 11-12.avi"
 
-    primary_model_args = config[config['primary_model_name']]
-    recovery_model_args = config[config['recovery_model_name']]
+    args.video_path = "LOADING DOCK F3 Rampa 11-12.avi"	primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)    # 빠른 처리에는 존재할 수가 있음
+    clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path']],
+                 config['output_base_path'] + config['run_name'])
+    clear_folder([config['image_path']], "")
 
-    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
-
-    test = 1
-
-    args.run_name = datetime.datetime.now().strftime('%m-%d %H%M%S')
-    args.video_path = "LOADING DOCK F3 Rampa 11-12.avi"
-    # 빠른 처리에는 존재할 수가 있음
-    clear_folder(args.output_base_path + args.run_name,
-                 [args.detected_path, args.tracking_path, args.trajectory_path])
-
-    pipelining(args=args)
-
+    pipelining(args=config)
 
     # # 민구 transform
     # plan_image = detector.load_img("./params/testPlan.JPG")
