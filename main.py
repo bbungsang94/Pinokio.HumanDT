@@ -239,7 +239,7 @@ def pipelining(args):
         if args['debug']:
             test = 1
 
-        z_box = primary_detector.get_zboxes(boxes=boxes, im_width=image_size.width, im_heigt=image_size.heigt)
+        z_box = primary_detector.get_zboxes(boxes=boxes, im_width=image_size[0], im_heigt=image_size[1])
 
         # 3. To Tracker
         if len(tracker_list) > 0:
@@ -297,7 +297,7 @@ def pipelining(args):
         for trk in deleted_tracks:
             # SSD Network 에도 잡히지 않는지 확인
             recovery_image, boxes, classes, scores = recovery_detector.detection(tensor_image)
-            post_box = recovery_detector.get_zboxes(boxes=boxes, im_width=image_size.width, im_heigt=image_size.heigt)
+            post_box = recovery_detector.get_zboxes(boxes=boxes, im_width=image_size[0], im_heigt=image_size[1])
             post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
             if post_pass:
                 x = np.array([[box[0], 0, box[1], 0, box[2], 0, box[3], 0]]).T
