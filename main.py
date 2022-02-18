@@ -225,8 +225,11 @@ def pipelining(args):
     tensor_image = ImageManager.convert_tensor(np_image)
     primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
     recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**primary_model_args)
-    raw_image, boxes, classes, scores = primary_detector.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
-    raw_image, boxes, classes, scores = recovery_detector.detection(tensor_image, display=args['visible'], save=args['save'])  # box 여러개
+    raw_image, boxes, classes, scores = primary_detector.detection(tensor_image,
+                                                                   display=args['visible'], save=args['save'])
+    raw_image, boxes, classes, scores = recovery_detector.detection(tensor_image,
+                                                                    display=args['visible'], save=args['save'])
+    if args['debug']:
 
     # ---- 쓰레드 안써도 될듯 ---
     # 2. Threading 활성화
