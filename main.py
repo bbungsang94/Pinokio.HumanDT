@@ -212,7 +212,9 @@ def pipelining(args):
     plan_image = ImageManager.load_cv(args['plan_path'])
     x_box = []
 
-    with open(args['projection_path'] + args['video_name'], 'rb') as matrix:
+    (name, extension) = args['video_name'].split('.')
+
+    with open(args['projection_path'] + name + '.pickle', 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
 
     # 1. Video loaded
@@ -294,9 +296,7 @@ def pipelining(args):
 
         for trk in deleted_tracks:
             # SSD Network 에도 잡히지 않는지 확인
-            recovery_image, boxes, classes, scores = recovery_detector.detection(tensor_image,
-                                                                                 display=args['visible'],
-                                                                                 save=args['save'])
+            recovery_image, boxes, classes, scores = recovery_detector.detection(tensor_image)
             post_box = recovery_detector.get_zboxes(boxes=boxes, im_width=image_size.width, im_heigt=image_size.heigt)
             post_pass, box = helpers.post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
             if post_pass:
