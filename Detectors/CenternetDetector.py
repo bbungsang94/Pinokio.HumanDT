@@ -73,7 +73,7 @@ class CenternetDetector(AbstractDetector):
         return total_idx
 
     @staticmethod
-    def get_zboxes(image, boxes, im_width, im_height, max_boxes=10):
+    def get_zboxes(boxes, im_width, im_height, max_boxes=10):
         z_boxes = []
         for i in range(min(boxes.shape[0], max_boxes)):
             ymin, xmin, ymax, xmax = tuple(boxes[i])
