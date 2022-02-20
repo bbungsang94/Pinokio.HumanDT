@@ -57,7 +57,7 @@ class EfficientDetector(AbstractDetector):
             else:
                 return
         except AttributeError:
-            raise "Wrong Model Name"
+            raise Exception("Wrong Model Name")
         print("Inference time: ", end_time - start_time)
 
         del_idx = self.__post_process(classes, scores, self.min_score)

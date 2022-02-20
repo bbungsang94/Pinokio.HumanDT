@@ -1,31 +1,21 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-"""@author: kyleguan
+"""@author: MnS Team
 """
-import math
 import os
-import time
-import argparse
 import datetime
 
-import imageio
 import numpy as np
-import torch
-import matplotlib.pyplot as plt
-import glob
-from moviepy.editor import VideoFileClip
 from collections import deque
 from scipy.optimize import linear_sum_assignment
 
 import helpers
-import detector
 import tracker
 import pickle
 
 from utilities.media_handler import PipeliningVideoManager, ImageManager
 from Detectors import REGISTRY as det_REGISTRY
 import utilities.config_mapper as config_mapper
-import threading
 
 
 def assign_detections_to_trackers(trackers, detections, iou_thrd=0.3):
