@@ -1,0 +1,4 @@
+sort:
+  model_name: "sort"
+  max_age: 4
+  min_hits: 1

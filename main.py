@@ -246,17 +246,25 @@ def pipelining(args):
 
 
 if __name__ == "__main__":
-    detectors = ['efficient', 'ssd_mobile', 'centernet']
-    config = config_mapper.config_copy(config_mapper.get_config(detection_names=detectors))
-    config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
-    config['run_name'] = config['run_name'] + '/'
-    config['video_name'] = "LOADING DOCK F3 Rampa 11-12.avi"
 
-    primary_model_args = config[config['primary_model_name']]
-    recovery_model_args = config[config['recovery_model_name']]
+    # detector ['efficient', 'ssd_mobile', 'centernet']
+    primary_detector = 'efficient'
+    recovery_detector = 'ssd_mobile'
+    # tracker
+    trk_name = 'sort'
+
+    config = config_mapper.config_copy(
+        config_mapper.get_config(
+            detection_names=[primary_detector, recovery_detector]))
+    primary_model_args = config[primary_detector]
+    recovery_model_args = config[recovery_detector]
 
     # 빠른 처리에는 존재할 수가 있음
     clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
                  config['output_base_path'] + config['run_name'])
+
+    config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
+    config['run_name'] = config['run_name'] + '/'
+    config['video_name'] = "LOADING DOCK F3 Rampa 11-12.avi"
 
     pipelining(args=config)

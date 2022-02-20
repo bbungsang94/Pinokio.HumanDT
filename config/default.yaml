@@ -20,10 +20,6 @@ detected_path: "detected_images/" #
 tracking_path: "tracking_result/" #
 trajectory_path: "plan_result/" #
 
-# Detection / Tracking parameters
-max_age: 4
-min_hits: 1
-
 # Developer menu
 debug: False
 log: True

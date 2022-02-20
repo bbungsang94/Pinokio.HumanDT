@@ -21,7 +21,7 @@ def recursive_dict_update(d, u):
     return d
 
 
-def get_config(detection_names: list):
+def get_config(detection_names: list, tracker_names: list):
     config_dir = '{0}/{1}'
     config_dir2 = '{0}/{1}/{2}'
     config_dir3 = '{0}/{1}/{2}/{3}'
@@ -34,6 +34,14 @@ def get_config(detection_names: list):
 
     for model_name in detection_names:
         with open(config_dir3.format('config', 'model', 'detection', "{}.yaml".format(model_name)), "r") as f:
+            try:
+                model_dict = yaml.load(f, Loader=yaml.FullLoader)
+            except yaml.YAMLError as exc:
+                assert False, "model.yaml error: {}".format(exc)
+            config = recursive_dict_update(config, model_dict)
+
+    for model_name in tracker_names:
+        with open(config_dir3.format('config', 'model', 'tracking', "{}.yaml".format(model_name)), "r") as f:
             try:
                 model_dict = yaml.load(f, Loader=yaml.FullLoader)
             except yaml.YAMLError as exc:
