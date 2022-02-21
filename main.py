@@ -169,7 +169,6 @@ if __name__ == "__main__":
     TimeDict['Inference_Mean'] = TimeDict['Inference_Time'] / TimeDict['Whole_Frame']
     TimeDict['Recovery_Mean'] = TimeDict['Recovery_Time'] / TimeDict['Recovery_Count']
     TimeDict['Tracking_Mean'] = TimeDict['Tracking_Time'] / TimeDict['Whole_Frame']
-    TimeDict['Save_Mean'] = TimeDict['Save_Time'] / TimeDict['Whole_Frame']
 
     print("[Whole time]: {0}, [Frame count]: {1}".format(TimeDict['Whole_Time'], TimeDict['Whole_Frame']))
     print("[Inference time]: {0}, [Inference Mean]: {1}".format(TimeDict['Inference_Time'], TimeDict['Inference_Mean']))
@@ -179,4 +178,6 @@ if __name__ == "__main__":
     print("[Tracker time]: {0}, [Max Tracker]: {1}, [Tracker mean]: {2}".format(TimeDict['Tracking_Time'],
                                                                                 TimeDict['Max_Tracker'],
                                                                                 TimeDict['Tracking_Mean']))
-    print("[Save time]: {0}, [Save mean]: {1}".format(TimeDict['Save_Time'], TimeDict['Save_Mean']))
+    if config['save']:
+        TimeDict['Save_Mean'] = TimeDict['Save_Time'] / TimeDict['Whole_Frame']
+        print("[Save time]: {0}, [Save mean]: {1}".format(TimeDict['Save_Time'], TimeDict['Save_Mean']))

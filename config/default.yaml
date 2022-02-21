@@ -25,6 +25,6 @@ trajectory_path: "plan_result/" #
 debug: False
 log: True
 visible: False
-save: True
+save: False
 pipeline: True
 citation: True
