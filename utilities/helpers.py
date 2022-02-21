@@ -163,10 +163,7 @@ def transform(bbox_cv2, img, plan_img, matrixes, box_color=(0, 255, 255)):
     x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
     y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
 
-    dummy_ypt = 300 + (int(plan_img_height - y) - 300) / 5
-    # dummy_ypt = 300 + (int(plan_img_height - y) - 300) / 10
-
-    plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 5, box_color, thickness=-1)
+    plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 2, box_color, thickness=-1)
     return plan_image
 
 

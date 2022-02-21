@@ -30,8 +30,8 @@ class SortTracker(AbstractTracker):
         self.__track_id_list = deque(range(max_trackers))  # list for track ID
         width_buffer = self.image_size[0] * self.reassign_buffer
         height_buffer = self.image_size[1] * self.reassign_buffer
-        self.__reassign_location = (width_buffer, self.image_size[0] + width_buffer,
-                                    height_buffer, self.image_size[1] + height_buffer)
+        self.__reassign_location = (width_buffer, self.image_size[0] - width_buffer,
+                                    height_buffer, self.image_size[1] - height_buffer)
 
         self.__matched_detections = np.array([])
         self.__unmatched_detections = np.array([])
@@ -97,7 +97,7 @@ class SortTracker(AbstractTracker):
         self.__update_assign()
         self.__update_loss()
 
-        deleted_tracks = filter(lambda x: x.no_losses > self.min_hits, self.__tracker_list)
+        deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self.__tracker_list)
         self.__tracker_list = [x for x in self.__tracker_list if x.no_losses <= self.max_age]
         return deleted_tracks
 
@@ -146,9 +146,9 @@ class SortTracker(AbstractTracker):
                 xx = [xx[0], xx[2], xx[4], xx[6]]
                 tmp_trk.box = xx # Top, Left, Bottom, Right
                 x_mid = (xx[3] + xx[1]) / 2
-                y_mid = (xx[2] + xx[0]) / 2
+                y_bottom = xx[2]
                 first_condition = self.__reassign_location[0] < x_mid < self.__reassign_location[1]
-                second_condition = self.__reassign_location[2] < y_mid < self.__reassign_location[3]
+                second_condition = self.__reassign_location[2] < y_bottom < self.__reassign_location[3]
                 if first_condition and second_condition:
                     tmp_trk.id = self.__track_id_list.pop()
                 else:
