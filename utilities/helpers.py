@@ -138,7 +138,7 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def transform(bbox_cv2, img, plan_img, matrix, box_color=(0, 255, 255)):
+def transform(bbox_cv2, img, plan_img, matrixes, box_color=(0, 255, 255)):
     global count
     if isinstance(box_color, tuple) is False:
         box_color = hex_to_rgb(box_color)
@@ -148,6 +148,13 @@ def transform(bbox_cv2, img, plan_img, matrix, box_color=(0, 255, 255)):
 
     # 아래 하단
     yPt = bottom
+
+    if ((-8 / 3 * xPt + 1600) > yPt) and ((-25 / 39 * xPt + 1120) > yPt):
+        matrix = matrixes[0]
+    elif ((-8 / 3 * xPt + 1600) < yPt) and ((-25 / 39 * xPt + 1120) > yPt):
+        matrix = matrixes[1]
+    elif ((-8 / 3 * xPt + 1600) < yPt) and ((-25 / 39 * xPt + 1120) < yPt):
+        matrix = matrixes[2]
 
     img_height = img.shape[0]
     yPt = img_height - yPt
@@ -159,7 +166,7 @@ def transform(bbox_cv2, img, plan_img, matrix, box_color=(0, 255, 255)):
     dummy_ypt = 300 + (int(plan_img_height - y) - 300) / 5
     # dummy_ypt = 300 + (int(plan_img_height - y) - 300) / 10
 
-    plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - dummy_ypt)), 5, box_color, thickness=-1)
+    plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 5, box_color, thickness=-1)
     return plan_image
 
 

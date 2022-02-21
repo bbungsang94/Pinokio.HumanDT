@@ -11,7 +11,7 @@ merged_list: ["13-14_Clips/", "11-12_Clips/", "9-10_Clips/"] # merged folder lis
 video_name: ""
 video_path: "./video/" # target video path
 image_path: "./test_images/" # test images path
-plan_path: "./params/testPlan.JPG"
+plan_path: "./params/plan3-15.png"
 projection_path: "./params/projection/"
 
 # Output path
@@ -25,6 +25,6 @@ trajectory_path: "plan_result/" #
 debug: False
 log: True
 visible: False
-save: False
+save: True
 pipeline: True
 citation: True
