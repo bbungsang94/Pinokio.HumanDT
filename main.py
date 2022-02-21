@@ -41,6 +41,14 @@ def pipelining(args):
 
     with open(args['projection_path'] + name + '.pickle', 'rb') as matrix:
         transform_matrix = pickle.load(matrix)
+    with open(args['projection_path'] + "13-14-region-1.pickle", 'rb') as matrix:
+        matrix_1 = pickle.load(matrix)
+    with open(args['projection_path'] + "13-14-region-2.pickle", 'rb') as matrix:
+        matrix_2 = pickle.load(matrix)
+    with open(args['projection_path'] + "13-14-region-3.pickle", 'rb') as matrix:
+        matrix_3 = pickle.load(matrix)
+
+    matrixes = [matrix_1, matrix_2, matrix_3]
 
     # 1. Video loaded
     video_handle = PipeliningVideoManager()
@@ -115,7 +123,7 @@ def pipelining(args):
         for trk in trackers.get_trackers():
             np_image = draw_box_label(np_image, trk.box,
                                       image_handle.Colors[trk.id % len(image_handle.Colors)])
-            plan_image = transform(trk.box, np_image, plan_image, transform_matrix,
+            plan_image = transform(trk.box, np_image, plan_image, matrixes,
                                    image_handle.Colors[trk.id % len(image_handle.Colors)])
 
         if args['debug']:
