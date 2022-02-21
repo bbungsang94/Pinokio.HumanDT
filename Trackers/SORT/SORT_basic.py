@@ -15,15 +15,23 @@ class SortTracker(AbstractTracker):
                  max_age=0,
                  min_hits=0,
                  iou_thrd=0.0,
-                 max_trackers=10
+                 max_trackers=10,
+                 reassign_buffer=0.0,
+                 image_size=[]
                  ):
         self.model_name = model_name
         self.max_age = max_age
         self.min_hits = min_hits
         self.iou_thrd = iou_thrd
+        self.reassign_buffer = reassign_buffer
+        self.image_size = image_size
 
         self.__tracker_list = []  # list for trackers
         self.__track_id_list = deque(range(max_trackers))  # list for track ID
+        width_buffer = self.image_size[0] * self.reassign_buffer
+        height_buffer = self.image_size[1] * self.reassign_buffer
+        self.__reassign_location = (width_buffer, self.image_size[0] + width_buffer,
+                                    height_buffer, self.image_size[1] + height_buffer)
 
         self.__matched_detections = np.array([])
         self.__unmatched_detections = np.array([])
@@ -136,8 +144,15 @@ class SortTracker(AbstractTracker):
                 xx = tmp_trk.x_state
                 xx = xx.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
-                tmp_trk.box = xx
-                tmp_trk.id = self.__track_id_list.popleft()  # assign an ID for the tracker
+                tmp_trk.box = xx # Top, Left, Bottom, Right
+                x_mid = (xx[3] + xx[1]) / 2
+                y_mid = (xx[2] + xx[0]) / 2
+                first_condition = self.__reassign_location[0] < x_mid < self.__reassign_location[1]
+                second_condition = self.__reassign_location[2] < y_mid < self.__reassign_location[3]
+                if first_condition and second_condition:
+                    tmp_trk.id = self.__track_id_list.pop()
+                else:
+                    tmp_trk.id = self.__track_id_list.popleft()  # assign an ID for the tracker
                 self.__tracker_list.append(tmp_trk)
 
     def __update_loss(self):

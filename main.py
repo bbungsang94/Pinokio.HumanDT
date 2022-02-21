@@ -35,9 +35,6 @@ def pipelining(args):
     primary_model_args = config[config['primary_model_name']]
     recovery_model_args = config[config['recovery_model_name']]
 
-    trackers = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
-    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
     plan_image = ImageManager.load_cv(args['plan_path'])
 
     (name, extension) = args['video_name'].split('.')
@@ -56,6 +53,13 @@ def pipelining(args):
     plan_handle.activate_video_object(config['output_base_path'] + config['run_name'] +
                                       args['trajectory_path'] + args['video_name'],
                                       v_info=(frame_rate, image_size[0], image_size[1]))
+
+    # 2. Model loaded
+    tracker_model_args['image_size'] = image_size
+    trackers = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
+    primary_detector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
+
     while True:
         _, np_image = video_handle.pop()
         if np_image is None:
@@ -158,7 +162,7 @@ if __name__ == "__main__":
 
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['run_name'] = config['run_name'] + '/'
-    config['video_name'] = "LOADING DOCK F3 Rampa 11-12.avi"
+    config['video_name'] = "LOADING DOCK F3 Rampa 13 - 14.avi"
 
     # 빠른 처리에는 존재할 수가 있음
     clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
