@@ -8,8 +8,11 @@ import imageio
 import numpy as np
 import cv2
 
+from utilities.projection_helper import ProjectionManager
+
 global count
 count = 1
+
 
 class Box:
     def __init__(self):
@@ -138,7 +141,7 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def transform(bbox_cv2, img, plan_img, matrixes, box_color=(0, 255, 255)):
+def transform(bbox_cv2, img, plan_img, matrices, video_name, box_color=(0, 255, 255)):
     global count
     if isinstance(box_color, tuple) is False:
         box_color = hex_to_rgb(box_color)
@@ -149,15 +152,12 @@ def transform(bbox_cv2, img, plan_img, matrixes, box_color=(0, 255, 255)):
     # 아래 하단
     yPt = bottom
 
-    if ((-8 / 3 * xPt + 1600) > yPt) and ((-25 / 39 * xPt + 1120) > yPt):
-        matrix = matrixes[0]
-    elif ((-8 / 3 * xPt + 1600) < yPt) and ((-25 / 39 * xPt + 1120) > yPt):
-        matrix = matrixes[1]
-    elif ((-8 / 3 * xPt + 1600) < yPt) and ((-25 / 39 * xPt + 1120) < yPt):
-        matrix = matrixes[2]
-
     img_height = img.shape[0]
     yPt = img_height - yPt
+
+    matrix = ProjectionManager.get_matrix(xPt, yPt, video_name, matrices)
+
+
     plan_img_height = plan_img.shape[0]
     w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
     x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w

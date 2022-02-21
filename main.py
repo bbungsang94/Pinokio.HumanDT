@@ -116,7 +116,7 @@ def pipelining(args):
         for trk in trackers.get_trackers():
             np_image = draw_box_label(np_image, trk.box,
                                       image_handle.Colors[trk.id % len(image_handle.Colors)])
-            plan_image = transform(trk.box, np_image, plan_image, matrices,
+            plan_image = transform(trk.box, np_image, plan_image, matrices, name,
                                    image_handle.Colors[trk.id % len(image_handle.Colors)])
 
         if args['debug']:
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     if config['merged_mode']:
         config['merged_list'] = []
     else:
-        config['video_name'] = "LOADING DOCK F3 Rampa 13 - 14.avi"
+        config['video_name'] = "LOADING DOCK F3 Rampa 9-10.avi"
 
     # 빠른 처리에는 존재할 수가 있음
     clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
