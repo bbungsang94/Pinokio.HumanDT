@@ -6,6 +6,7 @@ import os
 import datetime
 import pickle
 import time
+import threading
 
 from Detectors import REGISTRY as det_REGISTRY
 from Trackers import REGISTRY as trk_REGISTRY
@@ -29,7 +30,7 @@ class DictToStruct:
         self.__dict__.update(entries)
 
 
-def pipelining(args):
+def pipeliningSingle(args):
     # 0. Init
     tracker_model_args = config[config['tracker_model_name']]
     primary_model_args = config[config['primary_model_name']]
@@ -143,6 +144,146 @@ def pipelining(args):
     plan_handle.release_video_object()
 
 
+def inference_parallel(info: dict):
+    _, np_image = info['video_handle'].pop()
+    if np_image is None:
+        info['result'] = (None, None, None, None)
+        return
+    info['image'] = np_image
+    tensor_image = ImageManager.convert_tensor(np_image)
+
+    raw_image, boxes, classes, scores = info['detector'].detection(tensor_image)
+    boxes = info['detector'].get_zboxes(boxes, info['image_size'][0], info['image_size'][1])
+    info['result'] = (raw_image, boxes, classes, scores)
+
+
+def pipeliningParallel(args):
+    # 0. Init
+    tracker_model_args = args[args['tracker_model_name']]
+    primary_model_args = args[args['primary_model_name']]
+    recovery_model_args = args[args['recovery_model_name']]
+
+    video_handles = []
+    frame_rate = 0
+    image_size = (0, 0)
+    matrices = []
+    for video_name in args['parallel_list']:
+        (name, extension) = video_name.split('.')
+        for idx in range(args['num_of_projection']):
+            with open(args['projection_path'] + name + '-' + str(idx + 1) + '.pickle', 'rb') as matrix:
+                matrices.append(pickle.load(matrix))
+        # 1. Video loaded
+        video_handle = PipeliningVideoManager()
+        frame_rate, image_size = video_handle.load_video(args['video_path'] + video_name)
+        video_handles.append(video_handle)
+
+    output_handle = PipeliningVideoManager()
+    output_handle.activate_video_object(args['output_base_path'] + args['run_name'] +
+                                        args['tracking_path'] + args['video_name'],
+                                        v_info=(frame_rate, image_size[0], image_size[1]))
+    video_handles.append(output_handle)
+
+    plan_image = ImageManager.load_cv(args['plan_path'])
+    plan_handle = PipeliningVideoManager()
+    image_handle = ImageManager()
+    plan_handle.activate_video_object(args['output_base_path'] + args['run_name'] +
+                                      args['trajectory_path'] + args['video_name'],
+                                      v_info=(frame_rate, image_size[0], image_size[1]))
+
+    # 2. Model loaded
+    tracker_model_args['image_size'] = image_size
+    trackers = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
+    running_threads = []
+    primary_models = dict()
+    for video_name in args['parallel_list']:
+        primary_models[video_name] = {'detector': det_REGISTRY[primary_model_args['model_name']](**primary_model_args),
+                                      'video_handle': video_handles.pop(0),
+                                      'image_size': image_size,
+                                      'image': None,
+                                      'output_path': args['output_base_path'] + args['run_name'] + video_name + '/',
+                                      'results': tuple()}
+        run_t = threading.Thread(target=inference_parallel, args=primary_models[video_name])
+        run_t.start()
+        running_threads.append(run_t)
+    recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
+
+    begin_time = time.time()
+    for t in running_threads:
+        t.join()
+
+    run_flag = False
+    for video_name, model_info in primary_models.items():
+        (raw_image, boxes, classes, scores) = model_info['results']
+        if raw_image is not None:
+            run_flag = True
+            TimeDict['Whole_Frame'] += 1
+            break
+    if run_flag is False:
+        for video_name, model_info in primary_models.items():
+            model_info["video_handle"].release_video_object()
+        plan_handle.release_video_object()
+        return
+    TimeDict['Inference_Time'] += time.time() - begin_time
+
+    if args['save']:
+        begin_time = time.time()
+        for video_name, model_info in primary_models.items():
+            ImageManager.save_image(model_info['image'], model_info['output_path'] +
+                                    args['image_path'] + model_info['video_handle'].make_image_name())
+
+            (raw_image, boxes, classes, scores) = model_info['result']
+            temp_img = raw_image.numpy()
+            detected_img = image_handle.draw_boxes(temp_img[0], boxes, classes, scores)
+            ImageManager.save_tensor(detected_img, model_info['output_path'] +
+                                     args['detected_path'] + model_info['video_handle'].make_image_name())
+        TimeDict['Save_Time'] += time.time() - begin_time
+
+        # 3. To Tracker
+        begin_time = time.time()
+        for video_name, model_info in primary_models.items():
+            (raw_image, boxes, classes, scores) = model_info['result']
+            trackers.assign_detections_to_trackers(detections=boxes)
+            deleted_tracks = trackers.update_trackers()
+            TimeDict['Tracking_Time'] += time.time() - begin_time
+
+            tensor_image = ImageManager.convert_tensor(model_info['image'])
+            for trk in deleted_tracks:
+                # SSD Network 에도 잡히지 않는지 확인
+                begin_time = time.time()
+                recovery_image, boxes, classes, scores = recovery_detector.detection(tensor_image)
+                TimeDict['Recovery_Time'] += time.time() - begin_time
+
+                post_box = recovery_detector.get_zboxes(boxes, image_size[0], image_size[1])
+                post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
+                if post_pass:
+                    TimeDict['Recovery_Count'] += 1
+                    trackers.revive_tracker(revive_trk=trk, new_box=box)
+                else:
+                    trackers.delete_tracker(delete_id=trk.id)
+
+            # The list of tracks to be annotated
+            for trk in trackers.get_trackers():
+                np_image = draw_box_label(model_info['image'], trk.box,
+                                          image_handle.Colors[trk.id % len(image_handle.Colors)])
+                plan_image = transform(trk.box, model_info['image'], plan_image, matrices,
+                                       image_handle.Colors[trk.id % len(image_handle.Colors)])
+
+            if args['debug']:
+                print('Ending tracker_list: ', len(trackers.get_trackers()))
+
+            if args['save']:
+                begin_time = time.time()
+                ImageManager.save_image(model_info['image']
+                                        , model_info['output_path'] +
+                                        args['tracking_path'] + model_info['video_handle'].make_image_name())
+                ImageManager.save_image(plan_image,
+                                        args['output_base_path'] + config['run_name'] +
+                                        args['trajectory_path'] + model_info['video_handle'].make_image_name())
+                TimeDict['Save_Time'] += time.time() - begin_time
+            model_info['video_handle'].append(model_info['image'])
+            plan_handle.append(plan_image)
+
+
 if __name__ == "__main__":
     TimeDict = {'Whole_Time': 0, 'Whole_Frame': 0,
                 'Inference_Time': 0, 'Inference_Mean': 0,
@@ -163,8 +304,10 @@ if __name__ == "__main__":
 
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['run_name'] = config['run_name'] + '/'
-    if config['merged_mode']:
-        config['merged_list'] = []
+    if config['parallel_mode']:
+        config['parallel_list'] = ["LOADING DOCK F3 Rampa 13 - 14.avi",
+                                   "LOADING DOCK F3 Rampa 11-12.avi",
+                                   "LOADING DOCK F3 Rampa 9-10.avi"]
     else:
         config['video_name'] = "LOADING DOCK F3 Rampa 13 - 14.avi"
 
@@ -172,7 +315,8 @@ if __name__ == "__main__":
     clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
                  config['output_base_path'] + config['run_name'])
 
-    pipelining(args=config)
+    # pipeliningSingle(args=config)
+    pipeliningParallel(args=config)
     TimeDict['Whole_Time'] = time.time() - whole_time_begin
     TimeDict['Inference_Mean'] = TimeDict['Inference_Time'] / TimeDict['Whole_Frame']
     TimeDict['Recovery_Mean'] = TimeDict['Recovery_Time'] / TimeDict['Recovery_Count']

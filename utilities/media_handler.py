@@ -223,7 +223,6 @@ class ImageManager:
 
     def draw_boxes(self, image, boxes, classes, scores):
         """Overlay labeled boxes on an image with formatted scores and label names."""
-
         for i in range(boxes.shape[0]):
                 display_str = "{}: {}%".format(classes[i], int(100 * scores[i]))
                 color = self.Colors[2 % len(self.Colors)]

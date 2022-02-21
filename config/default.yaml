@@ -6,8 +6,8 @@ box_model_name: ""                    # "box model args"
 tracker_model_name: "sort_basic"      # "box model args"
 
 # DataSet path
-merged_mode: True # when you merged mode
-merged_list: [] # merged folder list
+parallel_mode: True # when you merged mode
+parallel_list: [] # merged folder list
 video_name: ""
 video_path: "./video/" # target video path
 image_path: "./test_images/" # test images path
