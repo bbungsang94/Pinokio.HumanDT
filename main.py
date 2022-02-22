@@ -17,8 +17,13 @@ from utilities.helpers import post_iou_checker, draw_box_label, transform
 
 def clear_folder(folder_list: list, root: str):
     import shutil
-    if root != '' and os.path.exists(root) is False:
-        os.mkdir(root)
+    try:
+        if root != '' and os.path.exists(root) is False:
+            os.mkdir(root)
+    except FileNotFoundError:
+        (dot, output, runtime, name, empty) = root.split('/')
+        os.mkdir(dot + '/' + output + '/' + runtime)
+        os.mkdir(dot + '/' + output + '/' + runtime + '/' + name)
     for folder in folder_list:
         if os.path.exists(root + folder):
             shutil.rmtree(root + folder)
@@ -32,15 +37,15 @@ class DictToStruct:
 
 def pipeliningSingle(args):
     # 0. Init
-    tracker_model_args = config[config['tracker_model_name']]
-    primary_model_args = config[config['primary_model_name']]
-    recovery_model_args = config[config['recovery_model_name']]
+    tracker_model_args = args[args['tracker_model_name']]
+    primary_model_args = args[args['primary_model_name']]
+    recovery_model_args = args[args['recovery_model_name']]
 
     plan_image = ImageManager.load_cv(args['plan_path'])
 
     (name, extension) = args['video_name'].split('.')
     matrices = []
-    for idx in range(config['num_of_projection']):
+    for idx in range(args['num_of_projection']):
         with open(args['projection_path'] + name + '-' + str(idx + 1) + '.pickle', 'rb') as matrix:
             matrices.append(pickle.load(matrix))
 
@@ -50,9 +55,9 @@ def pipeliningSingle(args):
     image_handle = ImageManager()
     frame_rate, image_size = video_handle.load_video(args['video_path'] + args['video_name'])
     # 1-1. Making Output video object
-    video_handle.activate_video_object(config['output_base_path'] + config['run_name'] +
+    video_handle.activate_video_object(args['output_base_path'] + args['run_name'] +
                                        args['tracking_path'] + args['video_name'])
-    plan_handle.activate_video_object(config['output_base_path'] + config['run_name'] +
+    plan_handle.activate_video_object(args['output_base_path'] + args['run_name'] +
                                       args['trajectory_path'] + args['video_name'],
                                       v_info=(frame_rate, image_size[0], image_size[1]))
 
@@ -70,7 +75,7 @@ def pipeliningSingle(args):
 
         if args['save']:
             begin_time = time.time()
-            ImageManager.save_image(np_image, config['output_base_path'] + config['run_name'] +
+            ImageManager.save_image(np_image, args['output_base_path'] + args['run_name'] +
                                     args['image_path'] + video_handle.make_image_name())
             TimeDict['Save_Time'] += time.time() - begin_time
 
@@ -89,7 +94,7 @@ def pipeliningSingle(args):
             begin_time = time.time()
             temp_img = raw_image.numpy()
             detected_img = image_handle.draw_boxes(temp_img[0], z_box, classes, scores)
-            ImageManager.save_tensor(detected_img, args['output_base_path'] + config['run_name'] +
+            ImageManager.save_tensor(detected_img, args['output_base_path'] + args['run_name'] +
                                      args['detected_path'] + video_handle.make_image_name())
             TimeDict['Save_Time'] += time.time() - begin_time
 
@@ -126,10 +131,10 @@ def pipeliningSingle(args):
         if args['save']:
             begin_time = time.time()
             ImageManager.save_image(np_image,
-                                    args['output_base_path'] + config['run_name'] +
+                                    args['output_base_path'] + args['run_name'] +
                                     args['tracking_path'] + video_handle.make_image_name())
             ImageManager.save_image(plan_image,
-                                    args['output_base_path'] + config['run_name'] +
+                                    args['output_base_path'] + args['run_name'] +
                                     args['trajectory_path'] + video_handle.make_image_name())
             TimeDict['Save_Time'] += time.time() - begin_time
         video_handle.append(np_image)
@@ -144,17 +149,46 @@ def pipeliningSingle(args):
     plan_handle.release_video_object()
 
 
-def inference_parallel(info: dict):
-    _, np_image = info['video_handle'].pop()
-    if np_image is None:
-        info['result'] = (None, None, None, None)
-        return
-    info['image'] = np_image
-    tensor_image = ImageManager.convert_tensor(np_image)
+class InferenceParallel(threading.Thread):
+    def __init__(self, info: dict, name: str):
+        super().__init__()
+        self.model = info[name]
 
-    raw_image, boxes, classes, scores = info['detector'].detection(tensor_image)
-    boxes = info['detector'].get_zboxes(boxes, info['image_size'][0], info['image_size'][1])
-    info['result'] = (raw_image, boxes, classes, scores)
+    def run(self):
+        model = self.model
+        _, np_image = model['video_handle'].pop()
+        if np_image is None:
+            model['results'] = (None, None, None, None)
+            return
+        model['image'] = np_image
+        tensor_image = ImageManager.convert_tensor(np_image)
+
+        raw_image, boxes, classes, scores = model['detector'].detection(tensor_image)
+        boxes = model['detector'].get_zboxes(boxes, model['image_size'][0], model['image_size'][1])
+        model['results'] = (raw_image, boxes, classes, scores)
+
+
+class SaveImgParallel(threading.Thread):
+    def __init__(self, info: dict, name: str):
+        super().__init__()
+        self.model = info[name]
+        self.__init_t = False
+
+    def run(self):
+        if self.__init_t is False:
+            self.__init_t = True
+            return
+
+        (test_img, detected_img, tracking_img) = self.model['images']
+        # Test
+        ImageManager.save_image(test_img,
+                                self.model['test_path'] + self.model['model']['video_handle'].make_image_name())
+        # Detection
+        ImageManager.save_tensor(detected_img,
+                                 self.model['detected_path'] + self.model['model']['video_handle'].make_image_name())
+        # Tracking
+        ImageManager.save_image(tracking_img,
+                                self.model['tracking_path'] + self.model['model']['video_handle'].make_image_name())
 
 
 def pipeliningParallel(args):
@@ -166,87 +200,106 @@ def pipeliningParallel(args):
     video_handles = []
     frame_rate = 0
     image_size = (0, 0)
-    matrices = []
+    matrices = dict()
     for video_name in args['parallel_list']:
         (name, extension) = video_name.split('.')
+
+        clear_folder([args['trajectory_path']], args['output_base_path'] + args['run_name'])
+
+        clear_folder(
+            [args['detected_path'], args['tracking_path'], args['image_path']],
+            args['output_base_path'] + args['run_name'] + name + '/')
+        matrices[name] = []
         for idx in range(args['num_of_projection']):
             with open(args['projection_path'] + name + '-' + str(idx + 1) + '.pickle', 'rb') as matrix:
-                matrices.append(pickle.load(matrix))
+                matrices[name].append(pickle.load(matrix))
         # 1. Video loaded
         video_handle = PipeliningVideoManager()
         frame_rate, image_size = video_handle.load_video(args['video_path'] + video_name)
+        video_handle.activate_video_object(args['output_base_path'] + args['run_name'] + name + '/' +
+                                           args['tracking_path'] + video_name)
         video_handles.append(video_handle)
-
-    output_handle = PipeliningVideoManager()
-    output_handle.activate_video_object(args['output_base_path'] + args['run_name'] +
-                                        args['tracking_path'] + args['video_name'],
-                                        v_info=(frame_rate, image_size[0], image_size[1]))
-    video_handles.append(output_handle)
 
     plan_image = ImageManager.load_cv(args['plan_path'])
     plan_handle = PipeliningVideoManager()
     image_handle = ImageManager()
     plan_handle.activate_video_object(args['output_base_path'] + args['run_name'] +
-                                      args['trajectory_path'] + args['video_name'],
+                                      args['trajectory_path'] + 'Total_Trajectory.avi',
                                       v_info=(frame_rate, image_size[0], image_size[1]))
 
     # 2. Model loaded
     tracker_model_args['image_size'] = image_size
     trackers = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
     running_threads = []
+    save_threads = []
     primary_models = dict()
+    save_models = dict()
     for video_name in args['parallel_list']:
-        primary_models[video_name] = {'detector': det_REGISTRY[primary_model_args['model_name']](**primary_model_args),
-                                      'video_handle': video_handles.pop(0),
-                                      'image_size': image_size,
-                                      'image': None,
-                                      'output_path': args['output_base_path'] + args['run_name'] + video_name + '/',
-                                      'results': tuple()}
-        run_t = threading.Thread(target=inference_parallel, args=primary_models[video_name])
+        (name, extension) = video_name.split('.')
+        output_path = args['output_base_path'] + args['run_name'] + name + '/'
+        primary_models[name] = {'detector': det_REGISTRY[primary_model_args['model_name']](**primary_model_args),
+                                'video_handle': video_handles.pop(0),
+                                'image_size': image_size,
+                                'image': None,
+                                'output_path': output_path,
+                                'results': tuple()}
+
+        save_models[name] = {'test_path': output_path + args['image_path'],
+                             'detected_path': output_path + args['detected_path'],
+                             'tracking_path': output_path + args['tracking_path'],
+                             'images': (),
+                             'model': primary_models[name]}
+
+        run_t = InferenceParallel(info=primary_models, name=name)
         run_t.start()
         running_threads.append(run_t)
+        run_t.join()
+        save_t = SaveImgParallel(info=save_models, name=name)
+        save_t.start()
+        save_threads.append(save_t)
+        save_t.join()
+
     recovery_detector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
 
-    begin_time = time.time()
-    for t in running_threads:
-        t.join()
-
-    run_flag = False
-    for video_name, model_info in primary_models.items():
-        (raw_image, boxes, classes, scores) = model_info['results']
-        if raw_image is not None:
-            run_flag = True
-            TimeDict['Whole_Frame'] += 1
-            break
-    if run_flag is False:
-        for video_name, model_info in primary_models.items():
-            model_info["video_handle"].release_video_object()
-        plan_handle.release_video_object()
-        return
-    TimeDict['Inference_Time'] += time.time() - begin_time
-
-    if args['save']:
+    while True:
         begin_time = time.time()
-        for video_name, model_info in primary_models.items():
-            ImageManager.save_image(model_info['image'], model_info['output_path'] +
-                                    args['image_path'] + model_info['video_handle'].make_image_name())
+        for t in running_threads:
+            t.run()
+        for t in running_threads:
+            t.join()
 
-            (raw_image, boxes, classes, scores) = model_info['result']
-            temp_img = raw_image.numpy()
-            detected_img = image_handle.draw_boxes(temp_img[0], boxes, classes, scores)
-            ImageManager.save_tensor(detected_img, model_info['output_path'] +
-                                     args['detected_path'] + model_info['video_handle'].make_image_name())
-        TimeDict['Save_Time'] += time.time() - begin_time
+        local_count = 0
+        deleted_models = []
+        for name, model_info in primary_models.items():
+            model_info = running_threads[local_count].model
+            save_models[name]['model'] = model_info
+            local_count += 1
+            (raw_image, boxes, classes, scores) = model_info['results']
+            if raw_image is None:
+                model_info["video_handle"].release_video_object()
+                deleted_models.append(name)
 
-        # 3. To Tracker
+        for deleted_model in deleted_models:
+            del primary_models[deleted_model]
+
+        if len(primary_models) == 0:
+            plan_handle.release_video_object()
+            return
+
+        TimeDict['Whole_Frame'] += 1
+        TimeDict['Inference_Time'] += time.time() - begin_time
+
+        # To Tracker
         begin_time = time.time()
-        for video_name, model_info in primary_models.items():
-            (raw_image, boxes, classes, scores) = model_info['result']
+        local_count = 0
+        for name, model_info in primary_models.items():
+            (raw_image, boxes, classes, scores) = model_info['results']
+            np_image = model_info['image']
             trackers.assign_detections_to_trackers(detections=boxes)
             deleted_tracks = trackers.update_trackers()
             TimeDict['Tracking_Time'] += time.time() - begin_time
 
-            tensor_image = ImageManager.convert_tensor(model_info['image'])
+            tensor_image = ImageManager.convert_tensor(np_image)
             for trk in deleted_tracks:
                 # SSD Network 에도 잡히지 않는지 확인
                 begin_time = time.time()
@@ -263,25 +316,36 @@ def pipeliningParallel(args):
 
             # The list of tracks to be annotated
             for trk in trackers.get_trackers():
-                np_image = draw_box_label(model_info['image'], trk.box,
+                np_image = draw_box_label(np_image, trk.box,
                                           image_handle.Colors[trk.id % len(image_handle.Colors)])
-                plan_image = transform(trk.box, model_info['image'], plan_image, matrices,
+                plan_image = transform(trk.box, np_image, plan_image, matrices[name], name,
                                        image_handle.Colors[trk.id % len(image_handle.Colors)])
 
             if args['debug']:
                 print('Ending tracker_list: ', len(trackers.get_trackers()))
-
             if args['save']:
-                begin_time = time.time()
-                ImageManager.save_image(model_info['image']
-                                        , model_info['output_path'] +
-                                        args['tracking_path'] + model_info['video_handle'].make_image_name())
-                ImageManager.save_image(plan_image,
-                                        args['output_base_path'] + config['run_name'] +
-                                        args['trajectory_path'] + model_info['video_handle'].make_image_name())
-                TimeDict['Save_Time'] += time.time() - begin_time
-            model_info['video_handle'].append(model_info['image'])
+                saver = save_models[name]
+                temp_img = raw_image.numpy()
+                detected_img = image_handle.draw_boxes(model_info['image'], boxes, classes, scores)
+                saver['images'] = (temp_img[0], detected_img, np_image)
+                save_threads[local_count].model[name] = saver
+                local_count += 1
+
+            model_info['video_handle'].append(np_image)
             plan_handle.append(plan_image)
+        if args['save']:
+            begin_time = time.time()
+            for save_thread in save_threads:
+                save_thread.run()
+            for key in primary_models.keys():
+                ImageManager.save_image(plan_image,
+                                        args['output_base_path'] + args['run_name'] +
+                                        args['trajectory_path'] +
+                                        primary_models[key]['video_handle'].make_image_name())
+                break
+            for save_thread in save_threads:
+                save_thread.join()
+            TimeDict['Save_Time'] += time.time() - begin_time
 
 
 if __name__ == "__main__":
@@ -310,10 +374,11 @@ if __name__ == "__main__":
                                    "LOADING DOCK F3 Rampa 9-10.avi"]
     else:
         config['video_name'] = "LOADING DOCK F3 Rampa 9-10.avi"
+        clear_folder(
+            [config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
+            config['output_base_path'] + config['run_name'])
 
     # 빠른 처리에는 존재할 수가 있음
-    clear_folder([config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
-                 config['output_base_path'] + config['run_name'])
 
     # pipeliningSingle(args=config)
     pipeliningParallel(args=config)
