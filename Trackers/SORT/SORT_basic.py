@@ -152,6 +152,7 @@ class SortTracker(AbstractTracker):
                 if first_condition and second_condition:
                     tmp_trk.id = self.__track_id_list.pop()
                 else:
+
                     tmp_trk.id = self.__track_id_list.popleft()  # assign an ID for the tracker
                 self.__tracker_list.append(tmp_trk)
 
