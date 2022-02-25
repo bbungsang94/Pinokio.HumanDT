@@ -9,7 +9,7 @@ tracker_model_name: "sort_basic"      # "box model args"
 run_mode: "Merge" # Single / Parallel / Merge
 video_list: [] # video list
 video_path: "./video/New/" # target video path
-image_path: "./test_images/" # test images path
+image_path: "test_images/" # test images path
 plan_path: "./params/plan3-15.png"
 projection_path: "./params/projection/"
 num_of_projection: 3

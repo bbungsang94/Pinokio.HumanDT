@@ -21,7 +21,7 @@ class ProjectionManager:
         xPt = (left + right) / 2
         # yPt = (top + bottom) / 2
 
-        # ╬ф╥║ го╢э
+        # М∙≤К▀╗ Й╟─Л ╢К█╟
         yPt = bottom
 
         img_height = img.shape[0]
