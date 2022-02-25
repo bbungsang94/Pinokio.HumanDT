@@ -13,6 +13,7 @@ from Trackers import REGISTRY as trk_REGISTRY
 from utilities.media_handler import PipeliningVideoManager, ImageManager
 import utilities.config_mapper as config_mapper
 from utilities.helpers import post_iou_checker, draw_box_label, transform
+from utilities.projection_helper import ProjectionManager
 
 
 def clear_folder(folder_list: list, root: str):
@@ -122,8 +123,11 @@ def pipeliningSingle(args):
         for trk in trackers.get_trackers():
             np_image = draw_box_label(np_image, trk.box,
                                       image_handle.Colors[trk.id % len(image_handle.Colors)])
-            plan_image = transform(trk.box, np_image, plan_image, matrices, name,
-                                   image_handle.Colors[trk.id % len(image_handle.Colors)])
+            plan_image = ProjectionManager.transform(trk.box, np_image, plan_image, matrices,
+                                                     image_handle.Colors[trk.id % len(image_handle.Colors)])
+
+            # plan_image = transform(trk.box, np_image, plan_image, matrices, name,
+            #                        image_handle.Colors[trk.id % len(image_handle.Colors)])
 
         if args['debug']:
             print('Ending tracker_list: ', len(trackers.get_trackers()))
@@ -373,15 +377,16 @@ if __name__ == "__main__":
                                    "LOADING DOCK F3 Rampa 11-12.avi",
                                    "LOADING DOCK F3 Rampa 9-10.avi"]
     else:
-        config['video_name'] = "LOADING DOCK F3 Rampa 9-10.avi"
+        config['video_name'] = "LOADING DOCK F3 Rampa 13 - 14.avi"
         clear_folder(
             [config['detected_path'], config['tracking_path'], config['trajectory_path'], config['image_path']],
             config['output_base_path'] + config['run_name'])
 
     # 빠른 처리에는 존재할 수가 있음
+    ProjectionManager(video_list={0: ['test', 'test2'], 1: ['test3', 'test4']}, whole_image_size=(1600, 2560))
 
-    # pipeliningSingle(args=config)
-    pipeliningParallel(args=config)
+    pipeliningSingle(args=config)
+    # pipeliningParallel(args=config)
     TimeDict['Whole_Time'] = time.time() - whole_time_begin
     TimeDict['Inference_Mean'] = TimeDict['Inference_Time'] / TimeDict['Whole_Frame']
     TimeDict['Recovery_Mean'] = TimeDict['Recovery_Time'] / TimeDict['Recovery_Count']

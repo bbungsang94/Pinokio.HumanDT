@@ -6,10 +6,10 @@ box_model_name: ""                    # "box model args"
 tracker_model_name: "sort_basic"      # "box model args"
 
 # DataSet path
-parallel_mode: True # when you merged mode
+parallel_mode: False # when you merged mode
 parallel_list: [] # merged folder list
 video_name: ""
-video_path: "./video/New/" # target video path
+video_path: "./video/" # target video path
 image_path: "./test_images/" # test images path
 plan_path: "./params/plan3-15.png"
 projection_path: "./params/projection/"
