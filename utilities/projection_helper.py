@@ -1,4 +1,5 @@
-class ProjectionManager():
+class ProjectionManager:
+
     @staticmethod
     def get_matrix(xPt, yPt, video_name: str, matrices):
         if video_name == "LOADING DOCK F3 Rampa 13 - 14":

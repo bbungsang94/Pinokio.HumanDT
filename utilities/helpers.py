@@ -154,7 +154,6 @@ def transform(bbox_cv2, img, plan_img, matrices, video_name, box_color=(0, 255, 
 
     img_height = img.shape[0]
     yPt = img_height - yPt
-
     matrix = ProjectionManager.get_matrix(xPt, yPt, video_name, matrices)
 
 
