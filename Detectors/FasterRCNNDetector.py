@@ -43,14 +43,15 @@ class OpenImageDetector(AbstractDetector):
         result = self.Detector(converted_img)
         result = {key: value.numpy() for key, value in result.items()}
         boxes = result["detection_boxes"]
+        classes_idx = result["detection_class_labels"]
         classes = result["detection_class_entities"]
         scores = result["detection_scores"]
 
-        del_idx = self.__post_process(classes, scores)
+        del_idx = self.__post_process(classes_idx, scores)
         boxes = boxes[del_idx]
         classes = classes[del_idx]
         classes = classes.astype(np.str)
-        classes[:] = self.LabelList[3]
+        classes[:] = "ForkLift"
         scores = scores[del_idx]
 
         return converted_img, boxes, classes, scores

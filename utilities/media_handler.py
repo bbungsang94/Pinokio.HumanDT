@@ -21,6 +21,8 @@ class VideoManger:
         self._image_height = 0
         self._frame_count = -1
 
+        self.video_name = ''
+
     def scan_video(self, path):
         """ Scanning videos(mp4 and avi) of path
 

@@ -6,6 +6,8 @@ import torch
 from Detectors import REGISTRY as det_REGISTRY
 from Trackers import REGISTRY as trk_REGISTRY
 from utilities.media_handler import PipeliningVideoManager, ImageManager
+from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, transform
+
 
 def pop_images(info: (PipeliningVideoManager, int)):
     handle = info[0]
@@ -31,11 +33,17 @@ class MergeRunner:
         self._Trackers = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
         self.__VideoMap = args['video_list']
         self.__VideoHandles = []
+        self.__ImageHandle = ImageManager()
+        self.__save = args['save']
+        plan_image = ImageManager.load_cv(args['plan_path'])
         self.FrameRate = 60
         self.SingleImageSize = None
         self.WholeImageSize = None
-
         self.MaxWidthIdx = 0
+
+        self.OutputImages = {'raw_image': None, 'detected_image': None,
+                             'tracking_image': None, 'plan_image': plan_image}
+
         count = 0
         for row, videos in self.__VideoMap.items():
             for idx, video_name in enumerate(videos):
@@ -44,7 +52,7 @@ class MergeRunner:
                 frame_rate, image_size = video_handle.load_video(args['video_path'] + video_name)
                 video_handle.activate_video_object(args['output_base_path'] + args['run_name'] + name + '/' +
                                                    args['tracking_path'] + video_name)
-
+                video_handle.video_name = name
                 if frame_rate < self.frame_rate:
                     self.frame_rate = frame_rate
                 if self.WholeImageSize is None:
@@ -67,6 +75,8 @@ class MergeRunner:
         for np_tensor_image in np_tensor_images:
             (np_image, tensor_image, idx) = np_tensor_image
             raw_images[idx] = (np_image, tensor_image)
+            if np_image is None:
+                return None
 
         width_merged = []
         for row, videos in self.__VideoMap.items():
@@ -84,11 +94,65 @@ class MergeRunner:
             width_merged.append(width_image)
         col_image = tf.concat(width_merged, axis=0)
         whole_image = tf.image.convert_image_dtype(col_image, tf.float32)[tf.newaxis, ...]
+        self.OutputImages['raw_image'] = whole_image
         return whole_image
 
-    def detect(self):
+    def detect(self, tensor_image):
+        raw_image, boxes, classes, scores = self._PrimaryDetector.detection(tensor_image)
+        boxes = self._PrimaryDetector.get_zboxes(boxes=boxes,
+                                                 im_width=self.WholeImageSize[0],
+                                                 im_height=self.WholeImageSize[1])
+        detected_image = self.__ImageHandle.draw_boxes(raw_image, boxes, classes, scores)
+        self.OutputImages['detected_image'] = detected_image
+        results = {'raw_image': raw_image, 'boxes': boxes, 'classes': classes, 'scores': scores}
+        return DictToStruct(**results)
 
-    def tracking(self):
+    def tracking(self, results):
+        self._Trackers.assign_detections_to_trackers(detections=results.boxes)
+        deleted_tracks = self._Trackers.update_trackers()
+        return deleted_tracks
 
-    def postprocessing(self):
+    def post_tracking(self, deleted_trackers, whole_image):
+        for trk in deleted_trackers:
+            # SSD Network 에도 잡히지 않는지 확인
+            recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(whole_image)
+            post_box = self._RecoveryDetector.get_zboxes(boxes=boxes,
+                                                         im_width=self.WholeImageSize[0],
+                                                         im_height=self.WholeImageSize[1])
+
+            post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
+            if post_pass:
+                self._Trackers.revive_tracker(revive_trk=trk, new_box=box)
+            else:
+                self._Trackers.delete_tracker(delete_id=trk.id)
+
+        np_image = whole_image.numpy()
+        plan_image = self.OutputImages['plan_image']
+        for trk in self._Trackers.get_trackers():
+            np_image = draw_box_label(np_image, trk.box,
+                                      self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)])
+            plan_image = transform(trk.box, whole_image, plan_image, matrices[model['video_name']],
+                                   model['video_name'], image_handle.Colors[trk.id % len(image_handle.Colors)])
+        self.OutputImages['tracking_image'] = np_image
+        self.OutputImages['plan_image'] = plan_image
+
+    def post_processing(self, path):
+        if self.__save:
+            file_name = ''
+            for handle_info in self.__VideoHandles:
+                (handle, count) = handle_info
+                file_name = handle.make_image_name()
+                # Test
+                ImageManager.save_image(self.OutputImages['raw_image'],
+                                        path['test_path'] + file_name)
+                # Detection
+                ImageManager.save_tensor(self.OutputImages['detected_image'],
+                                         path['detected_path'] + file_name)
+                # Tracking
+                ImageManager.save_image(self.OutputImages['tracking_image'],
+                                        path['tracking_path'] + file_name)
+            # Plan
+            ImageManager.save_image(self.OutputImages['plan_image'],
+                                    path['plan_path'] + file_name)
+
 
