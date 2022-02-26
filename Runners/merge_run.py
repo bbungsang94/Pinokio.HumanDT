@@ -59,8 +59,8 @@ class MergeRunner:
                     with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
                         self.Matrices[name].append(pickle.load(matrix))
 
-                if args['save']:
-                    make_save_folders(args, name)
+                # if args['save']:
+                #     make_save_folders(args, name)
                 count += 1
 
         self.WholeImageSize = (self.WholeImageSize[0] * (self.MaxWidthIdx + 1),
@@ -102,10 +102,10 @@ class MergeRunner:
         return rtn_value
 
     def get_image(self):
-        np_tensor_images = self.__VideoHandlePool.map(func=self.pop_images, iterable=(range(len(self.__VideoHandles))))
-
+        # np_tensor_images = self.__VideoHandlePool.map(func=self.pop_images, iterable=(range(len(self.__VideoHandles))))
         raw_images = dict()
-        for np_tensor_image in np_tensor_images:
+        for idx, _ in enumerate(self.__VideoHandles):
+            np_tensor_image = self.pop_images(idx)
             (np_image, tensor_image, idx) = np_tensor_image
             raw_images[idx] = (np_image, tensor_image)
             if np_image is None:
@@ -127,19 +127,16 @@ class MergeRunner:
                     images.append(empty_img)
             width_image = tf.concat(images, axis=1)
             width_merged.append(width_image)
-        col_image = tf.concat(width_merged, axis=0)
-        whole_image = tf.image.convert_image_dtype(col_image, tf.float32)[tf.newaxis, ...]
+        whole_image = tf.concat(width_merged, axis=0)
         self.OutputImages['raw_image'] = whole_image
         return whole_image
 
     def detect(self, tensor_image):
-        raw_image, boxes, classes, scores = self._PrimaryDetector.detection(tensor_image)
-        boxes = self._PrimaryDetector.get_zboxes(boxes=boxes,
-                                                 im_width=self.WholeImageSize[0],
-                                                 im_height=self.WholeImageSize[1])
-        detected_image = self.__ImageHandle.draw_boxes(raw_image, boxes, classes, scores)
+        raw_image, veh_info, box_info = self._PrimaryDetector.detection(tensor_image)
+        detected_image = self.__ImageHandle.draw_boxes_info(tensor_image, (veh_info, box_info))
         self.OutputImages['detected_image'] = detected_image
-        results = {'raw_image': raw_image, 'boxes': boxes, 'classes': classes, 'scores': scores}
+        (veh_boxes, veh_classes, veh_scores) = veh_info
+        results = {'raw_image': raw_image, 'boxes': veh_boxes, 'classes': veh_classes, 'scores': veh_scores}
         return DictToStruct(**results)
 
     def tracking(self, results):
@@ -174,19 +171,16 @@ class MergeRunner:
 
     def post_processing(self, path):
         if self.__save:
-            file_name = ''
-            for handle in self.__VideoHandles:
-                folder_name = handle.video_name + '/'
-                file_name = folder_name + handle.make_image_name()
-                # Test
-                ImageManager.save_image(self.OutputImages['raw_image'],
-                                        path['test_path'] + file_name)
-                # Detection
-                ImageManager.save_tensor(self.OutputImages['detected_image'],
-                                         path['detected_path'] + file_name)
-                # Tracking
-                ImageManager.save_image(self.OutputImages['tracking_image'],
-                                        path['tracking_path'] + file_name)
+            file_name = self.__VideoHandles[0].make_image_name()
+            # Test
+            ImageManager.save_tensor(self.OutputImages['raw_image'],
+                                     path['test_path'] + file_name)
+            # Detection
+            ImageManager.save_image(self.OutputImages['detected_image'],
+                                    path['detected_path'] + file_name)
+            # Tracking
+            ImageManager.save_tensor(self.OutputImages['tracking_image'],
+                                     path['tracking_path'] + file_name)
             # Plan
             ImageManager.save_image(self.OutputImages['plan_image'],
                                     path['plan_path'] + file_name)

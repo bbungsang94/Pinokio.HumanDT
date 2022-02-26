@@ -44,10 +44,10 @@ class ProjectionManager:
         max_Y_count = len(cls.video_list)
         max_X_count = len(cls.video_list[0])
 
-        (whole_height, whole_width) = cls.whole_image_size
+        (whole_width, whole_height) = cls.whole_image_size
 
         rel_x = float(xPt / whole_width)
-        rel_y = float(yPt / whole_width)
+        rel_y = float(yPt / whole_height)
         x_level = 1 / max_X_count
         y_level = 1 / max_Y_count
 
@@ -59,8 +59,8 @@ class ProjectionManager:
 
         x_index = x_value
         y_index = max_Y_count - 1 - y_value
-
-        return new_xPt, new_yPt, cls.video_list[y_index][x_index]
+        (name, extension) = cls.video_list[y_index][x_index].split('.')
+        return new_xPt, new_yPt, name
 
 
 def hex_to_rgb(h):
@@ -68,7 +68,8 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def get_matrix(xPt, yPt, video_name: str, matrices):
+def get_matrix(xPt, yPt, video_name: str, matrix_list):
+    matrices = matrix_list[video_name]
     if video_name == "LOADING DOCK F3 Rampa 13 - 14":
         xPt -= 1280 * 0  # First Video
         if ((-8 / 3 * xPt + 1600) >= yPt) and ((-25 / 39 * xPt + 1120) > yPt):

@@ -25,7 +25,7 @@ class OpenImageDetector(AbstractDetector):
         self.max_boxes = max_boxes
 
         if self.hub_mode is True:
-            self.Detector = hub.load(self.model_handle)
+            self.Detector = hub.load(self.model_handle).signatures['default']
         else:  # 로컬 모델
             raise NotImplementedError
 
@@ -39,32 +39,43 @@ class OpenImageDetector(AbstractDetector):
 
                 """
         converted_img = tf.image.convert_image_dtype(image, tf.float32)[tf.newaxis, ...]
-
         result = self.Detector(converted_img)
         result = {key: value.numpy() for key, value in result.items()}
+        info = tf.shape(converted_img)
+        veh_info, box_info = self.__post_process(result, info)
+
+        return converted_img, veh_info, box_info
+
+    def __post_process(self, result, info):
         boxes = result["detection_boxes"]
         classes_idx = result["detection_class_labels"]
         classes = result["detection_class_entities"]
         scores = result["detection_scores"]
 
-        del_idx = self.__post_process(classes_idx, scores)
-        boxes = boxes[del_idx]
-        classes = classes[del_idx]
-        classes = classes.astype(np.str)
-        classes[:] = "ForkLift"
-        scores = scores[del_idx]
-
-        return converted_img, boxes, classes, scores
-
-    def __post_process(self, classes, scores):
         veh_score_idx = scores > self.vehicle_min_score
-        veh_class_idx = classes == 103 | classes == 404 | classes == 400
+        veh_class_idx = (classes_idx == 103) | (classes_idx == 404) | (classes_idx == 400)
         veh_idx = veh_score_idx & veh_class_idx
-        box_score_idx = scores > self.vehicle_min_score
-        box_class_idx = classes == 136
-        box_idx = box_score_idx & box_class_idx
-        total_idx = veh_idx & box_idx
-        return total_idx
+        classes[veh_idx] = "ForkLift"
+
+        # box_score_idx = scores > self.box_min_score
+        box_class_idx = classes_idx == 136
+        box_idx = box_class_idx
+        classes[box_idx] = "Box"
+
+        img_shape = np.array(info)
+        veh_boxes = boxes[veh_idx]
+        veh_boxes = self.get_zboxes(veh_boxes, im_width=img_shape[2], im_height=img_shape[1])
+        veh_classes = classes[veh_idx]
+        veh_scores = scores[veh_idx]
+        veh_info = (veh_boxes, veh_classes, veh_scores)
+
+        box_boxes = boxes[box_idx]
+        box_boxes = self.get_zboxes(box_boxes, im_width=img_shape[2], im_height=img_shape[1])
+        box_classes = classes[box_idx]
+        box_scores = scores[box_idx]
+        box_info = (box_boxes, box_classes, box_scores)
+
+        return veh_info, box_info
 
     def get_zboxes(self, boxes, im_width, im_height):
         z_boxes = []

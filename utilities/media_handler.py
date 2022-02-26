@@ -7,6 +7,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import ImageColor, ImageFont, ImageDraw, Image
 from matplotlib import pyplot as plt
+from torchvision import transforms
 
 
 class VideoManger:
@@ -225,16 +226,35 @@ class ImageManager:
 
     def draw_boxes(self, image, boxes, classes, scores):
         """Overlay labeled boxes on an image with formatted scores and label names."""
+        np_image = image.numpy()
+        np_image = np_image[:, :, ::-1]
+        image_pil = Image.fromarray(np_image)
         for i in range(boxes.shape[0]):
                 display_str = "{}: {}%".format(classes[i], int(100 * scores[i]))
                 color = self.Colors[2 % len(self.Colors)]
-                image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
+
                 top, left, bottom, right = tuple(boxes[i])
                 self.draw_bounding_box_on_image(
                     image_pil, top, left, bottom, right,
                     color, display_str_list=[display_str])
-                np.copyto(image, np.array(image_pil))
-        return image
+        return np.array(image_pil)
+
+    def draw_boxes_info(self, image, info):
+        """Overlay labeled boxes on an image with formatted scores and label names."""
+        np_image = image.numpy()
+        np_image = np_image[:, :, ::-1]
+        image_pil = Image.fromarray(np_image)
+        for result in info:
+            (boxes, classes, scores) = result
+            for i in range(boxes.shape[0]):
+                    display_str = "{}: {}%".format(classes[i], int(100 * scores[i]))
+                    color = self.Colors[2 % len(self.Colors)]
+
+                    top, left, bottom, right = tuple(boxes[i])
+                    self.draw_bounding_box_on_image(
+                        image_pil, top, left, bottom, right,
+                        color, display_str_list=[display_str])
+        return np.array(image_pil)
 
     def display_image(self, img):
         self.figure = plt.figure(figsize=(20, 15))
