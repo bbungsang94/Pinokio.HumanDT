@@ -136,6 +136,11 @@ def convert_to_cv2bbox(bbox, img_dim=(1280, 720)):
     return left, top, right, bottom
 
 
+class DictToStruct:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+
 def hex_to_rgb(h):
     h = h.lstrip('#')
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
