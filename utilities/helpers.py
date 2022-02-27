@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 from utilities.projection_helper import ProjectionManager
-
+from utilities.projection_helper import get_matrix
 global count
 count = 1
 
@@ -155,7 +155,8 @@ def transform(bbox_cv2, img, plan_img, matrices, video_name, box_color=(0, 255, 
     img_height = img.shape[0]
     yPt = img_height - yPt
 
-    matrix = ProjectionManager.get_matrix(xPt, yPt, video_name, matrices)
+    matrix = get_matrix(xPt, yPt, video_name, matrices)
+    # matrix = ProjectionManager.get_matrix(xPt, yPt, video_name, matrices)
 
     plan_img_height = plan_img.shape[0]
     w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]

@@ -121,13 +121,16 @@ def pipeliningSingle(args):
 
         # The list of tracks to be annotated
         for trk in trackers.get_trackers():
+            # Dock In / Out Check
+            left, top, right, bottom = trk.box[1], trk.box[0], trk.box[3], trk.box[2]
+
             np_image = draw_box_label(np_image, trk.box,
                                       image_handle.Colors[trk.id % len(image_handle.Colors)])
-            plan_image = ProjectionManager.transform(trk.box, np_image, plan_image, matrices,
-                                                     image_handle.Colors[trk.id % len(image_handle.Colors)])
+            # plan_image = ProjectionManager.transform(trk.box, np_image, plan_image, matrices,
+            #                                          image_handle.Colors[trk.id % len(image_handle.Colors)])
 
-            # plan_image = transform(trk.box, np_image, plan_image, matrices, name,
-            #                        image_handle.Colors[trk.id % len(image_handle.Colors)])
+            plan_image = transform(trk.box, np_image, plan_image, matrices, name,
+                                   image_handle.Colors[trk.id % len(image_handle.Colors)])
 
         if args['debug']:
             print('Ending tracker_list: ', len(trackers.get_trackers()))
@@ -383,7 +386,7 @@ if __name__ == "__main__":
             config['output_base_path'] + config['run_name'])
 
     # 빠른 처리에는 존재할 수가 있음
-    ProjectionManager(video_list={0: ['test', 'test2'], 1: ['test3', 'test4']}, whole_image_size=(1600, 2560))
+    # ProjectionManager(video_list={0: ['test', 'test2'], 1: ['test3', 'test4']}, whole_image_size=(1600, 2560))
 
     pipeliningSingle(args=config)
     # pipeliningParallel(args=config)
