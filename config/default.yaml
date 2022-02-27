@@ -3,7 +3,7 @@
 primary_model_name: "FasterRCNN"       # "primary model args"
 recovery_model_name: "ssd_mobile"     # "recovery model args"
 box_model_name: ""                    # "box model args"
-tracker_model_name: "sort_basic"      # "box model args"
+tracker_model_name: "sort_basic"         # "tracker model args"
 
 # DataSet path
 run_mode: "Merge" # Single / Parallel / Merge

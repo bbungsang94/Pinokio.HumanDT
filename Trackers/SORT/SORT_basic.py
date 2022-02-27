@@ -26,8 +26,8 @@ class SortTracker(AbstractTracker):
         self.reassign_buffer = reassign_buffer
         self.image_size = image_size
 
-        self.__tracker_list = []  # list for trackers
-        self.__track_id_list = deque(range(max_trackers))  # list for track ID
+        self._tracker_list = []  # list for trackers
+        self._track_id_list = deque(range(max_trackers))  # list for track ID
         width_buffer = self.image_size[0] * self.reassign_buffer
         height_buffer = self.image_size[1] * self.reassign_buffer
         self.__reassign_location = (width_buffer, self.image_size[0] - width_buffer,
@@ -45,8 +45,8 @@ class SortTracker(AbstractTracker):
         unmatched trackers, unmatched detections.
         """
         self.__older_box = detections
-        IOU_mat = np.zeros((len(self.__tracker_list), len(detections)), dtype=np.float32)
-        for t, trk in enumerate(self.__tracker_list):
+        IOU_mat = np.zeros((len(self._tracker_list), len(detections)), dtype=np.float32)
+        for t, trk in enumerate(self._tracker_list):
             # trk = convert_to_cv2bbox(trk)
             for d, det in enumerate(detections):
                 #   det = convert_to_cv2bbox(det)
@@ -61,7 +61,7 @@ class SortTracker(AbstractTracker):
         matched_idx = np.transpose(matched_idx)
 
         unmatched_trackers, unmatched_detections = [], []
-        for t, trk in enumerate(self.__tracker_list):
+        for t, trk in enumerate(self._tracker_list):
             if t not in matched_idx[:, 0]:
                 unmatched_trackers.append(t)
 
@@ -93,12 +93,12 @@ class SortTracker(AbstractTracker):
 
     def update_trackers(self):
         """ update tracker's attributes"""
-        self.__update_matched()
-        self.__update_assign()
-        self.__update_loss()
+        self._update_matched()
+        self._update_assign()
+        self._update_loss()
 
-        deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self.__tracker_list)
-        self.__tracker_list = [x for x in self.__tracker_list if x.no_losses <= self.max_age]
+        deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self._tracker_list)
+        self._tracker_list = [x for x in self._tracker_list if x.no_losses <= self.max_age]
         return deleted_tracks
 
     def revive_tracker(self, revive_trk, new_box):
@@ -111,20 +111,20 @@ class SortTracker(AbstractTracker):
         revive_trk.box = xx
         revive_trk.no_losses = self.max_age - 2
 
-        self.__tracker_list.append(revive_trk)
+        self._tracker_list.append(revive_trk)
 
     def delete_tracker(self, delete_id):
-        self.__track_id_list.append(delete_id)
+        self._track_id_list.append(delete_id)
 
     def get_trackers(self):
-        return self.__tracker_list
+        return self._tracker_list
 
-    def __update_matched(self):
+    def _update_matched(self):
         if self.__matched_detections.size > 0:
             for trk_idx, det_idx in self.__matched_detections:
                 z = self.__older_box[det_idx]
                 z = np.expand_dims(z, axis=0).T
-                tmp_trk = self.__tracker_list[trk_idx]
+                tmp_trk = self._tracker_list[trk_idx]
                 tmp_trk.kalman_filter(z)
                 xx = tmp_trk.x_state.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
@@ -132,7 +132,7 @@ class SortTracker(AbstractTracker):
                 tmp_trk.hits += 1
                 tmp_trk.no_losses = 0
 
-    def __update_assign(self):
+    def _update_assign(self):
         if len(self.__unmatched_detections) > 0:
             for idx in self.__unmatched_detections:
                 z = self.__older_box[idx]
@@ -147,19 +147,22 @@ class SortTracker(AbstractTracker):
                 tmp_trk.box = xx # Top, Left, Bottom, Right
                 x_mid = (xx[3] + xx[1]) / 2
                 y_bottom = xx[2]
-                first_condition = self.__reassign_location[0] < x_mid < self.__reassign_location[1]
-                second_condition = self.__reassign_location[2] < y_bottom < self.__reassign_location[3]
-                if first_condition and second_condition:
-                    tmp_trk.id = self.__track_id_list.pop()
+                new_assign = self._reassign_judge(x=x_mid, y=y_bottom)
+                if new_assign:
+                    tmp_trk.id = self._track_id_list.pop()
                 else:
+                    tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                self._tracker_list.append(tmp_trk)
 
-                    tmp_trk.id = self.__track_id_list.popleft()  # assign an ID for the tracker
-                self.__tracker_list.append(tmp_trk)
+    def _reassign_judge(self, x, y):
+        first_condition = self.__reassign_location[0] < x < self.__reassign_location[1]
+        second_condition = self.__reassign_location[2] < y < self.__reassign_location[3]
+        return first_condition and second_condition
 
-    def __update_loss(self):
+    def _update_loss(self):
         if len(self.__unmatched_trackers) > 0:
             for trk_idx in self.__unmatched_trackers:
-                tmp_trk = self.__tracker_list[trk_idx]
+                tmp_trk = self._tracker_list[trk_idx]
                 tmp_trk.no_losses += 1
                 tmp_trk.predict_only()
                 xx = tmp_trk.x_state
@@ -167,6 +170,39 @@ class SortTracker(AbstractTracker):
                 xx = [xx[0], xx[2], xx[4], xx[6]]
                 tmp_trk.box = xx
 
+
+class SortTrackerEx(SortTracker):
+    def update_trackers(self):
+        """ update tracker's attributes"""
+        self._update_matched()
+        self._update_assign()
+        self._update_loss()
+
+        deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self._tracker_list)
+        self._tracker_list = [x for x in self._tracker_list if x.no_losses <= self.max_age]
+        return deleted_tracks
+    
+    def _update_assign(self):
+        if len(self.__unmatched_detections) > 0:
+            for idx in self.__unmatched_detections:
+                z = self.__older_box[idx]
+                z = np.expand_dims(z, axis=0).T
+                tmp_trk = SingleTracker()  # Create a new tracker
+                x = np.array([[z[0], 0, z[1], 0, z[2], 0, z[3], 0]]).T
+                tmp_trk.x_state = x
+                tmp_trk.predict_only()
+                xx = tmp_trk.x_state
+                xx = xx.T[0].tolist()
+                xx = [xx[0], xx[2], xx[4], xx[6]]
+                tmp_trk.box = xx # Top, Left, Bottom, Right
+                x_mid = (xx[3] + xx[1]) / 2
+                y_bottom = xx[2]
+                new_assign = self._reassign_judge(x=x_mid, y=y_bottom)
+                if new_assign:
+                    tmp_trk.id = self._track_id_list.pop()
+                else:
+                    tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                self._tracker_list.append(tmp_trk)
 
 class SingleTracker:  # class for Kalman Filter-based tracker
     def __init__(self):

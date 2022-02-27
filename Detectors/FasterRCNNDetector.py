@@ -57,10 +57,10 @@ class OpenImageDetector(AbstractDetector):
         veh_idx = veh_score_idx & veh_class_idx
         classes[veh_idx] = "ForkLift"
 
-        # box_score_idx = scores > self.box_min_score
-        box_class_idx = classes_idx == 136
-        box_idx = box_class_idx
-        classes[box_idx] = "Box"
+        box_score_idx = scores > self.box_min_score
+        # box_class_idx = classes_idx == 136
+        box_idx = box_score_idx
+        # classes[box_idx] = "Box"
 
         img_shape = np.array(info)
         veh_boxes = boxes[veh_idx]
@@ -74,7 +74,6 @@ class OpenImageDetector(AbstractDetector):
         box_classes = classes[box_idx]
         box_scores = scores[box_idx]
         box_info = (box_boxes, box_classes, box_scores)
-
         return veh_info, box_info
 
     def get_zboxes(self, boxes, im_width, im_height):

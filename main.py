@@ -31,16 +31,9 @@ if __name__ == "__main__":
                 'Tracking_Time': 0, 'Tracking_Mean': 0, 'Max_Tracker': 0,
                 'Save_Time': 0, 'Save_Mean': 0}
     whole_time_begin = time.time()
-    # detector ['efficient', 'ssd_mobile', 'centernet']
-    primary_detector_name = 'FasterRCNN'
-    recovery_detector_name = 'ssd_mobile'
-    # tracker
-    trk_name = 'sort_basic'
 
     config = config_mapper.config_copy(
-        config_mapper.get_config(
-            detection_names=[primary_detector_name, recovery_detector_name],
-            tracker_names=[trk_name]))
+        config_mapper.get_config())
 
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['run_name'] = config['run_name'] + '/'
