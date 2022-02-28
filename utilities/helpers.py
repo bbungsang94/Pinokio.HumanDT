@@ -84,6 +84,14 @@ def post_iou_checker(target, candidates, thr=0.5, offset=0.2):
     return False, None
 
 
+def iou_checker(target, candidates, thr=0.5):
+    for candidate in candidates:
+        iou = box_iou2(target, candidate)
+        if iou >= thr:
+            return True
+    return False
+
+
 def convert_to_pixel(box_yolo, img, crop_range):
     """
     Helper function to convert (scaled) coordinates of a bounding box

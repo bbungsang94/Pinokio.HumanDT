@@ -31,10 +31,10 @@ def run_sequential(args, log=None):
         image = runner.get_image()
         if image is None:
             return
-        detect_result = runner.detect(tensor_image=image)
-        deleted_tracks = runner.tracking(detect_result)
-        runner.post_tracking(deleted_trackers=deleted_tracks, whole_image=image)
-        runner.post_processing(paths)
+        detect_result, box_anchors = runner.detect(tensor_image=image)
+        delete_candidates = runner.tracking(detect_result)
+        deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)
+        runner.post_processing(paths, box_anchors, deleted_tracker_ids)
 
 
 def args_sanity_check(config, _log):

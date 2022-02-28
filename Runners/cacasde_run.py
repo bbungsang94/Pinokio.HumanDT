@@ -8,6 +8,7 @@ from utilities.media_handler import ImageManager, PipeliningVideoManager
 from utilities.projection_helper import ProjectionManager
 from Detectors import REGISTRY as det_REGISTRY
 from Trackers import REGISTRY as trk_REGISTRY
+from utilities.state_manager import StateDecisionMaker
 
 
 class CascadeRunner(AbstractRunner):
@@ -77,6 +78,7 @@ class CascadeRunner(AbstractRunner):
         # deleted id -> recovery_ -> <delete id> -> tracker[idx] % 3 != idx -> tracker[idx].forced delete
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
         self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
+        self.__interactor = StateDecisionMaker(thr=0.4)
 
     def pop_images(self, idx: int):
         handle = self.__VideoHandles[idx]
@@ -104,16 +106,19 @@ class CascadeRunner(AbstractRunner):
 
     def detect(self, tensor_image):
         result_list = []
+        box_anchors = []
         for image in tensor_image:
             raw_image, veh_info, box_info = self._PrimaryDetector.detection(image)
             detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
+            (box_boxes, _, _) = box_info
             (veh_boxes, veh_classes, veh_scores) = veh_info
             results = {'raw_image': raw_image, 'boxes': veh_boxes, 'classes': veh_classes, 'scores': veh_scores}
             results = DictToStruct(**results)
             self.OutputImages['detected_image'].append(detected_image)
+            box_anchors.append(box_boxes)
             result_list.append(results)
 
-        return result_list
+        return result_list, box_anchors
 
     def tracking(self, results):
         del_list = []
@@ -146,6 +151,7 @@ class CascadeRunner(AbstractRunner):
     # [1, 2, 3, 4, 5]
 
     def post_tracking(self, deleted_trackers, whole_image):
+        deleted_ids = []
         plan_image = self.OutputImages['plan_image']
         for idx, del_tracker in enumerate(deleted_trackers):
             for trk in del_tracker:
@@ -160,6 +166,7 @@ class CascadeRunner(AbstractRunner):
                     self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
                 else:
                     self._Trackers[idx].delete_tracker(delete_id=trk.id)
+                    deleted_ids.append(trk.id)
 
 
             np_image = whole_image[idx].numpy()
@@ -171,6 +178,7 @@ class CascadeRunner(AbstractRunner):
 
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
+        return deleted_ids
 
     def delete_overlap(self, tracker):
         video_idx_dict = dict()
@@ -255,3 +263,10 @@ class CascadeRunner(AbstractRunner):
 
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': self.OutputImages['plan_image']}
+
+    def interaction_processing(self, box_anchors, deleted_trackers):
+        results = self.__interactor.get_decision(trackers_list=self._Trackers, boxes_list=box_anchors)
+        self.__interactor.update_decision(image_name=self.__VideoHandles[0].make_image_name(), results=results)
+        self.__interactor.loss_tracker(deleted_trackers)
+
+
