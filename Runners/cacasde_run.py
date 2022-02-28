@@ -134,6 +134,7 @@ class CascadeRunner(AbstractRunner):
 
             np_image = whole_image[idx].numpy()
             for trk in self._Trackers[idx].get_trackers():
+
                 np_image = draw_box_label(np_image, trk.box,
                                           self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)])
                 plan_image = ProjectionManager.transform(trk.box, whole_image[idx], plan_image,
