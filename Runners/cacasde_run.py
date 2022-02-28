@@ -27,6 +27,21 @@ class CascadeRunner(AbstractRunner):
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': plan_image}
 
+        # 수정 필요
+        self.DockInRegion = dict()
+        with open(args['projection_path'] + "(13-14)-14.pickle", 'rb') as matrix:
+            self.DockInRegion[14] = pickle.load(matrix)
+        with open(args['projection_path'] + "(13-14)-13.pickle", 'rb') as matrix:
+            self.DockInRegion[13] = pickle.load(matrix)
+        with open(args['projection_path'] + "(11-12)-12.pickle", 'rb') as matrix:
+            self.DockInRegion[12] = pickle.load(matrix)
+        with open(args['projection_path'] + "(11-12)-11.pickle", 'rb') as matrix:
+            self.DockInRegion[11] = pickle.load(matrix)
+        with open(args['projection_path'] + "(9-10)-10.pickle", 'rb') as matrix:
+            self.DockInRegion[10] = pickle.load(matrix)
+        with open(args['projection_path'] + "(9-10)-9.pickle", 'rb') as matrix:
+            self.DockInRegion[9] = pickle.load(matrix)
+
         self.Matrices = dict()
         count = 0
         for row, videos in self.__VideoMap.items():
