@@ -5,10 +5,12 @@ class ProjectionManager:
     instance = None
     video_list = dict()
     whole_image_size = tuple
+    single_image_size = tuple
 
-    def __new__(cls, video_list, whole_image_size):
+    def __new__(cls, video_list, whole_image_size, single_image_size):
         cls.video_list = video_list
         cls.whole_image_size = whole_image_size
+        cls.single_image_size = single_image_size
         if not hasattr(cls, 'instance'):
             cls.instance = super(ProjectionManager, cls).__new__(cls)
             return cls.instance
@@ -45,7 +47,7 @@ class ProjectionManager:
         max_X_count = len(cls.video_list[0])
 
         (whole_width, whole_height) = cls.whole_image_size
-
+        (single_width, single_height) = cls.single_image_size
         rel_x = float(xPt / whole_width)
         rel_y = float(yPt / whole_height)
         x_level = 1 / max_X_count
@@ -54,8 +56,8 @@ class ProjectionManager:
         x_value = int(rel_x / x_level)
         y_value = int(rel_y / y_level)
 
-        new_xPt = xPt - 1280 * x_value
-        new_yPt = yPt - 800 * y_value
+        new_xPt = xPt - single_width * x_value
+        new_yPt = yPt - single_height * y_value
 
         x_index = x_value
         y_index = max_Y_count - 1 - y_value

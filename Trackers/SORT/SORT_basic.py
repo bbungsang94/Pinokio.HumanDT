@@ -159,6 +159,8 @@ class SortTracker(AbstractTracker):
         second_condition = self.__reassign_location[2] < y < self.__reassign_location[3]
         return first_condition and second_condition
 
+    # def _overlap_judge(self, x, y):
+
     def _update_loss(self):
         if len(self.__unmatched_trackers) > 0:
             for trk_idx in self.__unmatched_trackers:
