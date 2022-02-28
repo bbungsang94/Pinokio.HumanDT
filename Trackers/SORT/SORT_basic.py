@@ -30,6 +30,7 @@ class SortTracker(AbstractTracker):
         self.image_size = image_size
         self.video_idx = video_idx
         self.video_len = video_len
+        self.exist_threshold = get_distance((0, image_size[1]), (image_size[0], 0)) / 9
 
         self._tracker_list = []  # list for trackers
         self.reserved_tracker_list = []  # list for reserved trackers
@@ -163,6 +164,10 @@ class SortTracker(AbstractTracker):
 
     def __is_exist_tracker(self, new_box, thr=0.6):
         for base_tracker in self._tracker_list:
+            (xPt, yPt) = (base_tracker.box[0] + base_tracker.box[2]) / 2, (base_tracker.box[1] + base_tracker.box[4]) / 2
+            (new_x, new_y) = (new_box.box[0] + new_box.box[2]) / 2, (new_box.box[1] + new_box.box[4]) / 2
+            if get_distance((xPt, yPt), (new_x, new_y)) < self.exist_threshold:
+                return True
             if box_iou2(base_tracker.box, new_box) > thr:
                 return True
         return False
