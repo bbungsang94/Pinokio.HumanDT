@@ -1,5 +1,7 @@
 import pandas as pd
 
+from utilities.helpers import iou_checker
+
 
 class StateMonitor:
     def __init__(self):
@@ -44,6 +46,8 @@ class StateMonitor:
         temp_raw.to_csv(path + 'raw_data.csv', mode='w', encoding='euc-kr')
         ratio_df.to_csv(path + 'ratio_data.csv', mode='w', encoding='euc-kr')
 
+        print(self.Calculator)
+
 
 class StateProcessor:
     def __init__(self):
@@ -83,6 +87,51 @@ class StateProcessor:
                     self.Monitor.cumtime_object(idx, candidate_state, real_time - old_time)
                     return
 
+    def dequeue(self, idx: int):
+        (old_state, old_time, predict_state) = self.OldStates[idx]
+        self.Monitor.cumtime_object(idx, old_state, self.T_now - old_time)
+        self.OldStates[idx] = ("NA", self.T_now, predict_state)
+
+    def update_time(self, pin_name: str):
+        (pin_time, _) = pin_name.split('.')
+        pin_time = pin_time.replace('-', '.')
+        real_time = float(pin_time)
+        self.T_now = real_time
+        for key, value in self.OldStates.items():
+            (old_state, old_time, predict_state) = value
+            self.Monitor.cumtime_object(key, old_state, real_time - old_time)
+            self.OldStates[key] = (old_state, real_time, predict_state)
+
     def save(self, path):
         self.Monitor.save_file(path)
-        print(self.Monitor.Calculator)
+
+
+class StateDecisionMaker:
+    def __init__(self, thr=0.4):
+        self.Threshold = thr
+        self.Processor = StateProcessor()
+        self.StateSpace = self.Processor.Monitor.Keys
+        self.Ref = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA']
+
+    def get_decision(self, trackers_list: list, boxes_list: list):
+        decision_results = []
+        for idx, trackers in enumerate(trackers_list):
+            for tracker in trackers:
+                if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
+                    tracker_state = ('Load_Move', tracker.id)
+                else:
+                    tracker_state = ('Empty_Move', tracker.id)
+                decision_results.append(tracker_state)
+        return decision_results
+
+    def loss_tracker(self, trackers_id):
+        for tracker_id in trackers_id:
+            self.Processor.dequeue(tracker_id)
+        self.Processor.save('./test/')
+
+    def update_decision(self, image_name, results):
+        for result in results:
+            (state, idx) = result
+            self.Processor.enqueue(idx, state, image_name)
+        self.Processor.update_time(image_name)
+        self.Processor.save('./test/')
