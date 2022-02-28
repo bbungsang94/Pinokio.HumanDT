@@ -19,6 +19,7 @@ class SortTracker(AbstractTracker):
                  max_trackers=10,
                  reassign_buffer=0.0,
                  image_size=[],
+                 exist_division=9,
                  video_idx=0,
                  video_len=1
                  ):
@@ -36,6 +37,7 @@ class SortTracker(AbstractTracker):
         self.reserved_tracker_list = []  # list for reserved trackers
 
         self._track_id_list = deque(range(video_idx, max_trackers, video_len))  # list for track ID
+        self._max_trackers = len(self._track_id_list)
         width_buffer = self.image_size[0] * self.reassign_buffer
         height_buffer = self.image_size[1] * self.reassign_buffer
         self.__reassign_location = (width_buffer, self.image_size[0] - width_buffer,
@@ -192,7 +194,10 @@ class SortTracker(AbstractTracker):
                 reassign = self._reassign_judge(x=x_mid, y=y_bottom)
                 is_overlap_region = self._overlap_judge(tmp_trk.box)
                 if reassign:
-                    tmp_trk.id = self._track_id_list.pop()
+                    if self._max_trackers > len(self._track_id_list):
+                        tmp_trk.id = self._track_id_list.pop()
+                    else:
+                        tmp_trk.id = self._track_id_list.popleft()
                 else:
                     tmp_trk.id = self._track_id_list.popleft() # assign an ID for the tracker
                     if is_overlap_region:

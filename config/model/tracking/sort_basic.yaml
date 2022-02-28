@@ -5,6 +5,7 @@ sort_basic:
   iou_thrd: 0.3
   max_trackers: 255
   reassign_buffer: 0.3
+  exist_division: 9
   image_size: []
   video_idx: 0
   video_len: 1
