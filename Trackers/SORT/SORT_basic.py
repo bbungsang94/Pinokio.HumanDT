@@ -6,7 +6,8 @@ from scipy.linalg import inv, block_diag
 from scipy.optimize import linear_sum_assignment
 
 from Trackers.GeneralTracker import AbstractTracker
-from utilities.helpers import box_iou2
+from utilities.helpers import box_iou2, get_distance
+from utilities.projection_helper import ProjectionManager
 
 
 class SortTracker(AbstractTracker):
@@ -17,7 +18,9 @@ class SortTracker(AbstractTracker):
                  iou_thrd=0.0,
                  max_trackers=10,
                  reassign_buffer=0.0,
-                 image_size=[]
+                 image_size=[],
+                 video_idx=0,
+                 video_len=1
                  ):
         self.model_name = model_name
         self.max_age = max_age
@@ -25,9 +28,13 @@ class SortTracker(AbstractTracker):
         self.iou_thrd = iou_thrd
         self.reassign_buffer = reassign_buffer
         self.image_size = image_size
+        self.video_idx = video_idx
+        self.video_len = video_len
 
         self._tracker_list = []  # list for trackers
-        self._track_id_list = deque(range(max_trackers))  # list for track ID
+        self.reserved_tracker_list = []  # list for reserved trackers
+
+        self._track_id_list = deque(range(video_idx, max_trackers, video_len))  # list for track ID
         width_buffer = self.image_size[0] * self.reassign_buffer
         height_buffer = self.image_size[1] * self.reassign_buffer
         self.__reassign_location = (width_buffer, self.image_size[0] - width_buffer,
@@ -111,9 +118,22 @@ class SortTracker(AbstractTracker):
         revive_trk.box = xx
         revive_trk.no_losses = self.max_age - 2
 
+        is_overlap = self._overlap_judge(revive_trk.box)
+        if is_overlap:
+            self.reserved_tracker_list.append(revive_trk)
         self._tracker_list.append(revive_trk)
 
     def delete_tracker(self, delete_id):
+        for reserved_trk in self.reserved_tracker_list:  # reserved에 존재할 경우
+            if reserved_trk.id == delete_id:
+                return
+        self._track_id_list.append(delete_id)
+
+    def delete_tracker_forced(self, delete_id):
+        for reserved_trk in self.reserved_tracker_list:  # reserved에 존재할 경우
+            if reserved_trk.id == delete_id:
+                self.reserved_tracker_list.remove(reserved_trk)
+                break
         self._track_id_list.append(delete_id)
 
     def get_trackers(self):
@@ -132,6 +152,21 @@ class SortTracker(AbstractTracker):
                 tmp_trk.hits += 1
                 tmp_trk.no_losses = 0
 
+                is_overlap_region = self._overlap_judge(tmp_trk.box)
+                if is_overlap_region:
+                    if tmp_trk not in self.reserved_tracker_list:
+                        tmp_trk.origin = True
+                        self.reserved_tracker_list.append(tmp_trk)
+                else:
+                    if tmp_trk in self.reserved_tracker_list:
+                        self.reserved_tracker_list.remove(tmp_trk)  # 지워준다 대상거
+
+    def __is_exist_tracker(self, new_box, thr=0.6):
+        for base_tracker in self._tracker_list:
+            if box_iou2(base_tracker.box, new_box) > thr:
+                return True
+        return False
+
     def _update_assign(self):
         if len(self.__unmatched_detections) > 0:
             for idx in self.__unmatched_detections:
@@ -145,13 +180,18 @@ class SortTracker(AbstractTracker):
                 xx = xx.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
                 tmp_trk.box = xx # Top, Left, Bottom, Right
+                if self.__is_exist_tracker(xx):
+                    continue
                 x_mid = (xx[3] + xx[1]) / 2
                 y_bottom = xx[2]
-                new_assign = self._reassign_judge(x=x_mid, y=y_bottom)
-                if new_assign:
+                reassign = self._reassign_judge(x=x_mid, y=y_bottom)
+                is_overlap_region = self._overlap_judge(tmp_trk.box)
+                if reassign:
                     tmp_trk.id = self._track_id_list.pop()
                 else:
-                    tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                    tmp_trk.id = self._track_id_list.popleft() # assign an ID for the tracker
+                    if is_overlap_region:
+                        self.reserved_tracker_list.append(tmp_trk)
                 self._tracker_list.append(tmp_trk)
 
     def _reassign_judge(self, x, y):
@@ -159,7 +199,22 @@ class SortTracker(AbstractTracker):
         second_condition = self.__reassign_location[2] < y < self.__reassign_location[3]
         return first_condition and second_condition
 
-    # def _overlap_judge(self, x, y):
+    def _overlap_judge(self, box):
+        left, right = box[1], box[3]
+        xPt = (left + right) / 2
+
+        width_buffer = self.image_size[0] * self.reassign_buffer
+
+        if self.video_idx == 0:  # 첫 영상
+            if self.image_size[0] - width_buffer < xPt < self.image_size[0]:
+                return True
+        elif self.video_idx == self.video_len - 1:  # 마지막 영상
+            if 0 < xPt < width_buffer:
+                return True
+        else:
+            if (0 < xPt < width_buffer) or (self.image_size[0] - width_buffer < xPt < self.image_size[0]):
+                return True
+        return False
 
     def _update_loss(self):
         if len(self.__unmatched_trackers) > 0:
@@ -206,6 +261,7 @@ class SortTrackerEx(SortTracker):
                     tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
                 self._tracker_list.append(tmp_trk)
 
+
 class SingleTracker:  # class for Kalman Filter-based tracker
     def __init__(self):
         # Initialize parameters for tracker (history)
@@ -213,7 +269,7 @@ class SingleTracker:  # class for Kalman Filter-based tracker
         self.box = []  # list to store the coordinates for a bounding box
         self.hits = 0  # number of detection matches
         self.no_losses = 0  # number of unmatched tracks (track loss)
-
+        self.origin = False
         # Initialize parameters for Kalman Filtering
         # The state is the (x, y) coordinates of the detection box
         # state: [up, up_dot, left, left_dot, down, down_dot, right, right_dot]

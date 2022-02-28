@@ -8,7 +8,7 @@ import torch
 from Detectors import REGISTRY as det_REGISTRY
 from Trackers import REGISTRY as trk_REGISTRY
 from utilities.media_handler import PipeliningVideoManager, ImageManager
-from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, transform
+from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label
 from utilities.projection_helper import ProjectionManager
 
 
