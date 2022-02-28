@@ -220,7 +220,6 @@ class CascadeRunner(AbstractRunner):
                 else:
                     trackers[tracker_idx_dict[tracker.id]] = target_tracker.id
                     target_trackers.pop(tracker_idx_dict[target_tracker.id])
-                    raise "Fucking Y?"
 
         # for target_idx in range(len(tmp_list)):
         #     if tracker.id == tmp_list[target_idx].id: # 본인 등판

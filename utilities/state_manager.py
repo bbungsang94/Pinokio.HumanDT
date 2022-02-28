@@ -158,4 +158,3 @@ class StateDecisionMaker:
             (state, idx) = result
             self.Processor.enqueue(idx, state, image_name)
         self.Processor.update_time(image_name)
-        self.Processor.save('./test/')
