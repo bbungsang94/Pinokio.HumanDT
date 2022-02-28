@@ -3,7 +3,7 @@
 """
 Helper classes and functions for detection and tracking
 """
-
+import math
 import imageio
 import numpy as np
 import cv2
@@ -154,32 +154,6 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def transform(bbox_cv2, img, plan_img, matrices, video_name, box_color=(0, 255, 255)):
-    global count
-    if isinstance(box_color, tuple) is False:
-        box_color = hex_to_rgb(box_color)
-    left, top, right, bottom = bbox_cv2[1], bbox_cv2[0], bbox_cv2[3], bbox_cv2[2]
-    xPt = (left + right) / 2
-    # yPt = (top + bottom) / 2
-
-    # 아래 하단
-    yPt = bottom
-
-    img_height = img.shape[0]
-    yPt = img_height - yPt
-
-    matrix = get_matrix(xPt, yPt, video_name, matrices)
-    # matrix = ProjectionManager.get_matrix(xPt, yPt, video_name, matrices)
-
-    plan_img_height = plan_img.shape[0]
-    w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
-    x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
-    y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
-
-    plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 2, box_color, thickness=-1)
-    return plan_image
-
-
 def draw_box_label(img, bbox_cv2, box_color=(0, 255, 255), show_label=True):
     """
     Helper function for drawing the bounding boxes and the labels
@@ -206,3 +180,7 @@ def draw_box_label(img, bbox_cv2, box_color=(0, 255, 255), show_label=True):
         text_y = 'y=' + str((top + bottom) / 2)
         cv2.putText(img, text_y, (left, top - 5), font, font_size, font_color, 1, cv2.LINE_AA)
     return img
+
+def get_distance(a, b):
+    return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+

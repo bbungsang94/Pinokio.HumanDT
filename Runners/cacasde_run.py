@@ -1,8 +1,9 @@
+import math
 import pickle
 import copy
 import Runners.general_runner
 from Runners.general_runner import AbstractRunner
-from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label
+from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, get_distance
 from utilities.media_handler import ImageManager, PipeliningVideoManager
 from utilities.projection_helper import ProjectionManager
 from Detectors import REGISTRY as det_REGISTRY
@@ -16,12 +17,13 @@ class CascadeRunner(AbstractRunner):
         self.__VideoHandles = []
         self.__ImageHandle = ImageManager()
         self.__save = args['save']
+        self.__oldReservedTrkLen = dict()
+
         plan_image = ImageManager.load_cv(args['plan_path'])
         self.FrameRate = 60
         self.SingleImageSize = None
         self.WholeImageSize = None
         self.MaxWidthIdx = 0
-
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': plan_image}
 
@@ -41,10 +43,12 @@ class CascadeRunner(AbstractRunner):
                     self.SingleImageSize = image_size
 
                 self.__VideoHandles.append(video_handle)
-                self.Matrices[name] = []
+                self.__oldReservedTrkLen[idx] = 0
+
+                self.Matrices[idx] = []
                 for local_cnt in range(args['num_of_projection']):
                     with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
-                        self.Matrices[name].append(pickle.load(matrix))
+                        self.Matrices[idx].append(pickle.load(matrix))
 
                 if args['save']:
                     Runners.general_runner.make_save_folders(args=args, name=name)
@@ -52,7 +56,8 @@ class CascadeRunner(AbstractRunner):
 
         self.WholeImageSize = (self.WholeImageSize[0], self.WholeImageSize[1])
 
-        ProjectionManager(video_list=args['video_list'], whole_image_size=self.WholeImageSize, single_image_size=self.SingleImageSize)
+        ProjectionManager(video_list=args['video_list'], whole_image_size=self.WholeImageSize,
+                          single_image_size=self.SingleImageSize, matrices=self.Matrices)
 
         self.__PlanHandle = PipeliningVideoManager()
         height, width, _ = plan_image.shape
@@ -66,11 +71,21 @@ class CascadeRunner(AbstractRunner):
         tracker_model_args['image_size'] = [self.WholeImageSize[0], self.WholeImageSize[1]]
         self._Trackers = []
         for idx, _ in enumerate(self.__VideoHandles):
+            tracker_model_args['video_idx'] = idx
+            tracker_model_args['video_len'] = len(self.__VideoHandles)
             tracker = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
             self._Trackers.append(copy.deepcopy(tracker))
+        # deleted id -> recovery_ -> <delete id> -> tracker[idx] % 3 != idx -> tracker[idx].forced delete
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
         self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
         self.__interactor = StateDecisionMaker(thr=0.4)
+
+    def clean_trackers(self, deleted_ids):
+        for video_idx, single_deleted_list in enumerate(deleted_ids):
+            for deleted_id in single_deleted_list:
+                target = deleted_id % 3
+                if video_idx is not target:
+                    self._Trackers[target].delete_tracker_forced(deleted_id)
 
     def pop_images(self, idx: int):
         handle = self.__VideoHandles[idx]
@@ -114,17 +129,39 @@ class CascadeRunner(AbstractRunner):
 
     def tracking(self, results):
         del_list = []
+        newReservedTrkLen = dict()
         for idx in range(len(self.__VideoHandles)):
             result = results[idx]
             self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
             deleted_tracks = self._Trackers[idx].update_trackers()
             del_list.append(deleted_tracks)
+            newReservedTrkLen[idx] = len(self._Trackers[idx].reserved_tracker_list)
+        for idx in range(len(self.__VideoHandles)):
+            if self.__oldReservedTrkLen[idx] != newReservedTrkLen[idx]:
+                add_count = newReservedTrkLen[idx] - self.__oldReservedTrkLen[idx]
+                tmp_list = copy.deepcopy(self._Trackers[idx].reserved_tracker_list)
+                for new_idx in range(add_count):
+                    self.delete_overlap(tmp_list.pop())
+                self.__oldReservedTrkLen[idx] = newReservedTrkLen[idx]
         return del_list
+
+    # tracking 이후에 새로 생선된 애가 하나가 있음
+    # 근데 걔가 오버랩 대상자임
+    # 그래서 오버랩되는지 분석해봄
+    # 오버랩됨
+    #
+    # overlap check -> True
+    # 둘 중에 최근에 추가된 놈의 tracker_list를 가져옴
+    # tracker_list.pop()
+    # id 반환
+    # delete_tracker(trk.id)
+    # [1, 2, 3, 4, 5]
 
     def post_tracking(self, deleted_trackers, whole_image):
         deleted_ids = []
         plan_image = self.OutputImages['plan_image']
         for idx, del_tracker in enumerate(deleted_trackers):
+            temp_del = []
             for trk in del_tracker:
                 # SSD Network 에도 잡히지 않는지 확인
                 recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(whole_image[idx])
@@ -137,20 +174,78 @@ class CascadeRunner(AbstractRunner):
                     self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
                 else:
                     self._Trackers[idx].delete_tracker(delete_id=trk.id)
-                    deleted_ids.append(trk.id)
-
+                    temp_del.append(trk.id)
+            deleted_ids.append(temp_del)
             np_image = whole_image[idx].numpy()
             for trk in self._Trackers[idx].get_trackers():
+                color = self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)]
+                np_image = draw_box_label(np_image, trk.box, color)
+                x, y = ProjectionManager.transform(trk.box, idx)
+                plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
 
-                np_image = draw_box_label(np_image, trk.box,
-                                          self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)])
-                plan_image = ProjectionManager.transform(trk.box, whole_image[idx], plan_image,
-                                                         self.Matrices,
-                                                         self.__ImageHandle.Colors[
-                                                             trk.id % len(self.__ImageHandle.Colors)])
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
         return deleted_ids
+
+    def delete_overlap(self, tracker):
+        video_idx_dict = dict()
+        tracker_idx_dict = dict()
+        tmp_list = [] # 3개 Tracker 전체의 Reserved Trackers
+        for video_idx, trk in enumerate(self._Trackers):
+            tracker_idx = 0
+            for tmp_reserve_trk in trk.reserved_tracker_list:
+                video_idx_dict[tmp_reserve_trk.id] = video_idx
+                tracker_idx_dict[tmp_reserve_trk.id] = tracker_idx
+                tmp_list.append(tmp_reserve_trk)
+                tracker_idx += 1
+        xPt, yPt = ProjectionManager.transform(tracker.box, video_idx_dict[tracker.id])
+
+        for target_tracker in tmp_list:
+            if tracker.id == target_tracker.id:
+                continue
+            target_xPt, target_yPt = ProjectionManager.transform(target_tracker.box, video_idx_dict[target_tracker.id])
+            distance = get_distance((xPt, yPt), (target_xPt, target_yPt))
+            if distance < 10:
+                trackers = self._Trackers[video_idx_dict[tracker.id]].get_trackers()
+                target_trackers = self._Trackers[video_idx_dict[target_tracker.id]].get_trackers()
+
+                if tracker.origin:
+                    target_tracker.id = tracker.id
+                    trackers.pop(tracker_idx_dict[tracker.id])
+                else:
+                    trackers[tracker_idx_dict[tracker.id]] = target_tracker.id
+                    target_trackers.pop(tracker_idx_dict[target_tracker.id])
+                    raise "Fucking Y?"
+
+        # for target_idx in range(len(tmp_list)):
+        #     if tracker.id == tmp_list[target_idx].id: # 본인 등판
+        #         continue
+        #     target_xPt, target_yPt = ProjectionManager.transform(tmp_list[target_idx].box,
+        #                                                          video_idx_dict[tmp_list[target_idx].id])
+        #     distance = math.sqrt((xPt - target_xPt) ** 2 + (yPt - target_yPt) ** 2)
+        #     if distance < 100:
+        #         trackers = self._Trackers[video_idx_dict[tmp_list[target_idx].id]].get_trackers
+        #         if tracker.origin:
+        #             trackers[tracker_idx_dict[tmp_list[target_idx].id]].id = tracker.id
+        #             break
+        #         elif trackers[tracker_idx_dict[tmp_list[target_idx].id]].origin:
+        #             tracker.id = trackers[tracker_idx_dict[tmp_list[target_idx].id]].id
+        #             break
+        #         else:
+        #             Exception("Fucking Y?")
+
+
+        # for idx, reserved_trk in enumerate(tmp_list):
+        #     xPt, yPt = ProjectionManager.transform(reserved_trk.box, video_idx_dict[reserved_trk])
+        #     for target_idx in range(idx + 1, len(tmp_list)):
+        #         if target_idx == len(tmp_list):
+        #             break
+        #         target_xPt, target_yPt = ProjectionManager.transform(tmp_list[target_idx].box,
+        #                                                              video_idx_dict[tmp_list[target_idx]])
+        #         distance = math.sqrt((xPt - target_xPt)**2 + (yPt - target_yPt)**2)
+        #         if distance < 100:
+        #
+        #             continue
 
     def post_processing(self, path):
         if self.__save:
