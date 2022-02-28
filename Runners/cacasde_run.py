@@ -205,7 +205,7 @@ class CascadeRunner(AbstractRunner):
     def delete_overlap(self, tracker):
         video_idx_dict = dict()
         tracker_idx_dict = dict()
-        tmp_list = [] # 3개 Tracker 전체의 Reserved Trackers
+        tmp_list = []  # 3개 Tracker 전체의 Reserved Trackers
         for video_idx, trk in enumerate(self._Trackers):
             tracker_idx = 0
             for tmp_reserve_trk in trk.reserved_tracker_list:
@@ -249,7 +249,6 @@ class CascadeRunner(AbstractRunner):
         #         else:
         #             Exception("Fucking Y?")
 
-
         # for idx, reserved_trk in enumerate(tmp_list):
         #     xPt, yPt = ProjectionManager.transform(reserved_trk.box, video_idx_dict[reserved_trk])
         #     for target_idx in range(idx + 1, len(tmp_list)):
@@ -290,5 +289,3 @@ class CascadeRunner(AbstractRunner):
         results = self.__interactor.get_decision(trackers_list=self._Trackers, boxes_list=box_anchors)
         self.__interactor.update_decision(image_name=self.__VideoHandles[0].make_image_name(), results=results)
         self.__interactor.loss_tracker(deleted_trackers)
-
-

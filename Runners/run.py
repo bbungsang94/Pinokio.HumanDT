@@ -36,7 +36,7 @@ def run_sequential(args, log=None):
         deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)
         runner.clean_trackers(deleted_tracker_ids)
         runner.post_processing(paths)
-        # runner.interaction_processing(box_anchors, deleted_tracker_ids)
+        runner.interaction_processing(box_anchors, deleted_tracker_ids)
 
 
 def args_sanity_check(config, _log):
