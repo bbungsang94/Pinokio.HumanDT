@@ -58,9 +58,9 @@ class OpenImageDetector(AbstractDetector):
         classes[veh_idx] = "ForkLift"
 
         box_score_idx = scores > self.box_min_score
-        # box_class_idx = classes_idx == 136
-        box_idx = box_score_idx
-        # classes[box_idx] = "Box"
+        box_class_idx = classes_idx == 136
+        box_idx = box_score_idx & box_class_idx
+        classes[box_idx] = "Box"
 
         img_shape = np.array(info)
         veh_boxes = boxes[veh_idx]

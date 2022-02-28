@@ -12,14 +12,6 @@ from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, tr
 from utilities.projection_helper import ProjectionManager
 
 
-def make_save_folders(args, name):
-    root = args['output_base_path'] + args['run_name']
-    folder_list = [args['image_path'], args['detected_path'], args['tracking_path']]
-    for folder in folder_list:
-        if os.path.exists(root + folder):
-            os.mkdir(root + folder + name)
-
-
 class MergeRunner:
 
     def __init__(self, args, logger=None):
