@@ -108,12 +108,13 @@ class StateProcessor:
 
 
 class StateDecisionMaker:
-    def __init__(self, region_info: dict, thr=0.4):
+    def __init__(self, output_path, region_info: dict, thr=0.4):
         self.region_info = region_info
         self.Threshold = thr
         self.Processor = StateProcessor()
         self.StateSpace = self.Processor.Monitor.Keys
         self.Ref = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA']
+        self.output_path = output_path
 
     def get_decision(self, trackers_list: list, boxes_list: list):
         decision_results = []
@@ -151,7 +152,7 @@ class StateDecisionMaker:
             for deleted_id in single_deleted_list:
                 self.Processor.dequeue(deleted_id)
 
-        self.Processor.save('./test/')
+        self.Processor.save(self.output_path)
 
     def update_decision(self, image_name, results):
         for result in results:

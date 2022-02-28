@@ -27,7 +27,6 @@ class CascadeRunner(AbstractRunner):
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': plan_image}
 
-        # 수정 필요
         self.DockInRegion = dict()
         with open(args['projection_path'] + "DockEntrance.pickle", 'rb') as f:
             self.DockInRegion = pickle.load(f)
@@ -83,7 +82,7 @@ class CascadeRunner(AbstractRunner):
         # deleted id -> recovery_ -> <delete id> -> tracker[idx] % 3 != idx -> tracker[idx].forced delete
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
         self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
-        self.__interactor = StateDecisionMaker(self.DockInRegion, thr=0.4)
+        self.__interactor = StateDecisionMaker(args['output_base_path'], self.DockInRegion, thr=0.4)
 
     def clean_trackers(self, deleted_ids):
         for video_idx, single_deleted_list in enumerate(deleted_ids):
@@ -197,6 +196,8 @@ class CascadeRunner(AbstractRunner):
         tracker_idx_dict = dict()
         tmp_list = []  # 3개 Tracker 전체의 Reserved Trackers
         for video_idx, trk in enumerate(self._Trackers):
+            if video_idx == 1:
+                test111 = True
             tracker_idx = 0
             for tmp_reserve_trk in trk.reserved_tracker_list:
                 video_idx_dict[tmp_reserve_trk.id] = video_idx
@@ -211,14 +212,18 @@ class CascadeRunner(AbstractRunner):
             target_xPt, target_yPt = ProjectionManager.transform(target_tracker.box, video_idx_dict[target_tracker.id])
             distance = get_distance((xPt, yPt), (target_xPt, target_yPt))
             if distance < 10:
+                if video_idx_dict[tracker.id] is video_idx_dict[target_tracker.id]:
+                    for idx in range(len(self._Trackers)):
+                        self._Trackers[idx].adjust_division(1)
+                    self._Trackers[video_idx_dict[target_tracker.id]].delete_tracker_forced(target_tracker.id)
+                    return
                 trackers = self._Trackers[video_idx_dict[tracker.id]].get_trackers()
                 target_trackers = self._Trackers[video_idx_dict[target_tracker.id]].get_trackers()
-
                 if tracker.origin:
                     target_tracker.id = tracker.id
                     trackers.pop(tracker_idx_dict[tracker.id])
                 else:
-                    trackers[tracker_idx_dict[tracker.id]] = target_tracker.id
+                    trackers[tracker_idx_dict[tracker.id]].id = target_tracker.id
                     target_trackers.pop(tracker_idx_dict[target_tracker.id])
 
         # for target_idx in range(len(tmp_list)):

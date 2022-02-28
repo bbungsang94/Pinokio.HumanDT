@@ -18,8 +18,8 @@ class SortTracker(AbstractTracker):
                  iou_thrd=0.0,
                  max_trackers=10,
                  reassign_buffer=0.0,
-                 image_size=[],
                  exist_division=9,
+                 image_size=[],
                  video_idx=0,
                  video_len=1
                  ):
@@ -31,7 +31,8 @@ class SortTracker(AbstractTracker):
         self.image_size = image_size
         self.video_idx = video_idx
         self.video_len = video_len
-        self.exist_threshold = get_distance((0, image_size[1]), (image_size[0], 0)) / 9
+        self.exist_division = exist_division
+        self.exist_threshold = get_distance((0, image_size[1]), (image_size[0], 0)) / self.exist_division
 
         self._tracker_list = []  # list for trackers
         self.reserved_tracker_list = []  # list for reserved trackers
@@ -48,6 +49,11 @@ class SortTracker(AbstractTracker):
         self.__unmatched_trackers = np.array([])
 
         self.__older_box = []
+
+    def adjust_division(self, down_step):
+        self.exist_division -= down_step
+        self.exist_threshold = get_distance((0, self.image_size[1]), (self.image_size[0], 0)) / self.exist_division
+        print('adjust_division: ', self.exist_division)
 
     def assign_detections_to_trackers(self, detections):
         """
@@ -166,8 +172,10 @@ class SortTracker(AbstractTracker):
 
     def __is_exist_tracker(self, new_box, thr=0.6):
         for base_tracker in self._tracker_list:
-            (xPt, yPt) = (base_tracker.box[0] + base_tracker.box[2]) / 2, (base_tracker.box[1] + base_tracker.box[4]) / 2
-            (new_x, new_y) = (new_box.box[0] + new_box.box[2]) / 2, (new_box.box[1] + new_box.box[4]) / 2
+            (xPt, yPt) = (base_tracker.box[0] + base_tracker.box[2]) / 2,\
+                         (base_tracker.box[1] + base_tracker.box[3]) / 2
+            (new_x, new_y) = (new_box[0] + new_box[2]) / 2,\
+                             (new_box[1] + new_box[3]) / 2
             if get_distance((xPt, yPt), (new_x, new_y)) < self.exist_threshold:
                 return True
             if box_iou2(base_tracker.box, new_box) > thr:
