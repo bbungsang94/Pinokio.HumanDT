@@ -5,10 +5,12 @@ class ProjectionManager:
     instance = None
     video_list = dict()
     whole_image_size = tuple
+    single_image_size = tuple
 
-    def __new__(cls, video_list, whole_image_size):
+    def __new__(cls, video_list, whole_image_size, single_image_size):
         cls.video_list = video_list
         cls.whole_image_size = whole_image_size
+        cls.single_image_size = single_image_size
         if not hasattr(cls, 'instance'):
             cls.instance = super(ProjectionManager, cls).__new__(cls)
             return cls.instance
@@ -45,7 +47,7 @@ class ProjectionManager:
         max_X_count = len(cls.video_list[0])
 
         (whole_width, whole_height) = cls.whole_image_size
-
+        (single_width, single_height) = cls.single_image_size
         rel_x = float(xPt / whole_width)
         rel_y = float(yPt / whole_height)
         x_level = 1 / max_X_count
@@ -54,8 +56,8 @@ class ProjectionManager:
         x_value = int(rel_x / x_level)
         y_value = int(rel_y / y_level)
 
-        new_xPt = xPt - 1280 * x_value
-        new_yPt = yPt - 800 * y_value
+        new_xPt = xPt - single_width * x_value
+        new_yPt = yPt - single_height * y_value
 
         x_index = x_value
         y_index = max_Y_count - 1 - y_value
@@ -71,29 +73,29 @@ def hex_to_rgb(h):
 def get_matrix(xPt, yPt, video_name: str, matrix_list):
     matrices = matrix_list[video_name]
     if video_name == "LOADING DOCK F3 Rampa 13 - 14":
-        xPt -= 1280 * 0  # First Video
-        if ((-8 / 3 * xPt + 1600) >= yPt) and ((-25 / 39 * xPt + 1120) > yPt):
+        xPt -= 1592 * 0  # First Video
+        if ((-988 / 400 * xPt + 1852.5) >= yPt) and ((-123 / 157 * xPt + 1497) > yPt):
             matrix = matrices[0]
-        elif ((-8 / 3 * xPt + 1600) < yPt) and ((-25 / 39 * xPt + 1120) >= yPt):
+        elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) >= yPt):
             matrix = matrices[1]
-        elif ((-8 / 3 * xPt + 1600) < yPt) and ((-25 / 39 * xPt + 1120) < yPt):
+        elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) < yPt):
             matrix = matrices[2]
         return matrix
     elif video_name == "LOADING DOCK F3 Rampa 11-12":
-        xPt -= 1280 * 1 # Second Video
-        if ((-8 * xPt + 4800) >= yPt) and ((-35 / 29 * xPt + 1645) > yPt):
+        xPt -= 1592 * 1 # Second Video
+        if ((-24.7 * xPt + 16450) >= yPt) and ((-222 / 163 * xPt + 2268) > yPt):
             matrix = matrices[0]
-        elif ((-8 * xPt + 4800) < yPt) and ((-35 / 29 * xPt + 1645) >= yPt):
+        elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) >= yPt):
             matrix = matrices[1]
-        elif ((-8 * xPt + 4800) < yPt) and ((-35 / 29 * xPt + 1645) < yPt):
+        elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) < yPt):
             matrix = matrices[2]
         return matrix
     elif video_name == "LOADING DOCK F3 Rampa 9-10":
-        xPt -= 1280 * 2  # Third Video
-        if ((2 * xPt - 100) <= yPt) and ((-80 / 9 * xPt + 6667) > yPt):
+        xPt -= 1592 * 2  # Third Video
+        if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
             matrix = matrices[0]
-        elif ((2 * xPt - 100) > yPt) and ((-80 / 9 * xPt + 6667) >= yPt):
+        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
             matrix = matrices[1]
-        elif ((2 * xPt - 100) > yPt) and ((-80 / 9 * xPt + 6667) < yPt):
+        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) < yPt):
             matrix = matrices[2]
         return matrix

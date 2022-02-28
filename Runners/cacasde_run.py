@@ -51,7 +51,7 @@ class CascadeRunner(AbstractRunner):
 
         self.WholeImageSize = (self.WholeImageSize[0], self.WholeImageSize[1])
 
-        ProjectionManager(video_list=args['video_list'], whole_image_size=self.WholeImageSize)
+        ProjectionManager(video_list=args['video_list'], whole_image_size=self.WholeImageSize, single_image_size=self.SingleImageSize)
 
         self.__PlanHandle = PipeliningVideoManager()
         height, width, _ = plan_image.shape
