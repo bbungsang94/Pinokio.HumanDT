@@ -125,8 +125,10 @@ class StateDecisionMaker:
         return decision_results
 
     def loss_tracker(self, trackers_id):
-        for tracker_id in trackers_id:
-            self.Processor.dequeue(tracker_id)
+        for single_deleted_list in trackers_id:
+            for deleted_id in single_deleted_list:
+                self.Processor.dequeue(deleted_id)
+
         self.Processor.save('./test/')
 
     def update_decision(self, image_name, results):
