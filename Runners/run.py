@@ -1,5 +1,6 @@
 from Runners import REGISTRY as r_REGISTRY
 from Runners import MergeRunner
+from Runners.cacasde_run import CascadeRunner
 
 
 def standard_run(config, log=None):
@@ -19,7 +20,8 @@ def standard_run(config, log=None):
 
 def run_sequential(args, log=None):
     #runner = r_REGISTRY[args['run_mode']](args=args)
-    runner = MergeRunner(args=args)
+    #runner = MergeRunner(args=args)
+    runner = CascadeRunner(args=args)
     base_root = args['output_base_path'] + args['run_name']
     paths = {'test_path': base_root + args['image_path'],
              'detected_path': base_root + args['detected_path'],
