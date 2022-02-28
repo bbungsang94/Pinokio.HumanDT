@@ -46,7 +46,7 @@ class StateMonitor:
         temp_raw.to_csv(path + 'raw_data.csv', mode='w', encoding='euc-kr')
         ratio_df.to_csv(path + 'ratio_data.csv', mode='w', encoding='euc-kr')
 
-        print(self.Calculator)
+        # print(self.Calculator)
 
 
 class StateProcessor:
@@ -116,7 +116,7 @@ class StateDecisionMaker:
     def get_decision(self, trackers_list: list, boxes_list: list):
         decision_results = []
         for idx, trackers in enumerate(trackers_list):
-            for tracker in trackers:
+            for tracker in trackers.get_trackers():
                 if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
                     tracker_state = ('Load_Move', tracker.id)
                 else:

@@ -34,7 +34,9 @@ def run_sequential(args, log=None):
         detect_result, box_anchors = runner.detect(tensor_image=image)
         delete_candidates = runner.tracking(detect_result)
         deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)
-        runner.post_processing(paths, box_anchors, deleted_tracker_ids)
+        runner.clean_trackers(deleted_tracker_ids)
+        runner.post_processing(paths)
+        # runner.interaction_processing(box_anchors, deleted_tracker_ids)
 
 
 def args_sanity_check(config, _log):

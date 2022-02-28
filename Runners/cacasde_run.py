@@ -80,6 +80,13 @@ class CascadeRunner(AbstractRunner):
         self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
         self.__interactor = StateDecisionMaker(thr=0.4)
 
+    def clean_trackers(self, deleted_ids):
+        for video_idx, single_deleted_list in enumerate(deleted_ids):
+            for deleted_id in single_deleted_list:
+                target = deleted_id % 3
+                if video_idx is not target:
+                    self._Trackers[target].delete_tracker_forced(deleted_id)
+
     def pop_images(self, idx: int):
         handle = self.__VideoHandles[idx]
         rtn_value = (None, None, idx)
@@ -154,6 +161,7 @@ class CascadeRunner(AbstractRunner):
         deleted_ids = []
         plan_image = self.OutputImages['plan_image']
         for idx, del_tracker in enumerate(deleted_trackers):
+            temp_del = []
             for trk in del_tracker:
                 # SSD Network 에도 잡히지 않는지 확인
                 recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(whole_image[idx])
@@ -166,9 +174,8 @@ class CascadeRunner(AbstractRunner):
                     self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
                 else:
                     self._Trackers[idx].delete_tracker(delete_id=trk.id)
-                    deleted_ids.append(trk.id)
-
-
+                    temp_del.append(trk.id)
+            deleted_ids.append(temp_del)
             np_image = whole_image[idx].numpy()
             for trk in self._Trackers[idx].get_trackers():
                 color = self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)]
