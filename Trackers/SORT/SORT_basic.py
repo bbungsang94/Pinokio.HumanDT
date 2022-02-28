@@ -51,9 +51,10 @@ class SortTracker(AbstractTracker):
         self.__older_box = []
 
     def adjust_division(self, down_step):
-        self.exist_division -= down_step
-        self.exist_threshold = get_distance((0, self.image_size[1]), (self.image_size[0], 0)) / self.exist_division
-        print('adjust_division: ', self.exist_division)
+        if self.exist_division >= 4:
+            self.exist_division -= down_step
+            self.exist_threshold = get_distance((0, self.image_size[1]), (self.image_size[0], 0)) / self.exist_division
+            print('adjust_division: ', self.exist_division)
 
     def assign_detections_to_trackers(self, detections):
         """
