@@ -1,6 +1,7 @@
 import pandas as pd
 
 from utilities.helpers import iou_checker
+from utilities.projection_helper import ProjectionManager
 
 
 class StateMonitor:
@@ -107,7 +108,8 @@ class StateProcessor:
 
 
 class StateDecisionMaker:
-    def __init__(self, thr=0.4):
+    def __init__(self, region_info: dict, thr=0.4):
+        self.region_info = region_info
         self.Threshold = thr
         self.Processor = StateProcessor()
         self.StateSpace = self.Processor.Monitor.Keys
@@ -117,12 +119,32 @@ class StateDecisionMaker:
         decision_results = []
         for idx, trackers in enumerate(trackers_list):
             for tracker in trackers.get_trackers():
+                xPt, yPt = ProjectionManager.transform(tracker.box, idx)
+                entrance = self.check_entrance(xPt, yPt)
                 if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
-                    tracker_state = ('Load_Move', tracker.id)
+                    if entrance:
+                        tracker_state = ('Ready', tracker.id)
+                    else:
+                        tracker_state = ('Load_Move', tracker.id)
                 else:
-                    tracker_state = ('Empty_Move', tracker.id)
+                    if entrance:
+                        tracker_state = ('In', tracker.id)
+                    else:
+                        tracker_state = ('Empty_Move', tracker.id)
+
                 decision_results.append(tracker_state)
         return decision_results
+
+    def check_entrance(self, x, y):
+        for key, value in self.region_info.items():
+            (left, top, right, bottom) = value
+            max_y = max(top, bottom)
+            min_y = min(top, bottom)
+            max_x = max(left, right)
+            min_x = min(left, right)
+            first_condition = min_x <= x <= max_x
+            second_condition = min_y <= y <= max_y
+            return first_condition and second_condition
 
     def loss_tracker(self, trackers_id):
         for single_deleted_list in trackers_id:
