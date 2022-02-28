@@ -82,7 +82,7 @@ class CascadeRunner(AbstractRunner):
         # deleted id -> recovery_ -> <delete id> -> tracker[idx] % 3 != idx -> tracker[idx].forced delete
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
         self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
-        self.__interactor = StateDecisionMaker(args['output_base_path'], self.DockInRegion, thr=0.4)
+        self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion, thr=0.4)
 
     def clean_trackers(self, deleted_ids):
         for video_idx, single_deleted_list in enumerate(deleted_ids):
