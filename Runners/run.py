@@ -40,7 +40,7 @@ def run_sequential(args, log=None):
         image = runner.get_image()
         if image is None:
             return
-        if count < 153:
+        if count < 153 + 10:
             count += 1
             continue
         begin = time.time()    
