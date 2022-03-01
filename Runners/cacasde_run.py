@@ -199,6 +199,8 @@ class CascadeRunner(AbstractRunner):
         video_idx_dict = dict()
         tracker_idx_dict = dict()
         tmp_list = []  # 3개 Tracker 전체의 Reserved Trackers
+        if tracker.id == 0:
+            test = True
         for video_idx, trk in enumerate(self._Trackers):
             if video_idx == 1:
                 test111 = True
@@ -208,8 +210,7 @@ class CascadeRunner(AbstractRunner):
                 tracker_idx_dict[tmp_reserve_trk.id] = tracker_idx
                 tmp_list.append(tmp_reserve_trk)
                 tracker_idx += 1
-        if (tracker.id == 0):
-            test = True
+
         xPt, yPt = ProjectionManager.transform(tracker.box, video_idx_dict[tracker.id])
 
         for target_tracker in tmp_list:

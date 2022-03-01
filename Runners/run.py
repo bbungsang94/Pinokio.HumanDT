@@ -43,9 +43,9 @@ def run_sequential(args, log=None):
         # if count < 153 + 10 + 540:
         #     count += 1
         #     continue
-        # if count < 160:
-        #     count += 1
-        #     continue
+        if count < 160:
+            count += 1
+            continue
         begin = time.time()    
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", time.time() - begin)
