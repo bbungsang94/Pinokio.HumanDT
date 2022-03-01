@@ -172,7 +172,7 @@ def draw_box_label(img, bbox_cv2, trk_id, box_color=(0, 255, 255), show_label=Tr
 
     if show_label:
         # Draw a filled box on top of the bounding box (as the background for the labels)
-        cv2.rectangle(img, (left - 2, top - 45), (right + 2, top), box_color, -1, 1)
+        cv2.rectangle(img, (left - 2, top - 60), (right + 2, top), box_color, -1, 1)
 
         # Output the labels that show the x and y coordinates of the bounding box center.
         text_id = 'ForkLift ID: ' + str(trk_id)
