@@ -40,7 +40,10 @@ def run_sequential(args, log=None):
         image = runner.get_image()
         if image is None:
             return
-        begin = time.time()
+        if count < 153:
+            count += 1
+            continue
+        begin = time.time()    
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", time.time() - begin)
         begin = time.time()
