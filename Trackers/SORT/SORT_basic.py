@@ -166,8 +166,6 @@ class SortTracker(AbstractTracker):
                 if is_overlap_region:
                     if tmp_trk not in self.reserved_tracker_list:
                         tmp_trk.origin = True
-                        if (tmp_trk.id == 3):
-                            test = True
                         self.reserved_tracker_list.append(tmp_trk)
                 else:
                     if tmp_trk in self.reserved_tracker_list:
@@ -205,22 +203,24 @@ class SortTracker(AbstractTracker):
                 reassign = self._reassign_judge(x=x_mid, y=y_bottom)
                 is_overlap_region = self._overlap_judge(tmp_trk.box)
                 # 아래부분 코드 병신같음 *****
-                if reassign:
+                if reassign:  # 이미지 중간 부분
                     if self._max_trackers > len(self._track_id_list):
                         tmp_trk.id = self._track_id_list.pop()
                     else:
+                        for alternative in self.reserved_tracker_list:
+                            if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
+                                return
                         tmp_trk.id = self._track_id_list.popleft()
-                else:
+                else:  # 이미지 외곽 부분
                     if is_overlap_region:
                         for alternative in self.reserved_tracker_list:
                             if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
                                 return
                         tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
-                        self._tracker_list.append(tmp_trk)
                         self.reserved_tracker_list.append(tmp_trk)
                     else:
                         tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
-                        self._tracker_list.append(tmp_trk)
+                self._tracker_list.append(tmp_trk)
 
     def _reassign_judge(self, x, y):
         first_condition = self.__reassign_location[0] < x < self.__reassign_location[1]

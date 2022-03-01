@@ -1,6 +1,6 @@
 sort_basic:
   model_name: "sort_basic"
-  max_age: 15
+  max_age: 8
   min_hits: 1
   iou_thrd: 0.3
   max_trackers: 255

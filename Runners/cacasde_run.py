@@ -230,9 +230,12 @@ class CascadeRunner(AbstractRunner):
                 if tracker.origin:
                     target_tracker.id = tracker.id
                     trackers.pop(tracker_idx_dict[tracker.id])
+                    return
                 else:
                     trackers[tracker_idx_dict[tracker.id]].id = target_tracker.id
                     target_trackers.pop(tracker_idx_dict[target_tracker.id])
+                    return
+
 
         # for target_idx in range(len(tmp_list)):
         #     if tracker.id == tmp_list[target_idx].id: # 본인 등판
