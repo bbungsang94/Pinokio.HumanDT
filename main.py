@@ -25,13 +25,6 @@ def clear_folder(folder_list: list, root: str):
 
 
 if __name__ == "__main__":
-    TimeDict = {'Whole_Time': 0, 'Whole_Frame': 0,
-                'Inference_Time': 0, 'Inference_Mean': 0,
-                'Recovery_Time': 0, 'Recovery_Count': 0, 'Recovery_Mean': 0,
-                'Tracking_Time': 0, 'Tracking_Mean': 0, 'Max_Tracker': 0,
-                'Save_Time': 0, 'Save_Mean': 0}
-    whole_time_begin = time.time()
-
     config = config_mapper.config_copy(
         config_mapper.get_config())
 

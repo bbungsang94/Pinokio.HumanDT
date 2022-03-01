@@ -1,6 +1,8 @@
 import math
 import pickle
 import copy
+import time
+
 import Runners.general_runner
 from Runners.general_runner import AbstractRunner
 from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, get_distance
@@ -119,7 +121,9 @@ class CascadeRunner(AbstractRunner):
         result_list = []
         box_anchors = []
         for image in tensor_image:
+            begin = time.time()
             raw_image, veh_info, box_info = self._PrimaryDetector.detection(image)
+            print("Inference time: ", time.time() - begin)
             detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
             (box_boxes, _, _) = box_info
             (veh_boxes, veh_classes, veh_scores) = veh_info
