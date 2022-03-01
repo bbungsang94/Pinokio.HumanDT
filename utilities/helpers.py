@@ -1,4 +1,4 @@
-    #!/usr/bin/env python2
+# !/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Helper classes and functions for detection and tracking
@@ -10,6 +10,7 @@ import cv2
 
 from utilities.projection_helper import ProjectionManager
 from utilities.projection_helper import get_matrix
+
 global count
 count = 1
 
@@ -77,10 +78,10 @@ def post_iou_checker(target, candidates, thr=0.5, offset=0.2):
             # surface calculating
             w = abs(candidate[2] - candidate[0])
             h = abs(candidate[3] - candidate[1])
-            if (surface * (1-offset)) < (w*h) < (surface * (1+offset)):
+            if (surface * (1 - offset)) < (w * h) < (surface * (1 + offset)):
                 return True, candidate
             else:
-                print(surface/(w*h))
+                print(surface / (w * h))
     return False, None
 
 
@@ -183,6 +184,6 @@ def draw_box_label(img, bbox_cv2, trk_id, box_color=(0, 255, 255), show_label=Tr
         cv2.putText(img, text_y, (left, top - 5), font, font_size, font_color, 1, cv2.LINE_AA)
     return img
 
+
 def get_distance(a, b):
     return math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
-
