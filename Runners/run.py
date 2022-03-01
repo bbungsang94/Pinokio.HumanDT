@@ -27,10 +27,14 @@ def run_sequential(args, log=None):
              'detected_path': base_root + args['detected_path'],
              'tracking_path': base_root + args['tracking_path'],
              'plan_path': base_root + args['trajectory_path']}
+    count = 0
     while True:
         image = runner.get_image()
         if image is None:
             return
+        if count < 153:
+            count += 1
+            continue
         detect_result, box_anchors = runner.detect(tensor_image=image)
         delete_candidates = runner.tracking(detect_result)
         deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)
