@@ -35,7 +35,7 @@ def run_sequential(args, log=None):
                  'Recovery_Time': 0, 'Recovery_Count': 0, 'Recovery_Mean': 0,
                  'Tracking_Time': 0, 'Tracking_Mean': 0, 'Max_Tracker': 0,
                  'Save_Time': 0, 'Save_Mean': 0}
-
+    count = 0
     while True:
         image = runner.get_image()
         if image is None:
