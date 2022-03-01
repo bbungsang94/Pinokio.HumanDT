@@ -208,6 +208,8 @@ class CascadeRunner(AbstractRunner):
                 tracker_idx_dict[tmp_reserve_trk.id] = tracker_idx
                 tmp_list.append(tmp_reserve_trk)
                 tracker_idx += 1
+        if (tracker.id == 0):
+            test = True
         xPt, yPt = ProjectionManager.transform(tracker.box, video_idx_dict[tracker.id])
 
         for target_tracker in tmp_list:
@@ -215,7 +217,7 @@ class CascadeRunner(AbstractRunner):
                 continue
             target_xPt, target_yPt = ProjectionManager.transform(target_tracker.box, video_idx_dict[target_tracker.id])
             distance = get_distance((xPt, yPt), (target_xPt, target_yPt))
-            if distance < 15:
+            if distance < 20:
                 if video_idx_dict[tracker.id] is video_idx_dict[target_tracker.id]:
                     for idx in range(len(self._Trackers)):
                         self._Trackers[idx].adjust_division(1)

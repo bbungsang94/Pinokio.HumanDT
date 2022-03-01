@@ -176,7 +176,7 @@ def draw_box_label(img, bbox_cv2, trk_id, box_color=(0, 255, 255), show_label=Tr
 
         # Output the labels that show the x and y coordinates of the bounding box center.
         text_id = 'ForkLift ID: ' + str(trk_id)
-        cv2.putText(img, text_id, (left, top - 25), font, font_size, font_color, 1, cv2.LINE_AA)
+        cv2.putText(img, text_id, (left, top - 45), font, font_size, font_color, 1, cv2.LINE_AA)
         text_x = 'x=' + str((left + right) / 2)
         cv2.putText(img, text_x, (left, top - 25), font, font_size, font_color, 1, cv2.LINE_AA)
         text_y = 'y=' + str((top + bottom) / 2)
