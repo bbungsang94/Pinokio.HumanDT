@@ -203,6 +203,7 @@ class SortTracker(AbstractTracker):
                 x_mid = (xx[3] + xx[1]) / 2
                 y_bottom = xx[2]
                 reassign = self._reassign_judge(x=x_mid, y=y_bottom)
+                reassign = False # 테스트용
                 is_overlap_region = self._overlap_judge(tmp_trk.box)
                 # 아래부분 코드 병신같음 *****
                 if reassign:  # 이미지 중간 부분
@@ -214,14 +215,12 @@ class SortTracker(AbstractTracker):
                                 return
                         tmp_trk.id = self._track_id_list.popleft()
                 else:  # 이미지 외곽 부분
+                    for alternative in self.reserved_tracker_list:
+                        if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
+                            return
                     if is_overlap_region:
-                        for alternative in self.reserved_tracker_list:
-                            if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
-                                return
-                        tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
                         self.reserved_tracker_list.append(tmp_trk)
-                    else:
-                        tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                    tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
                 self._tracker_list.append(tmp_trk)
 
     def _reassign_judge(self, x, y):

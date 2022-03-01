@@ -45,38 +45,28 @@ class EfficientDetector(AbstractDetector):
 
                 """
         converted_img = tf.image.convert_image_dtype(image, tf.uint8)[tf.newaxis, ...]
-        try:
-            if self.Detector is not None:
-                start_time = time.time()
-                boxes, scores, classes, num_detections = self.Detector(converted_img)
-                end_time = time.time()
-                print("Found %d objects." % num_detections)
-                boxes = boxes[0].numpy()
-                classes = classes[0].numpy()
-                scores = scores[0].numpy()
-            else:
-                return
-        except AttributeError:
-            raise Exception("Wrong Model Name")
-        print("Inference time: ", end_time - start_time)
+        boxes, scores, classes, num_detections = self.Detector(converted_img)
+        boxes = boxes[0].numpy()
+        classes = classes[0].numpy()
+        scores = scores[0].numpy()
 
-        del_idx = self.__post_process(classes, scores, self.min_score)
-        boxes = boxes[del_idx]
-        classes = classes[del_idx]
-        classes = classes.astype(np.str)
-        classes[:] = self.LabelList[3]
-        scores = scores[del_idx]
+        veh_info = self.__post_process(boxes, classes, scores)
+        box_info = (np.array([]), np.array([]), np.array([]))
+        return converted_img, veh_info, box_info
 
-        return converted_img, boxes, classes, scores
-
-    def __post_process(self, classes, scores, min_score=None):
-        if min_score is None:
-            min_score = self.min_score
-        score_idx = scores > min_score
-
+    def __post_process(self, boxes, classes, scores):
+        score_idx = scores > self.min_score
         class_idx = (10 > classes) & (classes > 1)
         total_idx = score_idx & class_idx
-        return total_idx
+
+        veh_boxes = boxes[total_idx]
+        veh_classes = classes[total_idx]
+        veh_classes = veh_classes.astype(np.str)
+        veh_classes[:] = "ForkLift"
+        veh_scores = scores[total_idx]
+        veh_info = (veh_boxes, veh_classes, veh_scores)
+
+        return veh_info
 
     def get_zboxes(self, boxes, im_width, im_height):
         return boxes
