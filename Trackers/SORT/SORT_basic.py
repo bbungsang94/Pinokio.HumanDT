@@ -166,6 +166,8 @@ class SortTracker(AbstractTracker):
                 if is_overlap_region:
                     if tmp_trk not in self.reserved_tracker_list:
                         tmp_trk.origin = True
+                        if (tmp_trk.id == 3):
+                            test = True
                         self.reserved_tracker_list.append(tmp_trk)
                 else:
                     if tmp_trk in self.reserved_tracker_list:
