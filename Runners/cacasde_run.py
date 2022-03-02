@@ -89,9 +89,11 @@ class CascadeRunner(AbstractRunner):
     def clean_trackers(self, deleted_ids):
         for video_idx, single_deleted_list in enumerate(deleted_ids):
             for deleted_id in single_deleted_list:
+                self._Trackers[video_idx].clean_reserved(deleted_id)
                 target = deleted_id % 3
                 if video_idx is not target:
                     self._Trackers[target].delete_tracker_forced(deleted_id)
+                    # 페어된 다른 트래커도 제거해줘야함
 
     def pop_images(self, idx: int):
         handle = self.__VideoHandles[idx]
@@ -178,6 +180,7 @@ class CascadeRunner(AbstractRunner):
                                                              im_height=self.WholeImageSize[1])
 
                 post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
+                post_pass = False
                 if post_pass:
                     self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
                 else:
