@@ -206,6 +206,8 @@ class CascadeRunner(AbstractRunner):
                 test111 = True
             tracker_idx = 0
             for tmp_reserve_trk in trk.reserved_tracker_list:
+                if tmp_reserve_trk.id == 10:
+                    test = True
                 video_idx_dict[tmp_reserve_trk.id] = video_idx
                 tracker_idx_dict[tmp_reserve_trk.id] = tracker_idx
                 tmp_list.append(tmp_reserve_trk)
@@ -234,6 +236,8 @@ class CascadeRunner(AbstractRunner):
                     return
                 else:
                     trackers[tracker_idx_dict[tracker.id]].id = target_tracker.id
+                    if len(target_trackers) == 0:
+                        test = True
                     target_trackers.pop(tracker_idx_dict[target_tracker.id])
                     return
 
