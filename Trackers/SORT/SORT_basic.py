@@ -139,12 +139,22 @@ class SortTracker(AbstractTracker):
                 return
         self._track_id_list.append(delete_id)
 
-    def delete_tracker_forced(self, delete_id):
+    def compare_reserved(self, target_id):
         for reserved_trk in self.reserved_tracker_list:  # reserved에 존재할 경우
-            if reserved_trk.id == delete_id:
+            if reserved_trk.id == target_id:
+                return True
+        return False
+
+    def clean_reserved(self, target_id):
+        for reserved_trk in self.reserved_tracker_list:  # reserved에 존재할 경우
+            if reserved_trk.id == target_id:
                 self.reserved_tracker_list.remove(reserved_trk)
-                break
-        self._track_id_list.append(delete_id)
+                return True
+        return False
+
+    def delete_tracker_forced(self, delete_id):
+        if self.clean_reserved(delete_id):
+            self._track_id_list.append(delete_id)
 
     def get_trackers(self):
         return self._tracker_list
@@ -175,9 +185,9 @@ class SortTracker(AbstractTracker):
 
     def __is_exist_tracker(self, new_box, thr=0.6):
         for base_tracker in self._tracker_list:
-            (xPt, yPt) = (base_tracker.box[0] + base_tracker.box[2]) / 2,\
+            (xPt, yPt) = (base_tracker.box[0] + base_tracker.box[2]) / 2, \
                          (base_tracker.box[1] + base_tracker.box[3]) / 2
-            (new_x, new_y) = (new_box[0] + new_box[2]) / 2,\
+            (new_x, new_y) = (new_box[0] + new_box[2]) / 2, \
                              (new_box[1] + new_box[3]) / 2
             if get_distance((xPt, yPt), (new_x, new_y)) < self.exist_threshold:
                 return True
@@ -197,13 +207,13 @@ class SortTracker(AbstractTracker):
                 xx = tmp_trk.x_state
                 xx = xx.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
-                tmp_trk.box = xx # Top, Left, Bottom, Right
+                tmp_trk.box = xx  # Top, Left, Bottom, Right
                 if self.__is_exist_tracker(xx):
                     continue
                 x_mid = (xx[3] + xx[1]) / 2
                 y_bottom = xx[2]
                 reassign = self._reassign_judge(x=x_mid, y=y_bottom)
-                reassign = False # 테스트용
+                reassign = False  # 테스트용
                 is_overlap_region = self._overlap_judge(tmp_trk.box)
                 # 아래부분 코드 병신같음 *****
                 if reassign:  # 이미지 중간 부분
@@ -267,7 +277,7 @@ class SortTrackerEx(SortTracker):
         deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self._tracker_list)
         self._tracker_list = [x for x in self._tracker_list if x.no_losses <= self.max_age]
         return deleted_tracks
-    
+
     def _update_assign(self):
         if len(self.__unmatched_detections) > 0:
             for idx in self.__unmatched_detections:
@@ -280,7 +290,7 @@ class SortTrackerEx(SortTracker):
                 xx = tmp_trk.x_state
                 xx = xx.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
-                tmp_trk.box = xx # Top, Left, Bottom, Right
+                tmp_trk.box = xx  # Top, Left, Bottom, Right
                 x_mid = (xx[3] + xx[1]) / 2
                 y_bottom = xx[2]
                 new_assign = self._reassign_judge(x=x_mid, y=y_bottom)
