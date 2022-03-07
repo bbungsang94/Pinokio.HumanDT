@@ -23,5 +23,5 @@ class AbstractRunner:
     def post_tracking(self, deleted_trackers, whole_image):
         raise NotImplementedError
 
-    def post_processing(self, path):
+    def post_processing(self, path, whole_image):
         raise NotImplementedError

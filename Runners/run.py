@@ -43,23 +43,26 @@ def run_sequential(args, log=None):
         # if count < 153 + 10 + 540:
         #     count += 1
         #     continue
-        # if count < 160:
+        # if count < 160 + 2440:
         #     count += 1
         #     continue
         begin = time.time()    
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", time.time() - begin)
         begin = time.time()
-        delete_candidates = runner.tracking(detect_result)
+        delete_candidates = runner.tracking(detect_result)  # 진짜 트래킹만 Del 후보지만 뱉음 (실제로 안지움)
         print("Tracking time: ", time.time() - begin)
         begin = time.time()
-        deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)
+        deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)  # sub 모델로 한 번 더 트래킹 후 최종 후보 뱉음
         print("Post Tracking time: ", time.time() - begin)
         begin = time.time()
-        runner.clean_trackers(deleted_tracker_ids)
+        runner.clean_trackers(deleted_tracker_ids)  # 최종 Delete 후보랑 Reserved Update
         print("Clean tracker time: ", time.time() - begin)
         begin = time.time()
-        runner.post_processing(paths)
+        runner.check_overlap()
+        print("Delete Overlap time: ", time.time() - begin)
+        begin = time.time()
+        runner.post_processing(paths, whole_image=image)
         print("Post processing time: ", time.time() - begin)
         begin = time.time()
         runner.interaction_processing(box_anchors, deleted_tracker_ids)

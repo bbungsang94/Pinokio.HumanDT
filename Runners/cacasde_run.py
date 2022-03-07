@@ -89,11 +89,23 @@ class CascadeRunner(AbstractRunner):
     def clean_trackers(self, deleted_ids):
         for video_idx, single_deleted_list in enumerate(deleted_ids):
             for deleted_id in single_deleted_list:
-                self._Trackers[video_idx].clean_reserved(deleted_id)
+                # self._Trackers[video_idx].clean_reserved(deleted_id)
+                self._Trackers[video_idx].delete_tracker_forced(deleted_id)
                 target = deleted_id % 3
                 if video_idx is not target:
                     self._Trackers[target].delete_tracker_forced(deleted_id)
                     # 페어된 다른 트래커도 제거해줘야함
+
+    def check_overlap(self):
+        newReservedTrkLen = dict()
+        for idx in range(len(self.__VideoHandles)):
+            newReservedTrkLen[idx] = len(self._Trackers[idx].reserved_tracker_list)
+            if self.__oldReservedTrkLen[idx] < newReservedTrkLen[idx]:
+                add_count = newReservedTrkLen[idx] - self.__oldReservedTrkLen[idx]
+                tmp_list = copy.deepcopy(self._Trackers[idx].reserved_tracker_list)
+                for new_idx in range(add_count):
+                    self.delete_overlap(tmp_list.pop())
+            self.__oldReservedTrkLen[idx] = newReservedTrkLen[idx]
 
     def pop_images(self, idx: int):
         handle = self.__VideoHandles[idx]
@@ -139,21 +151,29 @@ class CascadeRunner(AbstractRunner):
 
     def tracking(self, results):
         del_list = []
-        newReservedTrkLen = dict()
         for idx in range(len(self.__VideoHandles)):
             result = results[idx]
             self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
             deleted_tracks = self._Trackers[idx].update_trackers()
             del_list.append(deleted_tracks)
-            newReservedTrkLen[idx] = len(self._Trackers[idx].reserved_tracker_list)
-        for idx in range(len(self.__VideoHandles)):
-            if self.__oldReservedTrkLen[idx] != newReservedTrkLen[idx]:
-                add_count = newReservedTrkLen[idx] - self.__oldReservedTrkLen[idx]
-                tmp_list = copy.deepcopy(self._Trackers[idx].reserved_tracker_list)
-                for new_idx in range(add_count):
-                    self.delete_overlap(tmp_list.pop())
-                self.__oldReservedTrkLen[idx] = newReservedTrkLen[idx]
         return del_list
+
+        # del_list = []
+        # newReservedTrkLen = dict()
+        # for idx in range(len(self.__VideoHandles)):
+        #     result = results[idx]
+        #     self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
+        #     deleted_tracks = self._Trackers[idx].update_trackers()
+        #     del_list.append(deleted_tracks)
+        #     newReservedTrkLen[idx] = len(self._Trackers[idx].reserved_tracker_list)
+        # for idx in range(len(self.__VideoHandles)):
+        #     if self.__oldReservedTrkLen[idx] < newReservedTrkLen[idx]:
+        #         add_count = newReservedTrkLen[idx] - self.__oldReservedTrkLen[idx]
+        #         tmp_list = copy.deepcopy(self._Trackers[idx].reserved_tracker_list)
+        #         for new_idx in range(add_count):
+        #             self.delete_overlap(tmp_list.pop())
+        #         self.__oldReservedTrkLen[idx] = newReservedTrkLen[idx]
+        # return del_list
 
     # tracking 이후에 새로 생선된 애가 하나가 있음
     # 근데 걔가 오버랩 대상자임
@@ -169,7 +189,6 @@ class CascadeRunner(AbstractRunner):
 
     def post_tracking(self, deleted_trackers, whole_image):
         deleted_ids = []
-        plan_image = self.OutputImages['plan_image']
         for idx, del_tracker in enumerate(deleted_trackers):
             temp_del = []
             for trk in del_tracker:
@@ -184,33 +203,52 @@ class CascadeRunner(AbstractRunner):
                 if post_pass:
                     self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
                 else:
-                    self._Trackers[idx].delete_tracker(delete_id=trk.id)
+                    # self._Trackers[idx].delete_tracker(delete_id=trk.id)
                     temp_del.append(trk.id)
             deleted_ids.append(temp_del)
-            np_image = whole_image[idx].numpy()
-            for trk in self._Trackers[idx].get_trackers():
-                color = self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)]
-                np_image = draw_box_label(np_image, trk.box, trk_id=trk.id, box_color=color)
-                x, y = ProjectionManager.transform(trk.box, idx)
-                plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
 
-            self.OutputImages['tracking_image'].append(np_image)
-        self.OutputImages['plan_image'] = plan_image
         return deleted_ids
+
+        # deleted_ids = []
+        # plan_image = self.OutputImages['plan_image']
+        # for idx, del_tracker in enumerate(deleted_trackers):
+        #     temp_del = []
+        #     for trk in del_tracker:
+        #         # SSD Network 에도 잡히지 않는지 확인
+        #         recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(whole_image[idx])
+        #         post_box = self._RecoveryDetector.get_zboxes(boxes=boxes,
+        #                                                      im_width=self.WholeImageSize[0],
+        #                                                      im_height=self.WholeImageSize[1])
+        #
+        #         post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
+        #         post_pass = False
+        #         if post_pass:
+        #             self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
+        #         else:
+        #             self._Trackers[idx].delete_tracker(delete_id=trk.id)
+        #             temp_del.append(trk.id)
+        #     deleted_ids.append(temp_del)
+        #     np_image = whole_image[idx].numpy()
+        #     for trk in self._Trackers[idx].get_trackers():
+        #         color = self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)]
+        #         np_image = draw_box_label(np_image, trk.box, trk_id=trk.id, box_color=color)
+        #         x, y = ProjectionManager.transform(trk.box, idx)
+        #         plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
+        #
+        #     self.OutputImages['tracking_image'].append(np_image)
+        # self.OutputImages['plan_image'] = plan_image
+        # return deleted_ids
 
     def delete_overlap(self, tracker):
         video_idx_dict = dict()
         tracker_idx_dict = dict()
         tmp_list = []  # 3개 Tracker 전체의 Reserved Trackers
-        if tracker.id == 0:
-            test = True
+
         for video_idx, trk in enumerate(self._Trackers):
             if video_idx == 1:
                 test111 = True
             tracker_idx = 0
             for tmp_reserve_trk in trk.reserved_tracker_list:
-                if tmp_reserve_trk.id == 10:
-                    test = True
                 video_idx_dict[tmp_reserve_trk.id] = video_idx
                 tracker_idx_dict[tmp_reserve_trk.id] = tracker_idx
                 tmp_list.append(tmp_reserve_trk)
@@ -235,6 +273,8 @@ class CascadeRunner(AbstractRunner):
                     test = True
                 if tracker.origin:
                     target_tracker.id = tracker.id
+                    if len(trackers) == 0:
+                        test = True
                     trackers.pop(tracker_idx_dict[tracker.id])
                     return
                 else:
@@ -243,8 +283,6 @@ class CascadeRunner(AbstractRunner):
                         test = True
                     target_trackers.pop(tracker_idx_dict[target_tracker.id])
                     return
-
-
         # for target_idx in range(len(tmp_list)):
         #     if tracker.id == tmp_list[target_idx].id: # 본인 등판
         #         continue
@@ -274,7 +312,19 @@ class CascadeRunner(AbstractRunner):
         #
         #             continue
 
-    def post_processing(self, path):
+    def post_processing(self, path, whole_image):
+        plan_image = self.OutputImages['plan_image']
+        for idx, tracker in enumerate(self._Trackers):
+            np_image = whole_image[idx].numpy()
+            for singleTrk in tracker.get_trackers():
+                color = self.__ImageHandle.Colors[singleTrk.id % len(self.__ImageHandle.Colors)]
+                np_image = draw_box_label(np_image, singleTrk.box, trk_id=singleTrk.id, box_color=color)
+                x, y = ProjectionManager.transform(singleTrk.box, idx)
+                plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
+
+            self.OutputImages['tracking_image'].append(np_image)
+        self.OutputImages['plan_image'] = plan_image
+
         if self.__save:
             for idx, handle in enumerate(self.__VideoHandles):
                 file_name = handle.video_name + '/' + handle.make_image_name()

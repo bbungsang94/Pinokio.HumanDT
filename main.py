@@ -50,4 +50,4 @@ if __name__ == "__main__":
 # Tracking 개선
 # 프레임워크 만들기
 # land vehicle 너무 큰 것들 퍼센테이지 조정
-#
+# Id 전달 후 Plan 색 합쳐주기

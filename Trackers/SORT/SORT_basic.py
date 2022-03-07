@@ -115,7 +115,7 @@ class SortTracker(AbstractTracker):
         self._update_loss()
 
         deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self._tracker_list)
-        self._tracker_list = [x for x in self._tracker_list if x.no_losses <= self.max_age]
+        # self._tracker_list = [x for x in self._tracker_list if x.no_losses <= self.max_age]
         return deleted_tracks
 
     def revive_tracker(self, revive_trk, new_box):
@@ -128,10 +128,10 @@ class SortTracker(AbstractTracker):
         revive_trk.box = xx
         revive_trk.no_losses = self.max_age - 2
 
-        is_overlap = self._overlap_judge(revive_trk.box)
-        if is_overlap:
-            self.reserved_tracker_list.append(revive_trk)
-        self._tracker_list.append(revive_trk)
+        # is_overlap = self._overlap_judge(revive_trk.box)
+        # if is_overlap:
+        #     self.reserved_tracker_list.append(revive_trk)
+        # self._tracker_list.append(revive_trk)
 
     def delete_tracker(self, delete_id):
         for reserved_trk in self.reserved_tracker_list:  # reserved에 존재할 경우
@@ -154,6 +154,7 @@ class SortTracker(AbstractTracker):
 
     def delete_tracker_forced(self, delete_id):
         if self.clean_reserved(delete_id):
+            self._tracker_list = [x for x in self._tracker_list if x.id != delete_id]  # 쓸데없이 많이 탐색 할 수 있음
             self._track_id_list.append(delete_id)
 
     def get_trackers(self):
@@ -222,11 +223,13 @@ class SortTracker(AbstractTracker):
                     else:
                         for alternative in self.reserved_tracker_list:
                             if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
+                                alternative.box = tmp_trk.box
                                 return
                         tmp_trk.id = self._track_id_list.popleft()
                 else:  # 이미지 외곽 부분
                     for alternative in self.reserved_tracker_list:
                         if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
+                            alternative.box = tmp_trk.box
                             return
                     if is_overlap_region:
                         self.reserved_tracker_list.append(tmp_trk)
