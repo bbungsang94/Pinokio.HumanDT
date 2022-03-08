@@ -152,7 +152,7 @@ class MergeRunner:
 
         np_image = whole_image.numpy()
         plan_image = self.OutputImages['plan_image']
-        for trk in self._Trackers.get_trackers():
+        for trk in self._Trackers.get_single_trackers():
             np_image = draw_box_label(np_image, trk.box,
                                       self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)])
             plan_image = ProjectionManager.transform(trk.box, whole_image, plan_image,

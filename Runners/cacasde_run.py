@@ -5,6 +5,7 @@ import time
 
 import Runners.general_runner
 from Runners.general_runner import AbstractRunner
+from Trackers.TrackerManager import TrackerManager
 from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, get_distance
 from utilities.media_handler import ImageManager, PipeliningVideoManager
 from utilities.projection_helper import ProjectionManager
@@ -75,13 +76,12 @@ class CascadeRunner(AbstractRunner):
         recovery_model_args = args[args['recovery_model_name']]
         tracker_model_args = args[args['tracker_model_name']]
         tracker_model_args['image_size'] = [self.WholeImageSize[0], self.WholeImageSize[1]]
-        self._Trackers = []
+        self.TrackerManager = TrackerManager(len(self.__VideoHandles))
         for idx, _ in enumerate(self.__VideoHandles):
             tracker_model_args['video_idx'] = idx
             tracker_model_args['video_len'] = len(self.__VideoHandles)
             tracker = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
-            self._Trackers.append(copy.deepcopy(tracker))
-        # deleted id -> recovery_ -> <delete id> -> tracker[idx] % 3 != idx -> tracker[idx].forced delete
+            self.TrackerManager.add_tracker(idx, copy.deepcopy(tracker), tracker_model_args['max_trackers'])
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
         self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
         self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion, thr=0.4)
@@ -149,14 +149,37 @@ class CascadeRunner(AbstractRunner):
 
         return result_list, box_anchors
 
-    def tracking(self, results):
-        del_list = []
-        for idx in range(len(self.__VideoHandles)):
-            result = results[idx]
-            self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
-            deleted_tracks = self._Trackers[idx].update_trackers()
-            del_list.append(deleted_tracks)
-        return del_list
+    def tracking(self, results, image):
+        whole_deleted_trks = self.TrackerManager.tracking(results)
+        deleted_ids = self.sub_detection(whole_deleted_trks, image)
+        self.TrackerManager.post_tracking(deleted_ids)
+
+    def sub_detection(self, deleted_trks, image):
+        deleted_ids = dict()
+        for idx, deleted_list in deleted_trks.items():
+            temp_del = []
+            for trk in deleted_list:
+                # SSD Network 에도 잡히지 않는지 확인
+                recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(image[idx])
+                post_box = self._RecoveryDetector.get_zboxes(boxes=boxes,
+                                                             im_width=self.WholeImageSize[0],
+                                                             im_height=self.WholeImageSize[1])
+
+                post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
+                if post_pass is False:
+                    temp_del.append(trk.id)
+            deleted_ids[idx] = temp_del
+
+        return deleted_ids
+
+    # def tracking(self, results):
+    #     del_list = []
+    #     for idx in range(len(self.__VideoHandles)):
+    #         result = results[idx]
+    #         self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
+    #         deleted_tracks = self._Trackers[idx].update_trackers()
+    #         del_list.append(deleted_tracks)
+    #     return del_list
 
         # del_list = []
         # newReservedTrkLen = dict()
@@ -188,56 +211,7 @@ class CascadeRunner(AbstractRunner):
     # [1, 2, 3, 4, 5]
 
     def post_tracking(self, deleted_trackers, whole_image):
-        deleted_ids = []
-        for idx, del_tracker in enumerate(deleted_trackers):
-            temp_del = []
-            for trk in del_tracker:
-                # SSD Network 에도 잡히지 않는지 확인
-                recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(whole_image[idx])
-                post_box = self._RecoveryDetector.get_zboxes(boxes=boxes,
-                                                             im_width=self.WholeImageSize[0],
-                                                             im_height=self.WholeImageSize[1])
-
-                post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
-                post_pass = False
-                if post_pass:
-                    self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
-                else:
-                    # self._Trackers[idx].delete_tracker(delete_id=trk.id)
-                    temp_del.append(trk.id)
-            deleted_ids.append(temp_del)
-
-        return deleted_ids
-
-        # deleted_ids = []
-        # plan_image = self.OutputImages['plan_image']
-        # for idx, del_tracker in enumerate(deleted_trackers):
-        #     temp_del = []
-        #     for trk in del_tracker:
-        #         # SSD Network 에도 잡히지 않는지 확인
-        #         recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(whole_image[idx])
-        #         post_box = self._RecoveryDetector.get_zboxes(boxes=boxes,
-        #                                                      im_width=self.WholeImageSize[0],
-        #                                                      im_height=self.WholeImageSize[1])
-        #
-        #         post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
-        #         post_pass = False
-        #         if post_pass:
-        #             self._Trackers[idx].revive_tracker(revive_trk=trk, new_box=box)
-        #         else:
-        #             self._Trackers[idx].delete_tracker(delete_id=trk.id)
-        #             temp_del.append(trk.id)
-        #     deleted_ids.append(temp_del)
-        #     np_image = whole_image[idx].numpy()
-        #     for trk in self._Trackers[idx].get_trackers():
-        #         color = self.__ImageHandle.Colors[trk.id % len(self.__ImageHandle.Colors)]
-        #         np_image = draw_box_label(np_image, trk.box, trk_id=trk.id, box_color=color)
-        #         x, y = ProjectionManager.transform(trk.box, idx)
-        #         plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
-        #
-        #     self.OutputImages['tracking_image'].append(np_image)
-        # self.OutputImages['plan_image'] = plan_image
-        # return deleted_ids
+        self.TrackerManager.post_tracking()
 
     def delete_overlap(self, tracker):
         video_idx_dict = dict()
@@ -267,8 +241,8 @@ class CascadeRunner(AbstractRunner):
                         self._Trackers[idx].adjust_division(1)
                     self._Trackers[video_idx_dict[target_tracker.id]].delete_tracker_forced(target_tracker.id)
                     return
-                trackers = self._Trackers[video_idx_dict[tracker.id]].get_trackers()
-                target_trackers = self._Trackers[video_idx_dict[target_tracker.id]].get_trackers()
+                trackers = self._Trackers[video_idx_dict[tracker.id]].get_single_trackers()
+                target_trackers = self._Trackers[video_idx_dict[target_tracker.id]].get_single_trackers()
                 if tracker_idx_dict[tracker.id] >= len(trackers):
                     test = True
                 if tracker.origin:
@@ -314,9 +288,9 @@ class CascadeRunner(AbstractRunner):
 
     def post_processing(self, path, whole_image):
         plan_image = self.OutputImages['plan_image']
-        for idx, tracker in enumerate(self._Trackers):
+        for idx, tracker in self.TrackerManager.get_trackers().items():
             np_image = whole_image[idx].numpy()
-            for singleTrk in tracker.get_trackers():
+            for singleTrk in tracker.get_single_trackers():
                 color = self.__ImageHandle.Colors[singleTrk.id % len(self.__ImageHandle.Colors)]
                 np_image = draw_box_label(np_image, singleTrk.box, trk_id=singleTrk.id, box_color=color)
                 x, y = ProjectionManager.transform(singleTrk.box, idx)

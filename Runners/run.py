@@ -50,23 +50,26 @@ def run_sequential(args, log=None):
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", time.time() - begin)
         begin = time.time()
-        delete_candidates = runner.tracking(detect_result)  # 진짜 트래킹만 Del 후보지만 뱉음 (실제로 안지움)
+        runner.tracking(detect_result, image)
         print("Tracking time: ", time.time() - begin)
-        begin = time.time()
-        deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)  # sub 모델로 한 번 더 트래킹 후 최종 후보 뱉음
-        print("Post Tracking time: ", time.time() - begin)
-        begin = time.time()
-        runner.clean_trackers(deleted_tracker_ids)  # 최종 Delete 후보랑 Reserved Update
-        print("Clean tracker time: ", time.time() - begin)
-        begin = time.time()
-        runner.check_overlap()
-        print("Delete Overlap time: ", time.time() - begin)
+
+        # delete_candidates = runner.tracking(detect_result, image)
+        # print("Tracking time: ", time.time() - begin)
+        # begin = time.time()
+        # deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)  # sub 모델로 한 번 더 트래킹 후 최종 후보 뱉음
+        # print("Post Tracking time: ", time.time() - begin)
+        # begin = time.time()
+        # runner.clean_trackers(deleted_tracker_ids)  # 최종 Delete 후보랑 Reserved Update
+        # print("Clean tracker time: ", time.time() - begin)
+        # begin = time.time()
+        # runner.check_overlap()
+        # print("Delete Overlap time: ", time.time() - begin)
         begin = time.time()
         runner.post_processing(paths, whole_image=image)
         print("Post processing time: ", time.time() - begin)
         begin = time.time()
-        runner.interaction_processing(box_anchors, deleted_tracker_ids)
-        print("Interaction time: ", time.time() - begin)
+        # runner.interaction_processing(box_anchors, deleted_tracker_ids)
+        # print("Interaction time: ", time.time() - begin)
 
 
 def args_sanity_check(config, _log):

@@ -1,5 +1,5 @@
 class AbstractTracker(object):
-    def assign_detections_to_trackers(self, detections):
+    def assign_detections_to_trackers(self, detections, trackers, track_id_list):
         """
         From current list of trackers and new detections, output matched detections,
         unmatched trackers, unmatched detections.

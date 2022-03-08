@@ -17,7 +17,7 @@ class AbstractRunner:
     def detect(self, tensor_image):
         raise NotImplementedError
 
-    def tracking(self, results):
+    def tracking(self, results, image):
         raise NotImplementedError
 
     def post_tracking(self, deleted_trackers, whole_image):

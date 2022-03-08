@@ -37,8 +37,8 @@ class SortTracker(AbstractTracker):
         self._tracker_list = []  # list for trackers
         self.reserved_tracker_list = []  # list for reserved trackers
 
-        self._track_id_list = deque(range(video_idx, max_trackers, video_len))  # list for track ID
-        self._max_trackers = len(self._track_id_list)
+        self._track_id_list = deque()
+        self.max_trackers = 0
         width_buffer = self.image_size[0] * self.reassign_buffer
         height_buffer = self.image_size[1] * self.reassign_buffer
         self.__reassign_location = (width_buffer, self.image_size[0] - width_buffer,
@@ -56,12 +56,14 @@ class SortTracker(AbstractTracker):
             self.exist_threshold = get_distance((0, self.image_size[1]), (self.image_size[0], 0)) / self.exist_division
             print('adjust_division: ', self.exist_division)
 
-    def assign_detections_to_trackers(self, detections):
+    def assign_detections_to_trackers(self, detections, trackers, track_id_list):
         """
         From current list of trackers and new detections, output matched detections,
         unmatched trackers, unmatched detections.
         """
         self.__older_box = detections
+        self._tracker_list = trackers
+        self._track_id_list = track_id_list
         IOU_mat = np.zeros((len(self._tracker_list), len(detections)), dtype=np.float32)
         for t, trk in enumerate(self._tracker_list):
             # trk = convert_to_cv2bbox(trk)
@@ -111,12 +113,12 @@ class SortTracker(AbstractTracker):
     def update_trackers(self):
         """ update tracker's attributes"""
         self._update_matched()
-        self._update_assign()
+        new_assigned_trks = self._update_assign()
         self._update_loss()
 
         deleted_tracks = filter(lambda x: x.no_losses > self.max_age, self._tracker_list)
         # self._tracker_list = [x for x in self._tracker_list if x.no_losses <= self.max_age]
-        return deleted_tracks
+        return self._tracker_list, self._track_id_list, deleted_tracks, new_assigned_trks
 
     def revive_tracker(self, revive_trk, new_box):
         x = np.array([[new_box[0], 0, new_box[1], 0, new_box[2], 0, new_box[3], 0]]).T
@@ -157,7 +159,7 @@ class SortTracker(AbstractTracker):
             self._tracker_list = [x for x in self._tracker_list if x.id != delete_id]  # 쓸데없이 많이 탐색 할 수 있음
             self._track_id_list.append(delete_id)
 
-    def get_trackers(self):
+    def get_single_trackers(self):
         return self._tracker_list
 
     def _update_matched(self):
@@ -173,17 +175,6 @@ class SortTracker(AbstractTracker):
                 tmp_trk.hits += 1
                 tmp_trk.no_losses = 0
 
-                is_overlap_region = self._overlap_judge(tmp_trk.box)
-                if is_overlap_region:
-                    if tmp_trk not in self.reserved_tracker_list:
-                        tmp_trk.origin = True
-                        if (tmp_trk.id == 3):
-                            test = True
-                        self.reserved_tracker_list.append(tmp_trk)
-                else:
-                    if tmp_trk in self.reserved_tracker_list:
-                        self.reserved_tracker_list.remove(tmp_trk)  # 지워준다 대상거
-
     def __is_exist_tracker(self, new_box, thr=0.6):
         for base_tracker in self._tracker_list:
             (xPt, yPt) = (base_tracker.box[0] + base_tracker.box[2]) / 2, \
@@ -197,6 +188,7 @@ class SortTracker(AbstractTracker):
         return False
 
     def _update_assign(self):
+        new_assigned_trks = []
         if len(self.__unmatched_detections) > 0:
             for idx in self.__unmatched_detections:
                 z = self.__older_box[idx]
@@ -209,6 +201,7 @@ class SortTracker(AbstractTracker):
                 xx = xx.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
                 tmp_trk.box = xx  # Top, Left, Bottom, Right
+                tmp_trk.video_idx = self.video_idx
                 if self.__is_exist_tracker(xx):
                     continue
                 x_mid = (xx[3] + xx[1]) / 2
@@ -218,23 +211,23 @@ class SortTracker(AbstractTracker):
                 is_overlap_region = self._overlap_judge(tmp_trk.box)
                 # 아래부분 코드 병신같음 *****
                 if reassign:  # 이미지 중간 부분
-                    if self._max_trackers > len(self._track_id_list):
+                    if self.max_trackers > len(self._track_id_list):
                         tmp_trk.id = self._track_id_list.pop()
                     else:
-                        for alternative in self.reserved_tracker_list:
+                        for alternative in self._tracker_list:
                             if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
                                 alternative.box = tmp_trk.box
-                                return
-                        tmp_trk.id = self._track_id_list.popleft()
+                            else:
+                                tmp_trk.id = self._track_id_list.popleft()
                 else:  # 이미지 외곽 부분
-                    for alternative in self.reserved_tracker_list:
+                    for alternative in self._tracker_list:
                         if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
                             alternative.box = tmp_trk.box
-                            return
-                    if is_overlap_region:
-                        self.reserved_tracker_list.append(tmp_trk)
-                    tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                        else:
+                            tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
                 self._tracker_list.append(tmp_trk)
+                new_assigned_trks.append(tmp_trk)
+        return new_assigned_trks
 
     def _reassign_judge(self, x, y):
         first_condition = self.__reassign_location[0] < x < self.__reassign_location[1]
@@ -294,6 +287,7 @@ class SortTrackerEx(SortTracker):
                 xx = xx.T[0].tolist()
                 xx = [xx[0], xx[2], xx[4], xx[6]]
                 tmp_trk.box = xx  # Top, Left, Bottom, Right
+                tmp_trk.video_idx = self.video_idx
                 x_mid = (xx[3] + xx[1]) / 2
                 y_bottom = xx[2]
                 new_assign = self._reassign_judge(x=x_mid, y=y_bottom)
@@ -311,13 +305,13 @@ class SingleTracker:  # class for Kalman Filter-based tracker
         self.box = []  # list to store the coordinates for a bounding box
         self.hits = 0  # number of detection matches
         self.no_losses = 0  # number of unmatched tracks (track loss)
-        self.origin = False
         # Initialize parameters for Kalman Filtering
         # The state is the (x, y) coordinates of the detection box
         # state: [up, up_dot, left, left_dot, down, down_dot, right, right_dot]
         # or[up, up_dot, left, left_dot, height, height_dot, width, width_dot]
         self.x_state = []
         self.dt = 1.  # time interval
+        self.video_idx = int
 
         # Process matrix, assuming constant velocity model
         self.F = np.array([[1, self.dt, 0, 0, 0, 0, 0, 0],

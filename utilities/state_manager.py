@@ -119,7 +119,7 @@ class StateDecisionMaker:
     def get_decision(self, trackers_list: list, boxes_list: list):
         decision_results = []
         for idx, trackers in enumerate(trackers_list):
-            for tracker in trackers.get_trackers():
+            for tracker in trackers.get_single_trackers():
                 xPt, yPt = ProjectionManager.transform(tracker.box, idx)
                 entrance = self.check_entrance(xPt, yPt)
                 if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):

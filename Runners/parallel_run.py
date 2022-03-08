@@ -109,14 +109,14 @@ def pipeliningParallel(args):
                     trackers.delete_tracker(delete_id=trk.id)
 
             # The list of tracks to be annotated
-            for trk in trackers.get_trackers():
+            for trk in trackers.get_single_trackers():
                 np_image = draw_box_label(np_image, trk.box,
                                           image_handle.Colors[trk.id % len(image_handle.Colors)])
                 plan_image = transform(trk.box, np_image, plan_image, matrices[model['video_name']],
                                        model['video_name'], image_handle.Colors[trk.id % len(image_handle.Colors)])
 
             if args['debug']:
-                print('Ending tracker_list: ', len(trackers.get_trackers()))
+                print('Ending tracker_list: ', len(trackers.get_single_trackers()))
             if args['save']:
                 saver = save_models[idx]
                 temp_img = raw_image.numpy()
