@@ -53,6 +53,10 @@ class CascadeRunner(AbstractRunner):
                 self.__oldReservedTrkLen[idx] = 0
 
                 self.Matrices[idx] = []
+                # for local_cnt in range(args['num_of_projection']):
+                #     with open(args['projection_path'] + 'LOADING DOCK F3 Rampa 9-10' + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
+                #         self.Matrices[idx].append(pickle.load(matrix))
+
                 for local_cnt in range(args['num_of_projection']):
                     with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
                         self.Matrices[idx].append(pickle.load(matrix))
@@ -153,6 +157,7 @@ class CascadeRunner(AbstractRunner):
         whole_deleted_trks = self.TrackerManager.tracking(results)
         deleted_ids = self.sub_detection(whole_deleted_trks, image)
         self.TrackerManager.post_tracking(deleted_ids)
+        return deleted_ids
 
     def sub_detection(self, deleted_trks, image):
         deleted_ids = dict()
@@ -288,9 +293,9 @@ class CascadeRunner(AbstractRunner):
 
     def post_processing(self, path, whole_image):
         plan_image = self.OutputImages['plan_image']
-        for idx, tracker in self.TrackerManager.get_trackers().items():
+        for idx, singleTrks in self.TrackerManager.get_single_trackers().items():
             np_image = whole_image[idx].numpy()
-            for singleTrk in tracker.get_single_trackers():
+            for singleTrk in singleTrks:
                 color = self.__ImageHandle.Colors[singleTrk.id % len(self.__ImageHandle.Colors)]
                 np_image = draw_box_label(np_image, singleTrk.box, trk_id=singleTrk.id, box_color=color)
                 x, y = ProjectionManager.transform(singleTrk.box, idx)
@@ -323,6 +328,6 @@ class CascadeRunner(AbstractRunner):
                              'tracking_image': [], 'plan_image': self.OutputImages['plan_image']}
 
     def interaction_processing(self, box_anchors, deleted_trackers):
-        results = self.__interactor.get_decision(trackers_list=self._Trackers, boxes_list=box_anchors)
+        results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_trackers(), boxes_list=box_anchors)
         self.__interactor.update_decision(image_name=self.__VideoHandles[0].make_image_name(), results=results)
         self.__interactor.loss_tracker(deleted_trackers)

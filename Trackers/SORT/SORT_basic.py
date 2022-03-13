@@ -208,23 +208,29 @@ class SortTracker(AbstractTracker):
                 y_bottom = xx[2]
                 reassign = self._reassign_judge(x=x_mid, y=y_bottom)
                 reassign = False  # 테스트용
-                is_overlap_region = self._overlap_judge(tmp_trk.box)
+
                 # 아래부분 코드 병신같음 *****
                 if reassign:  # 이미지 중간 부분
                     if self.max_trackers > len(self._track_id_list):
                         tmp_trk.id = self._track_id_list.pop()
                     else:
+                        if len(self._tracker_list) > 0:
+                            for alternative in self._tracker_list:
+                                if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
+                                    alternative.box = tmp_trk.box
+                                else:
+                                    tmp_trk.id = self._track_id_list.popleft()
+                        else:
+                            tmp_trk.id = self._track_id_list.popleft()
+                else:  # 이미지 외곽 부분
+                    if len(self._tracker_list) > 0:
                         for alternative in self._tracker_list:
                             if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
                                 alternative.box = tmp_trk.box
                             else:
-                                tmp_trk.id = self._track_id_list.popleft()
-                else:  # 이미지 외곽 부분
-                    for alternative in self._tracker_list:
-                        if box_iou2(tmp_trk.box, alternative.box) > self.iou_thrd:
-                            alternative.box = tmp_trk.box
-                        else:
-                            tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                                tmp_trk.id = self._track_id_list.popleft()  # assign an ID for the tracker
+                    else:
+                        tmp_trk.id = self._track_id_list.popleft()
                 self._tracker_list.append(tmp_trk)
                 new_assigned_trks.append(tmp_trk)
         return new_assigned_trks

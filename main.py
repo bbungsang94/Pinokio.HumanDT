@@ -33,9 +33,11 @@ if __name__ == "__main__":
 
     if config['run_mode'] != 'Single':
         # int(sqrt(counter)) - 1로 하면됨
-        video_list = {0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
-                          "LOADING DOCK F3 Rampa 11-12.avi",
-                          "LOADING DOCK F3 Rampa 9-10.avi"]
+        # video_list = {0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
+        #                   "LOADING DOCK F3 Rampa 11-12.avi",
+        #                   "LOADING DOCK F3 Rampa 9-10.avi"]
+        #               }
+        video_list = {0: ["Shorts.avi"]
                       }
         config['video_list'] = video_list
     clear_folder(folder_list=[config['image_path'],

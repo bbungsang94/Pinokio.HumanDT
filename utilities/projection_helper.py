@@ -100,14 +100,22 @@ def hex_to_rgb(h):
 
 def get_matrix(xPt, yPt, video_idx: int, matrix_list):
     matrices = matrix_list[video_idx]
-    if video_idx == 0:
-        if ((-988 / 400 * xPt + 1852.5) >= yPt) and ((-123 / 157 * xPt + 1497) > yPt):
+    if video_idx == 0: # Shorts Test
+        if ((47 / 462 * xPt + 130) <= yPt) and ((127 / 674 * xPt) < yPt):
             matrix = matrices[0]
-        elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) >= yPt):
+        elif ((47 / 462 * xPt + 130) > yPt) and ((127 / 674 * xPt) <= yPt):
             matrix = matrices[1]
-        elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) < yPt):
+        elif ((47 / 462 * xPt + 130) > yPt) and ((127 / 674 * xPt) > yPt):
             matrix = matrices[2]
         return matrix
+    # if video_idx == 0:
+    #     if ((-988 / 400 * xPt + 1852.5) >= yPt) and ((-123 / 157 * xPt + 1497) > yPt):
+    #         matrix = matrices[0]
+    #     elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) >= yPt):
+    #         matrix = matrices[1]
+    #     elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) < yPt):
+    #         matrix = matrices[2]
+    #     return matrix
     elif video_idx == 1:
         if ((-24.7 * xPt + 16450) >= yPt) and ((-222 / 163 * xPt + 2268) > yPt):
             matrix = matrices[0]

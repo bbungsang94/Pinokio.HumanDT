@@ -40,7 +40,7 @@ def run_sequential(args, log=None):
         image = runner.get_image()
         if image is None:
             return
-        # if count < 153 + 10 + 540:
+        # if count < 9000:
         #     count += 1
         #     continue
         # if count < 160 + 2440:
@@ -50,7 +50,7 @@ def run_sequential(args, log=None):
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", time.time() - begin)
         begin = time.time()
-        runner.tracking(detect_result, image)
+        deleted_tracker_ids = runner.tracking(detect_result, image)
         print("Tracking time: ", time.time() - begin)
 
         # delete_candidates = runner.tracking(detect_result, image)
@@ -68,8 +68,8 @@ def run_sequential(args, log=None):
         runner.post_processing(paths, whole_image=image)
         print("Post processing time: ", time.time() - begin)
         begin = time.time()
-        # runner.interaction_processing(box_anchors, deleted_tracker_ids)
-        # print("Interaction time: ", time.time() - begin)
+        runner.interaction_processing(box_anchors, deleted_tracker_ids)
+        print("Interaction time: ", time.time() - begin)
 
 
 def args_sanity_check(config, _log):

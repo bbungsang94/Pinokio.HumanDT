@@ -116,9 +116,9 @@ class StateDecisionMaker:
         self.Ref = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA']
         self.output_path = output_path
 
-    def get_decision(self, trackers_list: list, boxes_list: list):
+    def get_decision(self, trackers_list: dict, boxes_list: list):
         decision_results = []
-        for idx, trackers in enumerate(trackers_list):
+        for idx, trackers in trackers_list.items():
             for tracker in trackers.get_single_trackers():
                 xPt, yPt = ProjectionManager.transform(tracker.box, idx)
                 entrance = self.check_entrance(xPt, yPt)
@@ -147,8 +147,8 @@ class StateDecisionMaker:
             second_condition = min_y <= y <= max_y
             return first_condition and second_condition
 
-    def loss_tracker(self, trackers_id):
-        for single_deleted_list in trackers_id:
+    def loss_tracker(self, trackers_id: dict):
+        for single_deleted_list in trackers_id.values():
             for deleted_id in single_deleted_list:
                 self.Processor.dequeue(deleted_id)
 
