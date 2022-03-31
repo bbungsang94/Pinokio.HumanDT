@@ -1,6 +1,6 @@
 
 # Models
-primary_model_name: "FasterRCNN"       # "primary model args"
+primary_model_name: "Yolov5"       # "primary model args"
 recovery_model_name: "ssd_mobile"     # "recovery model args"
 box_model_name: ""                    # "box model args"
 tracker_model_name: "sort_basic"         # "tracker model args"
@@ -8,7 +8,7 @@ tracker_model_name: "sort_basic"         # "tracker model args"
 # DataSet path
 run_mode: "Merge" # Single / Parallel / Merge
 video_list: [] # video list
-video_path: "./video/New/" # target video path
+video_path: "./video/0328_New/" # target video path
 image_path: "test_images/" # test images path
 plan_path: "./params/plan3-15.png"
 projection_path: "./params/projection/"

@@ -3,6 +3,8 @@ import pickle
 import copy
 import time
 
+import cv2
+
 import Runners.general_runner
 from Runners.general_runner import AbstractRunner
 from Trackers.TrackerManager import TrackerManager
@@ -52,14 +54,11 @@ class CascadeRunner(AbstractRunner):
                 self.__VideoHandles.append(video_handle)
                 self.__oldReservedTrkLen[idx] = 0
 
-                self.Matrices[idx] = []
+                # self.Matrices[idx] = []
+                #
                 # for local_cnt in range(args['num_of_projection']):
-                #     with open(args['projection_path'] + 'LOADING DOCK F3 Rampa 9-10' + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
+                #     with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
                 #         self.Matrices[idx].append(pickle.load(matrix))
-
-                for local_cnt in range(args['num_of_projection']):
-                    with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
-                        self.Matrices[idx].append(pickle.load(matrix))
 
                 if args['save']:
                     Runners.general_runner.make_save_folders(args=args, name=name)
@@ -87,7 +86,7 @@ class CascadeRunner(AbstractRunner):
             tracker = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
             self.TrackerManager.add_tracker(idx, copy.deepcopy(tracker), tracker_model_args['max_trackers'])
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-        self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
+        # self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
         self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion, thr=0.4)
 
     def clean_trackers(self, deleted_ids):
@@ -140,8 +139,8 @@ class CascadeRunner(AbstractRunner):
         box_anchors = []
         for image in tensor_image:
             begin = time.time()
-            raw_image, veh_info, box_info = self._PrimaryDetector.detection(image)
-            print("Inference time: ", time.time() - begin)
+            raw_image, veh_info, box_info, person_info = self._PrimaryDetector.detection(image)
+            print("Inference time: ", (time.time() - begin) * 1000, "ms")
             detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
             (box_boxes, _, _) = box_info
             (veh_boxes, veh_classes, veh_scores) = veh_info
@@ -155,9 +154,9 @@ class CascadeRunner(AbstractRunner):
 
     def tracking(self, results, image):
         whole_deleted_trks = self.TrackerManager.tracking(results)
-        deleted_ids = self.sub_detection(whole_deleted_trks, image)
-        self.TrackerManager.post_tracking(deleted_ids)
-        return deleted_ids
+        # deleted_ids = self.sub_detection(whole_deleted_trks, image)
+        self.TrackerManager.post_tracking(whole_deleted_trks)
+        return whole_deleted_trks
 
     def sub_detection(self, deleted_trks, image):
         deleted_ids = dict()
@@ -298,8 +297,8 @@ class CascadeRunner(AbstractRunner):
             for singleTrk in singleTrks:
                 color = self.__ImageHandle.Colors[singleTrk.id % len(self.__ImageHandle.Colors)]
                 np_image = draw_box_label(np_image, singleTrk.box, trk_id=singleTrk.id, box_color=color)
-                x, y = ProjectionManager.transform(singleTrk.box, idx)
-                plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
+                # x, y = ProjectionManager.transform(singleTrk.box, idx)
+                # plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
 
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
@@ -317,8 +316,9 @@ class CascadeRunner(AbstractRunner):
                 ImageManager.save_tensor(self.OutputImages['tracking_image'][idx],
                                          path['tracking_path'] + file_name)
             # Plan
-            ImageManager.save_image(self.OutputImages['plan_image'],
-                                    path['plan_path'] + self.__VideoHandles[0].make_image_name())
+            # temp_img = self.OutputImages['plan_image']
+            # converted = cv2.cvtColor(temp_img, cv2.COLOR_BGR2RGB)
+            # ImageManager.save_image(converted, path['plan_path'] + self.__VideoHandles[0].make_image_name())
 
         for idx, handle in enumerate(self.__VideoHandles):
             handle.append(self.OutputImages['tracking_image'][idx])

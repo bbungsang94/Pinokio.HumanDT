@@ -67,6 +67,7 @@ class ProjectionManager:
         plan_img_height = plan_img.shape[0]
 
         plan_image = cv2.circle(plan_img, (int(x), int(plan_img_height - y)), 2, box_color, thickness=-1)
+
         return plan_image
 
     @classmethod
@@ -101,11 +102,11 @@ def hex_to_rgb(h):
 def get_matrix(xPt, yPt, video_idx: int, matrix_list):
     matrices = matrix_list[video_idx]
     if video_idx == 0: # Shorts Test
-        if ((47 / 462 * xPt + 130) <= yPt) and ((127 / 674 * xPt) < yPt):
+        if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
             matrix = matrices[0]
-        elif ((47 / 462 * xPt + 130) > yPt) and ((127 / 674 * xPt) <= yPt):
+        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
             matrix = matrices[1]
-        elif ((47 / 462 * xPt + 130) > yPt) and ((127 / 674 * xPt) > yPt):
+        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) < yPt):
             matrix = matrices[2]
         return matrix
     # if video_idx == 0:

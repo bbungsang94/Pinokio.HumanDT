@@ -48,10 +48,10 @@ def run_sequential(args, log=None):
         #     continue
         begin = time.time()    
         detect_result, box_anchors = runner.detect(tensor_image=image)
-        print("Detect time: ", time.time() - begin)
+        print("Detect time: ", (time.time() - begin) * 1000, "ms")
         begin = time.time()
         deleted_tracker_ids = runner.tracking(detect_result, image)
-        print("Tracking time: ", time.time() - begin)
+        print("Tracking time: ", (time.time() - begin) * 1000, "ms")
 
         # delete_candidates = runner.tracking(detect_result, image)
         # print("Tracking time: ", time.time() - begin)
@@ -66,10 +66,10 @@ def run_sequential(args, log=None):
         # print("Delete Overlap time: ", time.time() - begin)
         begin = time.time()
         runner.post_processing(paths, whole_image=image)
-        print("Post processing time: ", time.time() - begin)
-        begin = time.time()
-        runner.interaction_processing(box_anchors, deleted_tracker_ids)
-        print("Interaction time: ", time.time() - begin)
+        print("Post processing time: ", (time.time() - begin) * 1000, "ms")
+        # begin = time.time()
+        # runner.interaction_processing(box_anchors, deleted_tracker_ids)
+        # print("Interaction time: ", (time.time() - begin) * 1000, "ms")
 
 
 def args_sanity_check(config, _log):

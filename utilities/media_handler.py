@@ -136,6 +136,7 @@ class PipeliningVideoManager(VideoManger):
             return True
 
     def append(self, img):
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         self.__OutputVideo.write(img)
 
     def release_video_object(self):
@@ -245,15 +246,16 @@ class ImageManager:
         np_image = np_image[:, :, ::-1]
         image_pil = Image.fromarray(np_image)
         for result in info:
-            (boxes, classes, scores) = result
-            for i in range(boxes.shape[0]):
-                display_str = "{}: {}%".format(classes[i], int(100 * scores[i]))
-                color = self.Colors[2 % len(self.Colors)]
+            if result is not None:
+                (boxes, classes, scores) = result
+                for i in range(boxes.shape[0]):
+                    display_str = "{}: {}%".format(classes[i], int(100 * scores[i]))
+                    color = self.Colors[2 % len(self.Colors)]
 
-                top, left, bottom, right = tuple(boxes[i])
-                self.draw_bounding_box_on_image(
-                    image_pil, top, left, bottom, right,
-                    color, display_str_list=[display_str])
+                    top, left, bottom, right = tuple(boxes[i])
+                    self.draw_bounding_box_on_image(
+                        image_pil, top, left, bottom, right,
+                        color, display_str_list=[display_str])
         return np.array(image_pil)
 
     def display_image(self, img):
