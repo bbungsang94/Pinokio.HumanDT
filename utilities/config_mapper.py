@@ -21,6 +21,15 @@ def recursive_dict_update(d, u):
     return d
 
 
+def get_yaml(path=None):
+    with open(path, "r") as f:
+        try:
+            obj = yaml.load(f, Loader=yaml.FullLoader)
+        except yaml.YAMLError as exc:
+            assert False, "default.yaml error: {}".format(exc)
+    return obj
+
+
 def get_config():
     config_dir = '{0}/{1}'
     config_dir2 = '{0}/{1}/{2}'

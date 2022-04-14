@@ -33,8 +33,7 @@ if __name__ == "__main__":
 
     if config['run_mode'] != 'Single':
         # int(sqrt(counter)) - 1로 하면됨
-        video_list = {0: ["LOADING DOCK F3 Rampa 15-16.avi",
-                          "LOADING DOCK F3 Rampa 13 - 14.avi",
+        video_list = {0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
                           "LOADING DOCK F3 Rampa 11-12.avi",
                           "LOADING DOCK F3 Rampa 9-10.avi"]
                       }
@@ -46,9 +45,6 @@ if __name__ == "__main__":
                  root=config['output_base_path'] + config['run_name'])
     run.standard_run(config)
 
-# State 결정 ( + Box Detector )
-# 일정 (다음주 수요일까지)
-# Tracking 개선
-# 프레임워크 만들기
-# land vehicle 너무 큰 것들 퍼센테이지 조정
-# Id 전달 후 Plan 색 합쳐주기
+# Hardware 요구사항, 컨셉, 롤 -> 차주 POC
+# 작업세분화 + 기존: 색, 모니터링, 속도
+# 요구사항 분석, 진행 마일스톤, 업무내용, 정량적 평가, 릴리즈방식, WSC 논문 요청인원, 양식, 파일첨부

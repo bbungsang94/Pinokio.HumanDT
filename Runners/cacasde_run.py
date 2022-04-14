@@ -4,10 +4,11 @@ import copy
 import time
 
 import cv2
+import numpy as np
 
 import Runners.general_runner
 from Runners.general_runner import AbstractRunner
-from Trackers.TrackerManager import TrackerManager
+from Trackers.TrackerManager import TrackerManager, ColorWrapper
 from utilities.helpers import DictToStruct, post_iou_checker, draw_box_label, get_distance
 from utilities.media_handler import ImageManager, PipeliningVideoManager
 from utilities.projection_helper import ProjectionManager
@@ -54,12 +55,6 @@ class CascadeRunner(AbstractRunner):
                 self.__VideoHandles.append(video_handle)
                 self.__oldReservedTrkLen[idx] = 0
 
-                # self.Matrices[idx] = []
-                #
-                # for local_cnt in range(args['num_of_projection']):
-                #     with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
-                #         self.Matrices[idx].append(pickle.load(matrix))
-
                 if args['save']:
                     Runners.general_runner.make_save_folders(args=args, name=name)
                 count += 1
@@ -76,17 +71,30 @@ class CascadeRunner(AbstractRunner):
         self.__PlanHandle.video_name = 'plan'
 
         primary_model_args = args[args['primary_model_name']]
-        recovery_model_args = args[args['recovery_model_name']]
         tracker_model_args = args[args['tracker_model_name']]
         tracker_model_args['image_size'] = [self.WholeImageSize[0], self.WholeImageSize[1]]
-        self.TrackerManager = TrackerManager(len(self.__VideoHandles))
-        for idx, _ in enumerate(self.__VideoHandles):
-            tracker_model_args['video_idx'] = idx
+
+        if args['tracker_model_name'] == 'sort_color':
+            self.TrackerManager = ColorWrapper()
+            max_trackers = None
+        else:
+            self.TrackerManager = TrackerManager(len(self.__VideoHandles))
             tracker_model_args['video_len'] = len(self.__VideoHandles)
+            max_trackers = tracker_model_args['max_trackers']
+
+        for idx, _ in enumerate(self.__VideoHandles):
+            if args['tracker_model_name'] == 'sort_basic':
+                tracker_model_args['video_idx'] = idx
+
             tracker = trk_REGISTRY[tracker_model_args['model_name']](**tracker_model_args)
-            self.TrackerManager.add_tracker(idx, copy.deepcopy(tracker), tracker_model_args['max_trackers'])
+            self.TrackerManager.add_tracker(tracker_idx=idx,
+                                            tracker=copy.deepcopy(tracker),
+                                            max_trackers=max_trackers)
+
+        if args['tracker_model_name'] == 'sort_color':
+            self.TrackerManager.sync_id()
+
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-        # self._RecoveryDetector = det_REGISTRY[recovery_model_args['model_name']](**recovery_model_args)
         self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion, thr=0.4)
 
     def clean_trackers(self, deleted_ids):
@@ -152,11 +160,16 @@ class CascadeRunner(AbstractRunner):
 
         return result_list, box_anchors
 
-    def tracking(self, results, image):
-        whole_deleted_trks = self.TrackerManager.tracking(results)
-        # deleted_ids = self.sub_detection(whole_deleted_trks, image)
-        self.TrackerManager.post_tracking(whole_deleted_trks)
-        return whole_deleted_trks
+    def tracking(self, results, images):
+        target_trackers = dict()
+        if self.TrackerManager.model_name == 'ColorWrapper':
+            for idx, result in enumerate(results):
+                new_trackers = self.TrackerManager.tracking(boxes=result.boxes, img=images[idx].numpy(), idx=idx)
+                target_trackers[idx] = new_trackers
+        else:
+            target_trackers = self.TrackerManager.tracking(boxes=results)
+
+        self.TrackerManager.post_tracking(target_trackers)
 
     def sub_detection(self, deleted_trks, image):
         deleted_ids = dict()
@@ -176,44 +189,6 @@ class CascadeRunner(AbstractRunner):
 
         return deleted_ids
 
-    # def tracking(self, results):
-    #     del_list = []
-    #     for idx in range(len(self.__VideoHandles)):
-    #         result = results[idx]
-    #         self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
-    #         deleted_tracks = self._Trackers[idx].update_trackers()
-    #         del_list.append(deleted_tracks)
-    #     return del_list
-
-        # del_list = []
-        # newReservedTrkLen = dict()
-        # for idx in range(len(self.__VideoHandles)):
-        #     result = results[idx]
-        #     self._Trackers[idx].assign_detections_to_trackers(detections=result.boxes)
-        #     deleted_tracks = self._Trackers[idx].update_trackers()
-        #     del_list.append(deleted_tracks)
-        #     newReservedTrkLen[idx] = len(self._Trackers[idx].reserved_tracker_list)
-        # for idx in range(len(self.__VideoHandles)):
-        #     if self.__oldReservedTrkLen[idx] < newReservedTrkLen[idx]:
-        #         add_count = newReservedTrkLen[idx] - self.__oldReservedTrkLen[idx]
-        #         tmp_list = copy.deepcopy(self._Trackers[idx].reserved_tracker_list)
-        #         for new_idx in range(add_count):
-        #             self.delete_overlap(tmp_list.pop())
-        #         self.__oldReservedTrkLen[idx] = newReservedTrkLen[idx]
-        # return del_list
-
-    # tracking 이후에 새로 생선된 애가 하나가 있음
-    # 근데 걔가 오버랩 대상자임
-    # 그래서 오버랩되는지 분석해봄
-    # 오버랩됨
-    #
-    # overlap check -> True
-    # 둘 중에 최근에 추가된 놈의 tracker_list를 가져옴
-    # tracker_list.pop()
-    # id 반환
-    # delete_tracker(trk.id)
-    # [1, 2, 3, 4, 5]
-
     def post_tracking(self, deleted_trackers, whole_image):
         self.TrackerManager.post_tracking()
 
@@ -223,8 +198,6 @@ class CascadeRunner(AbstractRunner):
         tmp_list = []  # 3개 Tracker 전체의 Reserved Trackers
 
         for video_idx, trk in enumerate(self._Trackers):
-            if video_idx == 1:
-                test111 = True
             tracker_idx = 0
             for tmp_reserve_trk in trk.reserved_tracker_list:
                 video_idx_dict[tmp_reserve_trk.id] = video_idx
@@ -247,48 +220,14 @@ class CascadeRunner(AbstractRunner):
                     return
                 trackers = self._Trackers[video_idx_dict[tracker.id]].get_single_trackers()
                 target_trackers = self._Trackers[video_idx_dict[target_tracker.id]].get_single_trackers()
-                if tracker_idx_dict[tracker.id] >= len(trackers):
-                    test = True
                 if tracker.origin:
                     target_tracker.id = tracker.id
-                    if len(trackers) == 0:
-                        test = True
                     trackers.pop(tracker_idx_dict[tracker.id])
                     return
                 else:
                     trackers[tracker_idx_dict[tracker.id]].id = target_tracker.id
-                    if len(target_trackers) == 0:
-                        test = True
                     target_trackers.pop(tracker_idx_dict[target_tracker.id])
                     return
-        # for target_idx in range(len(tmp_list)):
-        #     if tracker.id == tmp_list[target_idx].id: # 본인 등판
-        #         continue
-        #     target_xPt, target_yPt = ProjectionManager.transform(tmp_list[target_idx].box,
-        #                                                          video_idx_dict[tmp_list[target_idx].id])
-        #     distance = math.sqrt((xPt - target_xPt) ** 2 + (yPt - target_yPt) ** 2)
-        #     if distance < 100:
-        #         trackers = self._Trackers[video_idx_dict[tmp_list[target_idx].id]].get_trackers
-        #         if tracker.origin:
-        #             trackers[tracker_idx_dict[tmp_list[target_idx].id]].id = tracker.id
-        #             break
-        #         elif trackers[tracker_idx_dict[tmp_list[target_idx].id]].origin:
-        #             tracker.id = trackers[tracker_idx_dict[tmp_list[target_idx].id]].id
-        #             break
-        #         else:
-        #             Exception("Fucking Y?")
-
-        # for idx, reserved_trk in enumerate(tmp_list):
-        #     xPt, yPt = ProjectionManager.transform(reserved_trk.box, video_idx_dict[reserved_trk])
-        #     for target_idx in range(idx + 1, len(tmp_list)):
-        #         if target_idx == len(tmp_list):
-        #             break
-        #         target_xPt, target_yPt = ProjectionManager.transform(tmp_list[target_idx].box,
-        #                                                              video_idx_dict[tmp_list[target_idx]])
-        #         distance = math.sqrt((xPt - target_xPt)**2 + (yPt - target_yPt)**2)
-        #         if distance < 100:
-        #
-        #             continue
 
     def post_processing(self, path, whole_image):
         plan_image = self.OutputImages['plan_image']
@@ -297,8 +236,6 @@ class CascadeRunner(AbstractRunner):
             for singleTrk in singleTrks:
                 color = self.__ImageHandle.Colors[singleTrk.id % len(self.__ImageHandle.Colors)]
                 np_image = draw_box_label(np_image, singleTrk.box, trk_id=singleTrk.id, box_color=color)
-                # x, y = ProjectionManager.transform(singleTrk.box, idx)
-                # plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
 
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
@@ -315,10 +252,10 @@ class CascadeRunner(AbstractRunner):
                 # Tracking
                 ImageManager.save_tensor(self.OutputImages['tracking_image'][idx],
                                          path['tracking_path'] + file_name)
-            # Plan
-            # temp_img = self.OutputImages['plan_image']
-            # converted = cv2.cvtColor(temp_img, cv2.COLOR_BGR2RGB)
-            # ImageManager.save_image(converted, path['plan_path'] + self.__VideoHandles[0].make_image_name())
+                # Plan
+                temp_img = self.OutputImages['plan_image']
+                converted = cv2.cvtColor(temp_img, cv2.COLOR_BGR2RGB)
+                ImageManager.save_image(converted, path['plan_path'] + self.__VideoHandles[0].make_image_name())
 
         for idx, handle in enumerate(self.__VideoHandles):
             handle.append(self.OutputImages['tracking_image'][idx])
@@ -328,6 +265,7 @@ class CascadeRunner(AbstractRunner):
                              'tracking_image': [], 'plan_image': self.OutputImages['plan_image']}
 
     def interaction_processing(self, box_anchors, deleted_trackers):
-        results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_trackers(), boxes_list=box_anchors)
+        results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_trackers(),
+                                                 boxes_list=box_anchors)
         self.__interactor.update_decision(image_name=self.__VideoHandles[0].make_image_name(), results=results)
         self.__interactor.loss_tracker(deleted_trackers)

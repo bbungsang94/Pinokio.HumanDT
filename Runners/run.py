@@ -21,8 +21,6 @@ def standard_run(config, log=None):
 
 
 def run_sequential(args, log=None):
-    #runner = r_REGISTRY[args['run_mode']](args=args)
-    #runner = MergeRunner(args=args)
     runner = CascadeRunner(args=args)
     base_root = args['output_base_path'] + args['run_name']
     paths = {'test_path': base_root + args['image_path'],
@@ -40,30 +38,13 @@ def run_sequential(args, log=None):
         image = runner.get_image()
         if image is None:
             return
-        # if count < 9000:
-        #     count += 1
-        #     continue
-        # if count < 160 + 2440:
-        #     count += 1
-        #     continue
+
         begin = time.time()    
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", (time.time() - begin) * 1000, "ms")
         begin = time.time()
-        deleted_tracker_ids = runner.tracking(detect_result, image)
+        runner.tracking(detect_result, image)
         print("Tracking time: ", (time.time() - begin) * 1000, "ms")
-
-        # delete_candidates = runner.tracking(detect_result, image)
-        # print("Tracking time: ", time.time() - begin)
-        # begin = time.time()
-        # deleted_tracker_ids = runner.post_tracking(deleted_trackers=delete_candidates, whole_image=image)  # sub 모델로 한 번 더 트래킹 후 최종 후보 뱉음
-        # print("Post Tracking time: ", time.time() - begin)
-        # begin = time.time()
-        # runner.clean_trackers(deleted_tracker_ids)  # 최종 Delete 후보랑 Reserved Update
-        # print("Clean tracker time: ", time.time() - begin)
-        # begin = time.time()
-        # runner.check_overlap()
-        # print("Delete Overlap time: ", time.time() - begin)
         begin = time.time()
         runner.post_processing(paths, whole_image=image)
         print("Post processing time: ", (time.time() - begin) * 1000, "ms")
