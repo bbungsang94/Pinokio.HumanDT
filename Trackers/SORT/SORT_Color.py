@@ -9,6 +9,10 @@ from Trackers.GeneralTracker import AbstractTracker
 from utilities.config_mapper import get_yaml
 from utilities.helpers import box_iou2, get_distance
 
+import os
+
+from utilities.projection_helper import ProjectionManager
+
 
 class ColorTracker(AbstractTracker):
     def __init__(self,
@@ -48,6 +52,11 @@ class ColorTracker(AbstractTracker):
         self.__Trackers = []  # list for trackers
         self.__Alternatives = []  # list for reserved trackers
         self.__TrackerIDs = []
+
+        self.Video_idx = 0
+
+    def set_video_idx(self, idx):
+        self.Video_idx = idx
 
     def assign_detections_to_trackers(self, detections, trackers=None, track_id_list=None):
         """
@@ -115,37 +124,39 @@ class ColorTracker(AbstractTracker):
         width_max = int(max(box[1], box[3]))
         roi = img[height_min:height_max, width_min:width_max]
         im = Image.fromarray(roi)
-        im.save("D:/MnS/HumanDT/Pinokio.HumanDT/temp/roi.jpeg")
-        roi_hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        roi_hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
         assign_id = len(self.ColorID['hsv'])
+        ProjectionManager.ColorChecker.new_line(video_id=self.Video_idx)
+        im.save(ProjectionManager.ColorChecker.SavePath + str(ProjectionManager.ColorChecker.RowCount - 1) + "/roi.jpeg")
         for key, value in enumerate(self.ColorID['hsv']):
             if self.__is_exist_tracker(key=key):
                 img_mask = cv2.inRange(src=roi_hsv,
                                        lowerb=tuple(self.ColorID['lower'][key]),
                                        upperb=tuple(self.ColorID['upper'][key]))
                 img_result = cv2.bitwise_and(roi, roi, mask=img_mask)
-                im = cv2.cvtColor(img_result, cv2.COLOR_BGR2RGB)
-                im = Image.fromarray(im)
-                im.save("D:/MnS/HumanDT/Pinokio.HumanDT/temp/" + str(key) + "result.jpeg", )
+                im = Image.fromarray(img_result)
+                im.save(ProjectionManager.ColorChecker.SavePath + str(ProjectionManager.ColorChecker.RowCount - 1) +
+                        "/Result" + str(key) + ".jpeg")
 
                 # pre-assign section
                 pixels = int(np.sum(img_mask) / 255)
                 monosize = (roi.size / 3)
                 ratio = pixels / monosize
-                print(key)
-                print(pixels)
-                print(ratio)
+                ProjectionManager.ColorChecker.update_value(idx=key, value=ratio)
                 if (self.ReassignLim / 10) < ratio:
                     assign_id = key
+
         return assign_id
 
     def sync(self, parents):
+        updated_trackers = []
         for current_tracker in self.__Trackers:
             if len(current_tracker.history) > 0:
                 for idx, old_tracker in enumerate(parents):
                     if box_iou2(current_tracker.history[-1], old_tracker.box) > 0.8:
-                        parents[idx] = current_tracker
-        return parents
+                        updated_trackers.append(current_tracker)
+                        break
+        return updated_trackers
 
     def __update_matched(self, input_image: np.array):
         changed_trackers = []
@@ -199,8 +210,8 @@ class ColorTracker(AbstractTracker):
     def __iou_calc(self, det):
         IOU_mat = np.zeros((len(self.__Trackers), len(det)), dtype=np.float32)
         for t, trk in enumerate(self.__Trackers):
-            for d, det in enumerate(det):
-                IOU_mat[t, d] = box_iou2(trk.box, det)
+            for d, in_det in enumerate(det):
+                IOU_mat[t, d] = box_iou2(trk.box, in_det)
 
         return IOU_mat
 

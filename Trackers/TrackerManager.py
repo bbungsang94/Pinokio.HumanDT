@@ -1,4 +1,3 @@
-import copy
 from collections import deque
 
 import numpy as np
@@ -30,6 +29,9 @@ class TrackerManager:
 
     def remove_tracker(self, tracker_idx):
         self.__trackers.pop(tracker_idx)
+
+    def sync_id(self):
+        return NotImplementedError
 
     def tracking(self, boxes, img=None, idx=None):
         whole_deleted_trks = dict()
@@ -103,6 +105,7 @@ class ColorWrapper:
 
     # Call Init section
     def add_tracker(self, tracker, tracker_idx=None, max_trackers=None):
+        tracker.set_video_idx(len(self.__LocalTrackers))
         self.__LocalTrackers.append(tracker)
         if len(tracker.ColorID['hsv']) > self.__IdLength:
             self.__IdLength = len(tracker.ColorID['hsv'])
@@ -132,19 +135,26 @@ class ColorWrapper:
         del_idx = []
         for video_idx, new_trackers in new_trackers.items():
             for new_tracker in new_trackers:
-                for idx, alternative in enumerate(self.__PublicTracker):
-                    if self.__overlap_check(alternative, (video_idx, new_tracker)):
-                        (_, tracker) = alternative
-                        new_tracker.id = tracker.id
-                        new_tracker.history = new_tracker.history + tracker.history
-                        new_public_trackers.append((video_idx, new_tracker))
-                        del_idx.append(idx)
-                    else:
+                if len(self.__PublicTracker) is 0:
+                    self.__PublicTracker.append((video_idx, new_tracker))
+                    if new_tracker.id in self.IdleIds:
+                        self.IdleIds.remove(new_tracker.id)
+                else:
+                    for idx, alternative in enumerate(self.__PublicTracker):
+                        if self.__overlap_check(alternative, (video_idx, new_tracker)):
+                            (_, tracker) = alternative
+                            new_tracker.id = tracker.id
+                            new_tracker.history = new_tracker.history + tracker.history
+                            new_public_trackers.append((video_idx, new_tracker))
+                            del_idx.append(alternative)
+
+                        if new_tracker.id in self.IdleIds:
+                            self.IdleIds.remove(new_tracker.id)
                         new_public_trackers.append((video_idx, new_tracker))
 
         while len(del_idx) > 0:
-            idx = del_idx.pop()
-            del self.__PublicTracker[idx]
+            alternative = del_idx.pop()
+            self.__PublicTracker.remove(alternative)
 
         self.__PublicTracker += new_public_trackers
 

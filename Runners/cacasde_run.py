@@ -55,6 +55,11 @@ class CascadeRunner(AbstractRunner):
                 self.__VideoHandles.append(video_handle)
                 self.__oldReservedTrkLen[idx] = 0
 
+                self.Matrices[idx] = []
+                for local_cnt in range(args['num_of_projection']):
+                    with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
+                        self.Matrices[idx].append(pickle.load(matrix))
+
                 if args['save']:
                     Runners.general_runner.make_save_folders(args=args, name=name)
                 count += 1
@@ -166,6 +171,8 @@ class CascadeRunner(AbstractRunner):
             for idx, result in enumerate(results):
                 new_trackers = self.TrackerManager.tracking(boxes=result.boxes, img=images[idx].numpy(), idx=idx)
                 target_trackers[idx] = new_trackers
+            self.TrackerManager.sync_id()
+
         else:
             target_trackers = self.TrackerManager.tracking(boxes=results)
 
@@ -231,12 +238,15 @@ class CascadeRunner(AbstractRunner):
 
     def post_processing(self, path, whole_image):
         plan_image = self.OutputImages['plan_image']
-        for idx, singleTrks in self.TrackerManager.get_single_trackers().items():
+        trackers = self.TrackerManager.get_single_trackers()
+        for idx in range(len(self.OutputImages['raw_image'])):
             np_image = whole_image[idx].numpy()
-            for singleTrk in singleTrks:
-                color = self.__ImageHandle.Colors[singleTrk.id % len(self.__ImageHandle.Colors)]
-                np_image = draw_box_label(np_image, singleTrk.box, trk_id=singleTrk.id, box_color=color)
-
+            if idx in trackers:
+                for tracker in trackers[idx]:
+                    color = self.__ImageHandle.Colors[tracker.id % len(self.__ImageHandle.Colors)]
+                    np_image = draw_box_label(np_image, tracker.box, trk_id=tracker.id, box_color=color)
+                    x, y = ProjectionManager.transform(tracker.box, idx)
+                    plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
 

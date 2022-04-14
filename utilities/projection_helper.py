@@ -1,4 +1,41 @@
 import cv2
+import os
+
+class ColorMeasureMeter:
+    def __init__(self, save_path):
+        self.RowCount = 0
+        self.SavePath = save_path
+        self.Tables = dict()
+        self.ColNames = ['Index', 'Video_ID', 'Path',
+                         'Black', 'Brown', 'Red',
+                         'Orange', 'Yellow', 'Green', 'Blue',
+                         'Magenta', 'Silver', 'Cyan']
+        for key in self.ColNames:
+            self.Tables[key] = []
+
+    def new_line(self, video_id):
+        self.save_file()
+        os.mkdir(self.SavePath + str(self.RowCount))
+        self.RowCount += 1
+        for key, value in self.Tables.items():
+            if key is 'Index':
+                value.append(self.RowCount - 1)
+            elif key is 'Video_ID':
+                value.append(video_id)
+            elif key is 'Path':
+                value.append(self.SavePath + str(self.RowCount - 1))
+            else:
+                value.append(0.0)
+
+    def update_value(self, idx, value):
+        key = self.ColNames[3 + idx]
+        color_list = self.Tables[key]
+        color_list[-1] = value
+
+    def save_file(self):
+        import pandas as pd
+        temp_raw = pd.DataFrame(self.Tables)
+        temp_raw.to_csv(self.SavePath + 'ColorData.csv', mode='w', encoding='euc-kr')
 
 
 class ProjectionManager:
@@ -7,12 +44,14 @@ class ProjectionManager:
     whole_image_size = tuple
     single_image_size = tuple
     matrices = dict()
+    ColorChecker = None
 
     def __new__(cls, video_list, whole_image_size, single_image_size, matrices):
         cls.video_list = video_list
         cls.whole_image_size = whole_image_size
         cls.single_image_size = single_image_size
         cls.matrices = matrices
+        cls.ColorChecker = ColorMeasureMeter(save_path="D:/MnS/HumanDT/Pinokio.HumanDT/temp/")
         if not hasattr(cls, 'instance'):
             cls.instance = super(ProjectionManager, cls).__new__(cls)
             return cls.instance
@@ -36,7 +75,6 @@ class ProjectionManager:
         y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
 
         return x, y
-
 
     @classmethod
     def transform_in_merge(cls, bbox_cv2, img):
@@ -101,7 +139,7 @@ def hex_to_rgb(h):
 
 def get_matrix(xPt, yPt, video_idx: int, matrix_list):
     matrices = matrix_list[video_idx]
-    if video_idx == 0: # Shorts Test
+    if video_idx == 0:  # Shorts Test
         if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
             matrix = matrices[0]
         elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
@@ -147,7 +185,7 @@ def get_matrix_in_merge(xPt, yPt, video_name: str, matrix_list):
             matrix = matrices[2]
         return matrix
     elif video_name == "LOADING DOCK F3 Rampa 11-12":
-        xPt -= 1592 * 1 # Second Video
+        xPt -= 1592 * 1  # Second Video
         if ((-24.7 * xPt + 16450) >= yPt) and ((-222 / 163 * xPt + 2268) > yPt):
             matrix = matrices[0]
         elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) >= yPt):
