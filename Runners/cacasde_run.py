@@ -134,14 +134,22 @@ class CascadeRunner(AbstractRunner):
 
     def get_image(self):
         rtn_images = []
+        release_flag = False
         for handle in self.__VideoHandles:
             _, np_bgr_image = handle.pop()
             if np_bgr_image is None:
                 self.__PlanHandle.release_video_object()
-                return rtn_images
+                release_flag = True
+                break
             tensor_image = ImageManager.convert_tensor(np_bgr_image)
             rtn_images.append(tensor_image)
             self.OutputImages['raw_image'].append(copy.deepcopy(tensor_image))
+
+        if release_flag:
+            for handle in self.__VideoHandles:
+                handle.release_video_object()
+            return None
+
         return rtn_images
 
     def detect(self, tensor_image):
