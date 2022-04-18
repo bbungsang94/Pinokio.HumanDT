@@ -3,8 +3,12 @@ import os
 
 class ColorMeasureMeter:
     def __init__(self, save_path):
+        import shutil
         self.RowCount = 0
         self.SavePath = save_path
+        if os.path.isdir(save_path):
+            shutil.rmtree(save_path)
+        os.mkdir(self.SavePath)
         self.Tables = dict()
         self.ColNames = ['Index', 'Video_ID', 'Path',
                          'Black', 'Brown', 'Red',

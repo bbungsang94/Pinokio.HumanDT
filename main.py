@@ -9,19 +9,21 @@ import utilities.config_mapper as config_mapper
 from Runners import run
 
 
-def clear_folder(folder_list: list, root: str):
+def clear_folder(folder_list: list, root: str, body: str, history: bool):
     import shutil
-    try:
-        if root != '' and os.path.exists(root) is False:
-            os.mkdir(root)
-    except FileNotFoundError:
-        (dot, output, runtime, name, empty) = root.split('/')
-        os.mkdir(dot + '/' + output + '/' + runtime)
-        os.mkdir(dot + '/' + output + '/' + runtime + '/' + name)
+    if os.path.exists(root) is False:
+        os.mkdir(root)
+
+    if history is False:
+        shutil.rmtree(root)
+        os.mkdir(root)
+        os.mkdir(root + body)
+
+    append = root + body
     for folder in folder_list:
-        if os.path.exists(root + folder):
-            shutil.rmtree(root + folder)
-        os.mkdir(root + folder)
+        if os.path.exists(append + folder):
+            shutil.rmtree(append + folder)
+        os.mkdir(append + folder)
 
 
 if __name__ == "__main__":
@@ -42,7 +44,9 @@ if __name__ == "__main__":
                               config['detected_path'],
                               config['tracking_path'],
                               config['trajectory_path']],
-                 root=config['output_base_path'] + config['run_name'])
+                 root=config['output_base_path'],
+                 body=config['run_name'],
+                 history=config['history'])
     run.standard_run(config)
 
 # Hardware 요구사항, 컨셉, 롤 -> 차주 POC

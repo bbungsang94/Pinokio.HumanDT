@@ -115,18 +115,24 @@ class ColorWrapper:
 
     # Call Init section
     def sync_id(self):
-        for local_tracker in self.__LocalTrackers:
+        active_ids = [x for x in range(0, self.__IdLength) if x not in self.IdleIds]
+        for idx, local_tracker in enumerate(self.__LocalTrackers):
             local_tracker.set_tracker_id(self.IdleIds)
+            # Public tracker랑 동기화
+            single_trackers = self.__extract_tracker(idx)
+            single_trackers = self.__LocalTrackers[idx].sync(single_trackers)
+            for tracker in single_trackers:
+                self.__PublicTracker.append((idx, tracker))
+                if tracker.id in active_ids:
+                    active_ids.remove(tracker.id)
+
+        # 소멸된 ID 수집
+        self.IdleIds += active_ids
 
     # Call running section
     def tracking(self, boxes, img: np.array, idx: int):
         self.__LocalTrackers[idx].assign_detections_to_trackers(detections=boxes)
         new_trk, chg_trk = self.__LocalTrackers[idx].update_trackers(img=img)
-        # Public tracker랑 동기화
-        single_trackers = self.__extract_tracker(idx)
-        single_trackers = self.__LocalTrackers[idx].sync(single_trackers)
-        for tracker in single_trackers:
-            self.__PublicTracker.append((idx, tracker))
         return new_trk
 
     # Call running section

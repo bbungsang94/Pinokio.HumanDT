@@ -1,5 +1,3 @@
-from collections import deque
-
 import cv2
 import numpy as np
 from PIL import Image
@@ -8,9 +6,6 @@ from Trackers.single_tracker import SingleTracker
 from Trackers.GeneralTracker import AbstractTracker
 from utilities.config_mapper import get_yaml
 from utilities.helpers import box_iou2, get_distance
-
-import os
-
 from utilities.projection_helper import ProjectionManager
 
 
@@ -117,12 +112,12 @@ class ColorTracker(AbstractTracker):
             # append
             self.__TrackerIDs.append(value)
 
-    def match_color(self, img, box):
+    def match_color(self, img, box, thrd: str):
         height_min = int(min(box[0], box[2]))
         height_max = int(max(box[0], box[2]))
         width_min = int(min(box[1], box[3]))
         width_max = int(max(box[1], box[3]))
-        roi = img[height_min:height_max, width_min:width_max]
+        roi = img[int((height_max + height_min) / 2):height_max, int((width_max + width_min) / 2):width_max]
         im = Image.fromarray(roi)
         roi_hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
         assign_id = len(self.ColorID['hsv'])
@@ -143,8 +138,10 @@ class ColorTracker(AbstractTracker):
                 monosize = (roi.size / 3)
                 ratio = pixels / monosize
                 ProjectionManager.ColorChecker.update_value(idx=key, value=ratio)
-                if (self.ReassignLim / 10) < ratio:
-                    assign_id = key
+                if abs(ratio - self.ColorID[thrd][key]) < self.ColorID['sigma']:
+                    if key in self.__TrackerIDs:
+                        assign_id = key
+                        break
 
         return assign_id
 
@@ -171,7 +168,7 @@ class ColorTracker(AbstractTracker):
             tmp_trk.box = xx
             tmp_trk.no_losses = 0
             if tmp_trk.id is len(self.ColorID['hsv']):
-                tmp_trk.id = self.match_color(img=input_image, box=self.__OlderBox[det_idx])
+                tmp_trk.id = self.match_color(img=input_image, box=self.__OlderBox[det_idx], thrd='optimized_ratio')
                 changed_trackers.append(tmp_trk)
 
         return changed_trackers
@@ -182,7 +179,8 @@ class ColorTracker(AbstractTracker):
             for idx in self.__UnmatchedDet:
                 z = self.__OlderBox[idx]
                 tmp_trk = SingleTracker()  # Create a new tracker
-                tmp_trk.id = self.match_color(img=input_image, box=z)
+                tmp_trk.id = self.match_color(img=input_image, box=z, thrd='mu')
+
                 z = np.expand_dims(z, axis=0).T
                 x = np.array([[z[0], 0, z[1], 0, z[2], 0, z[3], 0]]).T
                 tmp_trk.x_state = x
