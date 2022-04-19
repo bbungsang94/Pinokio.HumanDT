@@ -1,0 +1,11 @@
+/API/video
+/API/__pycache__
+/API/.idea
+/API/saved_model.pb
+/API/dummy.py
+/API/config/model/tracking/sort_basic - 복사본.yaml
+/API/Trackers/__pycache__/*.pyc
+/API/__pycache__/*.pyc
+*.pyc
+/API/dummy2.py
+*.bak
