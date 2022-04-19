@@ -6,6 +6,12 @@
 /video/Clips_vehicle
 /video/Detected
 /video/New
+/plan
+/video
 /output
 /DataSet
 /temp
+/test_images
+/plan_result
+/detected_images
+/tracking_result
