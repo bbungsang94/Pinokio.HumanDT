@@ -117,7 +117,7 @@ class ColorTracker(AbstractTracker):
         height_max = int(max(box[0], box[2]))
         width_min = int(min(box[1], box[3]))
         width_max = int(max(box[1], box[3]))
-        roi = img[int((height_max + height_min) / 2):height_max, int((width_max + width_min) / 2):width_max]
+        roi = img[int((height_max + height_min) / 2):height_max, width_min:width_max]
         im = Image.fromarray(roi)
         roi_hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
         assign_id = len(self.ColorID['hsv'])
@@ -140,6 +140,7 @@ class ColorTracker(AbstractTracker):
                 ProjectionManager.ColorChecker.update_value(idx=key, value=ratio)
                 if abs(ratio - self.ColorID[thrd][key]) < self.ColorID['sigma']:
                     if key in self.__TrackerIDs:
+                        ProjectionManager.ColorChecker.assign_id(key)
                         assign_id = key
                         break
 
@@ -150,7 +151,7 @@ class ColorTracker(AbstractTracker):
         for current_tracker in self.__Trackers:
             if len(current_tracker.history) > 0:
                 for idx, old_tracker in enumerate(parents):
-                    if box_iou2(current_tracker.history[-1], old_tracker.box) > 0.8:
+                    if box_iou2(current_tracker.history[-1], old_tracker.box) > self.ReassignLim:
                         updated_trackers.append(current_tracker)
                         break
         return updated_trackers

@@ -3,6 +3,7 @@ import time
 from Runners import REGISTRY as r_REGISTRY
 from Runners import MergeRunner
 from Runners.cacasde_run import CascadeRunner
+from utilities.projection_helper import ProjectionManager
 
 
 def standard_run(config, log=None):
@@ -35,10 +36,13 @@ def run_sequential(args, log=None):
                  'Save_Time': 0, 'Save_Mean': 0}
     count = 0
     while True:
+        count += 1
         image = runner.get_image()
         if image is None:
             return
-
+        # if count < 2240 + 940:
+        #     continue
+        ProjectionManager.ColorChecker.new_folder(str(count))
         begin = time.time()    
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", (time.time() - begin) * 1000, "ms")

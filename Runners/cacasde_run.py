@@ -134,6 +134,7 @@ class CascadeRunner(AbstractRunner):
 
     def get_image(self):
         rtn_images = []
+        self.OutputImages['raw_image'] = []
         release_flag = False
         for handle in self.__VideoHandles:
             _, np_bgr_image = handle.pop()

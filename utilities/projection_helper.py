@@ -6,6 +6,7 @@ class ColorMeasureMeter:
         import shutil
         self.RowCount = 0
         self.SavePath = save_path
+        self.CsvPath = save_path
         if os.path.isdir(save_path):
             shutil.rmtree(save_path)
         os.mkdir(self.SavePath)
@@ -13,9 +14,14 @@ class ColorMeasureMeter:
         self.ColNames = ['Index', 'Video_ID', 'Path',
                          'Black', 'Brown', 'Red',
                          'Orange', 'Yellow', 'Green', 'Blue',
-                         'Magenta', 'Silver', 'Cyan']
+                         'Magenta', 'Silver', 'Cyan', 'Assign']
         for key in self.ColNames:
             self.Tables[key] = []
+
+    def new_folder(self, name):
+        if os.path.exists(self.CsvPath + name) is False:
+            os.mkdir(self.CsvPath + name)
+            self.SavePath = self.CsvPath + name + '/'
 
     def new_line(self, video_id):
         self.save_file()
@@ -36,10 +42,14 @@ class ColorMeasureMeter:
         color_list = self.Tables[key]
         color_list[-1] = value
 
+    def assign_id(self, value):
+        color_list = self.Tables['Assign']
+        color_list[-1] = value
+
     def save_file(self):
         import pandas as pd
         temp_raw = pd.DataFrame(self.Tables)
-        temp_raw.to_csv(self.SavePath + 'ColorData.csv', mode='w', encoding='euc-kr')
+        temp_raw.to_csv(self.CsvPath + 'ColorData.csv', mode='w', encoding='euc-kr')
 
 
 class ProjectionManager:
