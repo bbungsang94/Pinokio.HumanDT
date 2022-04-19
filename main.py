@@ -17,7 +17,7 @@ def clear_folder(folder_list: list, root: str, body: str, history: bool):
     if history is False:
         shutil.rmtree(root)
         os.mkdir(root)
-        os.mkdir(root + body)
+    os.mkdir(root + body)
 
     append = root + body
     for folder in folder_list:
