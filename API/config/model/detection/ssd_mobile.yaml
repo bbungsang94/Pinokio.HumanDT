@@ -1,0 +1,11 @@
+ssd_mobile:
+  model_name: "ssd_mobile"
+  hub_mode: True
+  model_handle: "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
+  # "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
+  # "https://tfhub.dev/tensorflow/ssd_mobilenet_v2/2"
+  label_path: "./params/label/mscoco_label_map.yaml" # model label path
+  min_score: 0.3
+  iou_score: 0.3
+  offset_score: 0.3
+  max_boxes: 10

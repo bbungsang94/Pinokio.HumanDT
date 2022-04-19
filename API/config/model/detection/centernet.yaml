@@ -1,0 +1,9 @@
+centernet:
+  model_name: "centernet"
+  hub_mode: True
+  model_handle: "https://tfhub.dev/tensorflow/centernet/resnet101v1_fpn_512x512/1"
+  label_path: "./params/label/mscoco_label_map.yaml" # model label path
+  min_score: 0.3
+  iou_score: 0.3
+  offset_score: 0.3
+  max_boxes: 10
