@@ -25,8 +25,8 @@ namespace HumanDT.UI
 
         private void Start_button_Click(object sender, EventArgs e)
         {
-            MainForm mainForm = new MainForm();
-            mainForm.ShowDialog();
+            VideoForm video_form = new VideoForm();
+            video_form.ShowDialog();
             this.Close();
         }
     }

@@ -1,27 +1,29 @@
 {
   "format": 1,
   "restore": {
-    "D:\\source-D\\respos-D\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj": {}
+    "D:\\MnS\\HumanDT\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj": {}
   },
   "projects": {
-    "D:\\source-D\\respos-D\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj": {
+    "D:\\MnS\\HumanDT\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\source-D\\respos-D\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj",
+        "projectUniqueName": "D:\\MnS\\HumanDT\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj",
         "projectName": "HumanDT.UI",
-        "projectPath": "D:\\source-D\\respos-D\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj",
-        "packagesPath": "C:\\Users\\MNS\\.nuget\\packages\\",
-        "outputPath": "D:\\source-D\\respos-D\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\obj\\",
+        "projectPath": "D:\\MnS\\HumanDT\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\HumanDT.UI.csproj",
+        "packagesPath": "C:\\Users\\Simon Anderson\\.nuget\\packages\\",
+        "outputPath": "D:\\MnS\\HumanDT\\Pinokio.HumanDT\\GUI\\HumanDT.UI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages",
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\MNS\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Simon Anderson\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 21.2.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0-windows7.0"
@@ -70,7 +72,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
         }
       }
     }
