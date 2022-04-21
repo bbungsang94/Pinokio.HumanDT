@@ -3,18 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HumanDT.UI", "HumanDT.UI\HumanDT.UI.csproj", "{FA9D2AE8-044A-4806-8967-74861504DDD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HumanDT.UI", "HumanDT.UI\HumanDT.UI.csproj", "{FA9D2AE8-044A-4806-8967-74861504DDD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Debug|x64.ActiveCfg = Debug|x64
+		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Debug|x64.Build.0 = Debug|x64
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|x64.ActiveCfg = Release|x64
+		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -28,4 +28,4 @@ visible: False
 save: True
 pipeline: True
 citation: True
-history: True
+history: False

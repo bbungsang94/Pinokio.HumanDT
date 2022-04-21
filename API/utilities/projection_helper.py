@@ -28,11 +28,11 @@ class ColorMeasureMeter:
         os.mkdir(self.SavePath + str(self.RowCount))
         self.RowCount += 1
         for key, value in self.Tables.items():
-            if key is 'Index':
+            if key == 'Index':
                 value.append(self.RowCount - 1)
-            elif key is 'Video_ID':
+            elif key == 'Video_ID':
                 value.append(video_id)
-            elif key is 'Path':
+            elif key == 'Path':
                 value.append(self.SavePath + str(self.RowCount - 1))
             else:
                 value.append(0.0)
@@ -65,7 +65,7 @@ class ProjectionManager:
         cls.whole_image_size = whole_image_size
         cls.single_image_size = single_image_size
         cls.matrices = matrices
-        cls.ColorChecker = ColorMeasureMeter(save_path="D:/MnS/HumanDT/Pinokio.HumanDT/temp/")
+        cls.ColorChecker = ColorMeasureMeter(save_path=r"../temp/")
         if not hasattr(cls, 'instance'):
             cls.instance = super(ProjectionManager, cls).__new__(cls)
             return cls.instance

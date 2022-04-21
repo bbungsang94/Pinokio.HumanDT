@@ -141,7 +141,7 @@ class ColorWrapper:
         del_idx = []
         for video_idx, new_trackers in new_trackers.items():
             for new_tracker in new_trackers:
-                if len(self.__PublicTracker) is 0:
+                if len(self.__PublicTracker) == 0:
                     self.__PublicTracker.append((video_idx, new_tracker))
                     if new_tracker.id in self.IdleIds:
                         self.IdleIds.remove(new_tracker.id)

@@ -75,7 +75,7 @@ class StateProcessor:
         else:
             # next state에 해당되는지
             (old_state, old_time, predict_state) = self.OldStates[idx]
-            if old_state is 'NA':
+            if old_state == 'NA':
                 print('과거 NA인데 들어옴')
             self.OldStates[idx] = (state, real_time, next_state)
             if state in predict_state:

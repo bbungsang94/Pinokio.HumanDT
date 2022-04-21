@@ -17,5 +17,10 @@ namespace HumanDT.UI
         {
             InitializeComponent();
         }
+
+        private void Main_Close_button_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

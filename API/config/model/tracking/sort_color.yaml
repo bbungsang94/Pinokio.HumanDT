@@ -5,4 +5,4 @@ sort_color:
   reassign_buffer: 0.3
   exist_division: 7
   image_size: []
-  color_path: "D:/MnS/HumanDT/Pinokio.HumanDT/config/model/tracking/tracking_color.yaml"
+  color_path: "./config/model/tracking/tracking_color.yaml"

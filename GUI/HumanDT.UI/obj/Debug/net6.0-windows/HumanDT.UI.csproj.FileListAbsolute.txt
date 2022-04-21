@@ -194,3 +194,4 @@ D:\source-D\respos-D\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\ref
 D:\source-D\respos-D\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\HumanDT.UI.pdb
 D:\source-D\respos-D\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\HumanDT.UI.genruntimeconfig.cache
 D:\source-D\respos-D\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\ref\HumanDT.UI.dll
+D:\source-D\respos-D\Pinokio.HumanDT\GUI\HumanDT.UI\bin\Debug\net6.0-windows\Python.Runtime.dll
