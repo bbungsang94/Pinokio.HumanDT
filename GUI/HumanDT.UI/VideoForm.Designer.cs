@@ -59,13 +59,13 @@
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
+            this.Analysis_button = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbProperty = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
             this.pnlView.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
@@ -86,11 +86,11 @@
             // lbHeader
             // 
             this.lbHeader.AutoSize = true;
-            this.lbHeader.Font = new System.Drawing.Font("에스코어 드림 7 ExtraBold", 33F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 33F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbHeader.ForeColor = System.Drawing.Color.Gainsboro;
             this.lbHeader.Location = new System.Drawing.Point(3, 21);
             this.lbHeader.Name = "lbHeader";
-            this.lbHeader.Size = new System.Drawing.Size(319, 61);
+            this.lbHeader.Size = new System.Drawing.Size(293, 52);
             this.lbHeader.TabIndex = 0;
             this.lbHeader.Text = "Video Setting";
             this.lbHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -379,7 +379,7 @@
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.pnlHeader.Controls.Add(this.button5);
-            this.pnlHeader.Controls.Add(this.button4);
+            this.pnlHeader.Controls.Add(this.Analysis_button);
             this.pnlHeader.Controls.Add(this.button3);
             this.pnlHeader.Controls.Add(this.button2);
             this.pnlHeader.Controls.Add(this.button1);
@@ -390,14 +390,24 @@
             this.pnlHeader.TabIndex = 2;
             this.pnlHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
-            // button4
+            // button5
             // 
-            this.button4.Location = new System.Drawing.Point(47, 886);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(227, 55);
-            this.button4.TabIndex = 4;
-            this.button4.Text = "Analysis";
-            this.button4.UseVisualStyleBackColor = true;
+            this.button5.Location = new System.Drawing.Point(47, 315);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(227, 55);
+            this.button5.TabIndex = 5;
+            this.button5.Text = "Visible";
+            this.button5.UseVisualStyleBackColor = true;
+            // 
+            // Analysis_button
+            // 
+            this.Analysis_button.Location = new System.Drawing.Point(47, 886);
+            this.Analysis_button.Name = "Analysis_button";
+            this.Analysis_button.Size = new System.Drawing.Size(227, 55);
+            this.Analysis_button.TabIndex = 4;
+            this.Analysis_button.Text = "Analysis";
+            this.Analysis_button.UseVisualStyleBackColor = true;
+            this.Analysis_button.Click += new System.EventHandler(this.Analysis_button_Click);
             // 
             // button3
             // 
@@ -438,23 +448,14 @@
             // lbProperty
             // 
             this.lbProperty.AutoSize = true;
-            this.lbProperty.Font = new System.Drawing.Font("에스코어 드림 7 ExtraBold", 33F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbProperty.Font = new System.Drawing.Font("Microsoft Sans Serif", 33F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbProperty.ForeColor = System.Drawing.Color.Gainsboro;
             this.lbProperty.Location = new System.Drawing.Point(17, 21);
             this.lbProperty.Name = "lbProperty";
-            this.lbProperty.Size = new System.Drawing.Size(216, 61);
+            this.lbProperty.Size = new System.Drawing.Size(195, 52);
             this.lbProperty.TabIndex = 1;
             this.lbProperty.Text = "Property";
             this.lbProperty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(47, 315);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(227, 55);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "Visible";
-            this.button5.UseVisualStyleBackColor = true;
             // 
             // VideoForm
             // 
@@ -470,7 +471,6 @@
             this.Name = "VideoForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "VideoForm";
-            this.TopMost = true;
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.pnlView.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
@@ -530,7 +530,7 @@
         private System.Windows.Forms.Button btnStop2;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button Analysis_button;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button5;
     }
