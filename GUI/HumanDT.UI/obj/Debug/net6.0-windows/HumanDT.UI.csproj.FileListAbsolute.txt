@@ -292,3 +292,4 @@ D:\MnS\HumanDT\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\refint\Hu
 D:\MnS\HumanDT\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\HumanDT.UI.pdb
 D:\MnS\HumanDT\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\HumanDT.UI.genruntimeconfig.cache
 D:\MnS\HumanDT\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\ref\HumanDT.UI.dll
+D:\MnS\HumanDT\Pinokio.HumanDT\GUI\HumanDT.UI\obj\Debug\net6.0-windows\HumanDT.UI.VideoForm.resources

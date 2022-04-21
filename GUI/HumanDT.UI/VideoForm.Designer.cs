@@ -30,8 +30,27 @@
         {
             this.lbHeader = new System.Windows.Forms.Label();
             this.pnlView = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.progressBarControl3 = new DevExpress.XtraEditors.ProgressBarControl();
+            this.btnNext4 = new System.Windows.Forms.Button();
+            this.btnPrev4 = new System.Windows.Forms.Button();
+            this.picIdx4 = new System.Windows.Forms.PictureBox();
+            this.btnPlay4 = new System.Windows.Forms.Button();
+            this.btnStop4 = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.progressBarControl4 = new DevExpress.XtraEditors.ProgressBarControl();
+            this.btnNext3 = new System.Windows.Forms.Button();
+            this.picIdx3 = new System.Windows.Forms.PictureBox();
+            this.btnPrev3 = new System.Windows.Forms.Button();
+            this.btnPlay3 = new System.Windows.Forms.Button();
+            this.btnStop3 = new System.Windows.Forms.Button();
             this.pnlIdx2 = new System.Windows.Forms.Panel();
+            this.progressBarControl2 = new DevExpress.XtraEditors.ProgressBarControl();
+            this.btnNext2 = new System.Windows.Forms.Button();
             this.picIdx2 = new System.Windows.Forms.PictureBox();
+            this.btnPrev2 = new System.Windows.Forms.Button();
+            this.btnPlay2 = new System.Windows.Forms.Button();
+            this.btnStop2 = new System.Windows.Forms.Button();
             this.pnlIdx1 = new System.Windows.Forms.Panel();
             this.btnNext1 = new System.Windows.Forms.Button();
             this.btnPrev1 = new System.Windows.Forms.Button();
@@ -39,47 +58,29 @@
             this.btnPlay1 = new System.Windows.Forms.Button();
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
-            this.picIdx4 = new System.Windows.Forms.PictureBox();
-            this.picIdx3 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
+            this.button4 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbProperty = new System.Windows.Forms.Label();
-            this.btnNext2 = new System.Windows.Forms.Button();
-            this.btnPrev2 = new System.Windows.Forms.Button();
-            this.btnStop2 = new System.Windows.Forms.Button();
-            this.btnPlay2 = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.btnNext3 = new System.Windows.Forms.Button();
-            this.btnPrev3 = new System.Windows.Forms.Button();
-            this.btnPlay3 = new System.Windows.Forms.Button();
-            this.btnStop3 = new System.Windows.Forms.Button();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.btnNext4 = new System.Windows.Forms.Button();
-            this.btnPrev4 = new System.Windows.Forms.Button();
-            this.btnPlay4 = new System.Windows.Forms.Button();
-            this.btnStop4 = new System.Windows.Forms.Button();
-            this.progressBarControl2 = new DevExpress.XtraEditors.ProgressBarControl();
-            this.progressBarControl3 = new DevExpress.XtraEditors.ProgressBarControl();
-            this.progressBarControl4 = new DevExpress.XtraEditors.ProgressBarControl();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             this.pnlView.SuspendLayout();
+            this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picIdx4)).BeginInit();
+            this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl4.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picIdx3)).BeginInit();
             this.pnlIdx2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl2.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picIdx2)).BeginInit();
             this.pnlIdx1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl1.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picIdx1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picIdx4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picIdx3)).BeginInit();
             this.pnlHeader.SuspendLayout();
             this.pnlProperty.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl2.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl4.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // lbHeader
@@ -106,6 +107,140 @@
             this.pnlView.Size = new System.Drawing.Size(1309, 1056);
             this.pnlView.TabIndex = 1;
             // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(110)))), ((int)(((byte)(110)))));
+            this.panel2.Controls.Add(this.progressBarControl3);
+            this.panel2.Controls.Add(this.btnNext4);
+            this.panel2.Controls.Add(this.btnPrev4);
+            this.panel2.Controls.Add(this.picIdx4);
+            this.panel2.Controls.Add(this.btnPlay4);
+            this.panel2.Controls.Add(this.btnStop4);
+            this.panel2.Location = new System.Drawing.Point(661, 542);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(640, 487);
+            this.panel2.TabIndex = 10;
+            // 
+            // progressBarControl3
+            // 
+            this.progressBarControl3.Location = new System.Drawing.Point(3, 466);
+            this.progressBarControl3.Name = "progressBarControl3";
+            this.progressBarControl3.Size = new System.Drawing.Size(634, 18);
+            this.progressBarControl3.TabIndex = 11;
+            // 
+            // btnNext4
+            // 
+            this.btnNext4.Location = new System.Drawing.Point(585, 417);
+            this.btnNext4.Name = "btnNext4";
+            this.btnNext4.Size = new System.Drawing.Size(52, 43);
+            this.btnNext4.TabIndex = 9;
+            this.btnNext4.Text = "NEXT";
+            this.btnNext4.UseVisualStyleBackColor = true;
+            // 
+            // btnPrev4
+            // 
+            this.btnPrev4.Location = new System.Drawing.Point(527, 417);
+            this.btnPrev4.Name = "btnPrev4";
+            this.btnPrev4.Size = new System.Drawing.Size(52, 43);
+            this.btnPrev4.TabIndex = 8;
+            this.btnPrev4.Text = "PREV";
+            this.btnPrev4.UseVisualStyleBackColor = true;
+            // 
+            // picIdx4
+            // 
+            this.picIdx4.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample4;
+            this.picIdx4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.picIdx4.Location = new System.Drawing.Point(0, 51);
+            this.picIdx4.Name = "picIdx4";
+            this.picIdx4.Size = new System.Drawing.Size(640, 360);
+            this.picIdx4.TabIndex = 3;
+            this.picIdx4.TabStop = false;
+            // 
+            // btnPlay4
+            // 
+            this.btnPlay4.Location = new System.Drawing.Point(3, 417);
+            this.btnPlay4.Name = "btnPlay4";
+            this.btnPlay4.Size = new System.Drawing.Size(52, 43);
+            this.btnPlay4.TabIndex = 6;
+            this.btnPlay4.Text = "PLAY";
+            this.btnPlay4.UseVisualStyleBackColor = true;
+            // 
+            // btnStop4
+            // 
+            this.btnStop4.Location = new System.Drawing.Point(61, 417);
+            this.btnStop4.Name = "btnStop4";
+            this.btnStop4.Size = new System.Drawing.Size(52, 43);
+            this.btnStop4.TabIndex = 7;
+            this.btnStop4.Text = "STOP";
+            this.btnStop4.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(110)))), ((int)(((byte)(110)))));
+            this.panel1.Controls.Add(this.progressBarControl4);
+            this.panel1.Controls.Add(this.btnNext3);
+            this.panel1.Controls.Add(this.picIdx3);
+            this.panel1.Controls.Add(this.btnPrev3);
+            this.panel1.Controls.Add(this.btnPlay3);
+            this.panel1.Controls.Add(this.btnStop3);
+            this.panel1.Location = new System.Drawing.Point(13, 542);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(640, 487);
+            this.panel1.TabIndex = 6;
+            // 
+            // progressBarControl4
+            // 
+            this.progressBarControl4.Location = new System.Drawing.Point(3, 466);
+            this.progressBarControl4.Name = "progressBarControl4";
+            this.progressBarControl4.Size = new System.Drawing.Size(634, 18);
+            this.progressBarControl4.TabIndex = 12;
+            // 
+            // btnNext3
+            // 
+            this.btnNext3.Location = new System.Drawing.Point(585, 417);
+            this.btnNext3.Name = "btnNext3";
+            this.btnNext3.Size = new System.Drawing.Size(52, 43);
+            this.btnNext3.TabIndex = 9;
+            this.btnNext3.Text = "NEXT";
+            this.btnNext3.UseVisualStyleBackColor = true;
+            // 
+            // picIdx3
+            // 
+            this.picIdx3.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample3;
+            this.picIdx3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.picIdx3.Location = new System.Drawing.Point(0, 51);
+            this.picIdx3.Name = "picIdx3";
+            this.picIdx3.Size = new System.Drawing.Size(640, 360);
+            this.picIdx3.TabIndex = 2;
+            this.picIdx3.TabStop = false;
+            // 
+            // btnPrev3
+            // 
+            this.btnPrev3.Location = new System.Drawing.Point(527, 417);
+            this.btnPrev3.Name = "btnPrev3";
+            this.btnPrev3.Size = new System.Drawing.Size(52, 43);
+            this.btnPrev3.TabIndex = 8;
+            this.btnPrev3.Text = "PREV";
+            this.btnPrev3.UseVisualStyleBackColor = true;
+            // 
+            // btnPlay3
+            // 
+            this.btnPlay3.Location = new System.Drawing.Point(3, 417);
+            this.btnPlay3.Name = "btnPlay3";
+            this.btnPlay3.Size = new System.Drawing.Size(52, 43);
+            this.btnPlay3.TabIndex = 6;
+            this.btnPlay3.Text = "PLAY";
+            this.btnPlay3.UseVisualStyleBackColor = true;
+            // 
+            // btnStop3
+            // 
+            this.btnStop3.Location = new System.Drawing.Point(61, 417);
+            this.btnStop3.Name = "btnStop3";
+            this.btnStop3.Size = new System.Drawing.Size(52, 43);
+            this.btnStop3.TabIndex = 7;
+            this.btnStop3.Text = "STOP";
+            this.btnStop3.UseVisualStyleBackColor = true;
+            // 
             // pnlIdx2
             // 
             this.pnlIdx2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(110)))), ((int)(((byte)(110)))));
@@ -120,6 +255,22 @@
             this.pnlIdx2.Size = new System.Drawing.Size(640, 487);
             this.pnlIdx2.TabIndex = 5;
             // 
+            // progressBarControl2
+            // 
+            this.progressBarControl2.Location = new System.Drawing.Point(3, 466);
+            this.progressBarControl2.Name = "progressBarControl2";
+            this.progressBarControl2.Size = new System.Drawing.Size(634, 18);
+            this.progressBarControl2.TabIndex = 10;
+            // 
+            // btnNext2
+            // 
+            this.btnNext2.Location = new System.Drawing.Point(585, 417);
+            this.btnNext2.Name = "btnNext2";
+            this.btnNext2.Size = new System.Drawing.Size(52, 43);
+            this.btnNext2.TabIndex = 9;
+            this.btnNext2.Text = "NEXT";
+            this.btnNext2.UseVisualStyleBackColor = true;
+            // 
             // picIdx2
             // 
             this.picIdx2.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample2;
@@ -129,6 +280,33 @@
             this.picIdx2.Size = new System.Drawing.Size(640, 360);
             this.picIdx2.TabIndex = 1;
             this.picIdx2.TabStop = false;
+            // 
+            // btnPrev2
+            // 
+            this.btnPrev2.Location = new System.Drawing.Point(527, 417);
+            this.btnPrev2.Name = "btnPrev2";
+            this.btnPrev2.Size = new System.Drawing.Size(52, 43);
+            this.btnPrev2.TabIndex = 8;
+            this.btnPrev2.Text = "PREV";
+            this.btnPrev2.UseVisualStyleBackColor = true;
+            // 
+            // btnPlay2
+            // 
+            this.btnPlay2.Location = new System.Drawing.Point(3, 417);
+            this.btnPlay2.Name = "btnPlay2";
+            this.btnPlay2.Size = new System.Drawing.Size(52, 43);
+            this.btnPlay2.TabIndex = 6;
+            this.btnPlay2.Text = "PLAY";
+            this.btnPlay2.UseVisualStyleBackColor = true;
+            // 
+            // btnStop2
+            // 
+            this.btnStop2.Location = new System.Drawing.Point(61, 417);
+            this.btnStop2.Name = "btnStop2";
+            this.btnStop2.Size = new System.Drawing.Size(52, 43);
+            this.btnStop2.TabIndex = 7;
+            this.btnStop2.Text = "STOP";
+            this.btnStop2.UseVisualStyleBackColor = true;
             // 
             // pnlIdx1
             // 
@@ -197,29 +375,10 @@
             this.picIdx1.TabIndex = 0;
             this.picIdx1.TabStop = false;
             // 
-            // picIdx4
-            // 
-            this.picIdx4.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample4;
-            this.picIdx4.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.picIdx4.Location = new System.Drawing.Point(0, 51);
-            this.picIdx4.Name = "picIdx4";
-            this.picIdx4.Size = new System.Drawing.Size(640, 360);
-            this.picIdx4.TabIndex = 3;
-            this.picIdx4.TabStop = false;
-            // 
-            // picIdx3
-            // 
-            this.picIdx3.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample3;
-            this.picIdx3.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.picIdx3.Location = new System.Drawing.Point(0, 51);
-            this.picIdx3.Name = "picIdx3";
-            this.picIdx3.Size = new System.Drawing.Size(640, 360);
-            this.picIdx3.TabIndex = 2;
-            this.picIdx3.TabStop = false;
-            // 
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlHeader.Controls.Add(this.button5);
             this.pnlHeader.Controls.Add(this.button4);
             this.pnlHeader.Controls.Add(this.button3);
             this.pnlHeader.Controls.Add(this.button2);
@@ -230,6 +389,42 @@
             this.pnlHeader.Size = new System.Drawing.Size(326, 1056);
             this.pnlHeader.TabIndex = 2;
             this.pnlHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(47, 886);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(227, 55);
+            this.button4.TabIndex = 4;
+            this.button4.Text = "Analysis";
+            this.button4.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(47, 947);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(227, 55);
+            this.button3.TabIndex = 3;
+            this.button3.Text = "Close";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(47, 230);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(227, 55);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "Total stop";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(47, 145);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(227, 55);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "Total play";
+            this.button1.UseVisualStyleBackColor = true;
             // 
             // pnlProperty
             // 
@@ -252,198 +447,14 @@
             this.lbProperty.Text = "Property";
             this.lbProperty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // btnNext2
+            // button5
             // 
-            this.btnNext2.Location = new System.Drawing.Point(585, 417);
-            this.btnNext2.Name = "btnNext2";
-            this.btnNext2.Size = new System.Drawing.Size(52, 43);
-            this.btnNext2.TabIndex = 9;
-            this.btnNext2.Text = "NEXT";
-            this.btnNext2.UseVisualStyleBackColor = true;
-            // 
-            // btnPrev2
-            // 
-            this.btnPrev2.Location = new System.Drawing.Point(527, 417);
-            this.btnPrev2.Name = "btnPrev2";
-            this.btnPrev2.Size = new System.Drawing.Size(52, 43);
-            this.btnPrev2.TabIndex = 8;
-            this.btnPrev2.Text = "PREV";
-            this.btnPrev2.UseVisualStyleBackColor = true;
-            // 
-            // btnStop2
-            // 
-            this.btnStop2.Location = new System.Drawing.Point(61, 417);
-            this.btnStop2.Name = "btnStop2";
-            this.btnStop2.Size = new System.Drawing.Size(52, 43);
-            this.btnStop2.TabIndex = 7;
-            this.btnStop2.Text = "STOP";
-            this.btnStop2.UseVisualStyleBackColor = true;
-            // 
-            // btnPlay2
-            // 
-            this.btnPlay2.Location = new System.Drawing.Point(3, 417);
-            this.btnPlay2.Name = "btnPlay2";
-            this.btnPlay2.Size = new System.Drawing.Size(52, 43);
-            this.btnPlay2.TabIndex = 6;
-            this.btnPlay2.Text = "PLAY";
-            this.btnPlay2.UseVisualStyleBackColor = true;
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(110)))), ((int)(((byte)(110)))));
-            this.panel1.Controls.Add(this.progressBarControl4);
-            this.panel1.Controls.Add(this.btnNext3);
-            this.panel1.Controls.Add(this.picIdx3);
-            this.panel1.Controls.Add(this.btnPrev3);
-            this.panel1.Controls.Add(this.btnPlay3);
-            this.panel1.Controls.Add(this.btnStop3);
-            this.panel1.Location = new System.Drawing.Point(13, 542);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(640, 487);
-            this.panel1.TabIndex = 6;
-            // 
-            // btnNext3
-            // 
-            this.btnNext3.Location = new System.Drawing.Point(585, 417);
-            this.btnNext3.Name = "btnNext3";
-            this.btnNext3.Size = new System.Drawing.Size(52, 43);
-            this.btnNext3.TabIndex = 9;
-            this.btnNext3.Text = "NEXT";
-            this.btnNext3.UseVisualStyleBackColor = true;
-            // 
-            // btnPrev3
-            // 
-            this.btnPrev3.Location = new System.Drawing.Point(527, 417);
-            this.btnPrev3.Name = "btnPrev3";
-            this.btnPrev3.Size = new System.Drawing.Size(52, 43);
-            this.btnPrev3.TabIndex = 8;
-            this.btnPrev3.Text = "PREV";
-            this.btnPrev3.UseVisualStyleBackColor = true;
-            // 
-            // btnPlay3
-            // 
-            this.btnPlay3.Location = new System.Drawing.Point(3, 417);
-            this.btnPlay3.Name = "btnPlay3";
-            this.btnPlay3.Size = new System.Drawing.Size(52, 43);
-            this.btnPlay3.TabIndex = 6;
-            this.btnPlay3.Text = "PLAY";
-            this.btnPlay3.UseVisualStyleBackColor = true;
-            // 
-            // btnStop3
-            // 
-            this.btnStop3.Location = new System.Drawing.Point(61, 417);
-            this.btnStop3.Name = "btnStop3";
-            this.btnStop3.Size = new System.Drawing.Size(52, 43);
-            this.btnStop3.TabIndex = 7;
-            this.btnStop3.Text = "STOP";
-            this.btnStop3.UseVisualStyleBackColor = true;
-            // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(110)))), ((int)(((byte)(110)))));
-            this.panel2.Controls.Add(this.progressBarControl3);
-            this.panel2.Controls.Add(this.btnNext4);
-            this.panel2.Controls.Add(this.btnPrev4);
-            this.panel2.Controls.Add(this.picIdx4);
-            this.panel2.Controls.Add(this.btnPlay4);
-            this.panel2.Controls.Add(this.btnStop4);
-            this.panel2.Location = new System.Drawing.Point(661, 542);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(640, 487);
-            this.panel2.TabIndex = 10;
-            // 
-            // btnNext4
-            // 
-            this.btnNext4.Location = new System.Drawing.Point(585, 417);
-            this.btnNext4.Name = "btnNext4";
-            this.btnNext4.Size = new System.Drawing.Size(52, 43);
-            this.btnNext4.TabIndex = 9;
-            this.btnNext4.Text = "NEXT";
-            this.btnNext4.UseVisualStyleBackColor = true;
-            // 
-            // btnPrev4
-            // 
-            this.btnPrev4.Location = new System.Drawing.Point(527, 417);
-            this.btnPrev4.Name = "btnPrev4";
-            this.btnPrev4.Size = new System.Drawing.Size(52, 43);
-            this.btnPrev4.TabIndex = 8;
-            this.btnPrev4.Text = "PREV";
-            this.btnPrev4.UseVisualStyleBackColor = true;
-            // 
-            // btnPlay4
-            // 
-            this.btnPlay4.Location = new System.Drawing.Point(3, 417);
-            this.btnPlay4.Name = "btnPlay4";
-            this.btnPlay4.Size = new System.Drawing.Size(52, 43);
-            this.btnPlay4.TabIndex = 6;
-            this.btnPlay4.Text = "PLAY";
-            this.btnPlay4.UseVisualStyleBackColor = true;
-            // 
-            // btnStop4
-            // 
-            this.btnStop4.Location = new System.Drawing.Point(61, 417);
-            this.btnStop4.Name = "btnStop4";
-            this.btnStop4.Size = new System.Drawing.Size(52, 43);
-            this.btnStop4.TabIndex = 7;
-            this.btnStop4.Text = "STOP";
-            this.btnStop4.UseVisualStyleBackColor = true;
-            // 
-            // progressBarControl2
-            // 
-            this.progressBarControl2.Location = new System.Drawing.Point(3, 466);
-            this.progressBarControl2.Name = "progressBarControl2";
-            this.progressBarControl2.Size = new System.Drawing.Size(634, 18);
-            this.progressBarControl2.TabIndex = 10;
-            // 
-            // progressBarControl3
-            // 
-            this.progressBarControl3.Location = new System.Drawing.Point(3, 466);
-            this.progressBarControl3.Name = "progressBarControl3";
-            this.progressBarControl3.Size = new System.Drawing.Size(634, 18);
-            this.progressBarControl3.TabIndex = 11;
-            // 
-            // progressBarControl4
-            // 
-            this.progressBarControl4.Location = new System.Drawing.Point(3, 466);
-            this.progressBarControl4.Name = "progressBarControl4";
-            this.progressBarControl4.Size = new System.Drawing.Size(634, 18);
-            this.progressBarControl4.TabIndex = 12;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(47, 145);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(227, 55);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Total play";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(47, 218);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(227, 55);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Total stop";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(47, 947);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(227, 55);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "Close";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(47, 886);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(227, 55);
-            this.button4.TabIndex = 4;
-            this.button4.Text = "Analysis";
-            this.button4.UseVisualStyleBackColor = true;
+            this.button5.Location = new System.Drawing.Point(47, 315);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(227, 55);
+            this.button5.TabIndex = 5;
+            this.button5.Text = "Visible";
+            this.button5.UseVisualStyleBackColor = true;
             // 
             // VideoForm
             // 
@@ -462,22 +473,22 @@
             this.TopMost = true;
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.pnlView.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picIdx4)).EndInit();
+            this.panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl4.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picIdx3)).EndInit();
             this.pnlIdx2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl2.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picIdx2)).EndInit();
             this.pnlIdx1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl1.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picIdx1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picIdx4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picIdx3)).EndInit();
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
             this.pnlProperty.ResumeLayout(false);
             this.pnlProperty.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl2.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.progressBarControl4.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -521,5 +532,6 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button5;
     }
 }
