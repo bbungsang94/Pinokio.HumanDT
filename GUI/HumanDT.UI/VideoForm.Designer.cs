@@ -59,13 +59,13 @@
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
+            this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbProperty = new System.Windows.Forms.Label();
-            this.button5 = new System.Windows.Forms.Button();
             this.pnlView.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
@@ -390,6 +390,15 @@
             this.pnlHeader.TabIndex = 2;
             this.pnlHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(47, 315);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(227, 55);
+            this.button5.TabIndex = 5;
+            this.button5.Text = "Visible";
+            this.button5.UseVisualStyleBackColor = true;
+            // 
             // button4
             // 
             this.button4.Location = new System.Drawing.Point(47, 886);
@@ -398,6 +407,7 @@
             this.button4.TabIndex = 4;
             this.button4.Text = "Analysis";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button3
             // 
@@ -407,6 +417,7 @@
             this.button3.TabIndex = 3;
             this.button3.Text = "Close";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button2
             // 
@@ -446,15 +457,6 @@
             this.lbProperty.TabIndex = 1;
             this.lbProperty.Text = "Property";
             this.lbProperty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(47, 315);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(227, 55);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "Visible";
-            this.button5.UseVisualStyleBackColor = true;
             // 
             // VideoForm
             // 

@@ -15,11 +15,25 @@ namespace HumanDT.UI
         public VideoForm()
         {
             InitializeComponent();
+            this.TopMost = true;
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            MainForm mainForm = new MainForm();
+            this.TopMost = false;
+            mainForm.TopMost = true;
+            mainForm.Show();
         }
     }
 }
