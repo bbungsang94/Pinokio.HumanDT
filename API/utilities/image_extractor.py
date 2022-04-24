@@ -1,5 +1,6 @@
+import os
+import shutil
 import argparse
-import cv2
 from media_handler import PipeliningVideoManager, ImageManager
 
 parser = argparse.ArgumentParser()
@@ -17,6 +18,10 @@ class ImageExtractor:
         self.FrameRate, self.ImageSize = self._VideoHandle.load_video(video_path)
         self.VideoPath = video_path
         self.SavePath = save_path
+
+        if os.path.exists(save_path):
+            shutil.rmtree(save_path)
+        os.mkdir(save_path)
 
         self.extract()
 

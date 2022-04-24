@@ -7,7 +7,6 @@ import numpy as np
 import tensorflow as tf
 from PIL import ImageColor, ImageFont, ImageDraw, Image
 from matplotlib import pyplot as plt
-from torchvision import transforms
 
 
 class VideoManger:

@@ -59,11 +59,11 @@
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.button5 = new System.Windows.Forms.Button();
+            this.btnVisible = new System.Windows.Forms.Button();
             this.Analysis_button = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnTotalStop = new System.Windows.Forms.Button();
+            this.btnTotalPlay = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbProperty = new System.Windows.Forms.Label();
             this.pnlView.SuspendLayout();
@@ -164,6 +164,7 @@
             this.btnPlay4.TabIndex = 6;
             this.btnPlay4.Text = "PLAY";
             this.btnPlay4.UseVisualStyleBackColor = true;
+            this.btnPlay4.Click += new System.EventHandler(this.btnPlay4_Click);
             // 
             // btnStop4
             // 
@@ -173,6 +174,7 @@
             this.btnStop4.TabIndex = 7;
             this.btnStop4.Text = "STOP";
             this.btnStop4.UseVisualStyleBackColor = true;
+            this.btnStop4.Click += new System.EventHandler(this.btnStop4_Click);
             // 
             // panel1
             // 
@@ -231,6 +233,7 @@
             this.btnPlay3.TabIndex = 6;
             this.btnPlay3.Text = "PLAY";
             this.btnPlay3.UseVisualStyleBackColor = true;
+            this.btnPlay3.Click += new System.EventHandler(this.btnPlay3_Click);
             // 
             // btnStop3
             // 
@@ -240,6 +243,7 @@
             this.btnStop3.TabIndex = 7;
             this.btnStop3.Text = "STOP";
             this.btnStop3.UseVisualStyleBackColor = true;
+            this.btnStop3.Click += new System.EventHandler(this.btnStop3_Click);
             // 
             // pnlIdx2
             // 
@@ -298,6 +302,7 @@
             this.btnPlay2.TabIndex = 6;
             this.btnPlay2.Text = "PLAY";
             this.btnPlay2.UseVisualStyleBackColor = true;
+            this.btnPlay2.Click += new System.EventHandler(this.btnPlay2_Click);
             // 
             // btnStop2
             // 
@@ -307,6 +312,7 @@
             this.btnStop2.TabIndex = 7;
             this.btnStop2.Text = "STOP";
             this.btnStop2.UseVisualStyleBackColor = true;
+            this.btnStop2.Click += new System.EventHandler(this.btnStop2_Click);
             // 
             // pnlIdx1
             // 
@@ -348,6 +354,7 @@
             this.btnStop1.TabIndex = 3;
             this.btnStop1.Text = "STOP";
             this.btnStop1.UseVisualStyleBackColor = true;
+            this.btnStop1.Click += new System.EventHandler(this.btnStop1_Click);
             // 
             // btnPlay1
             // 
@@ -357,6 +364,7 @@
             this.btnPlay1.TabIndex = 2;
             this.btnPlay1.Text = "PLAY";
             this.btnPlay1.UseVisualStyleBackColor = true;
+            this.btnPlay1.Click += new System.EventHandler(this.btnPlay1_Click);
             // 
             // progressBarControl1
             // 
@@ -378,11 +386,11 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
-            this.pnlHeader.Controls.Add(this.button5);
+            this.pnlHeader.Controls.Add(this.btnVisible);
             this.pnlHeader.Controls.Add(this.Analysis_button);
             this.pnlHeader.Controls.Add(this.button3);
-            this.pnlHeader.Controls.Add(this.button2);
-            this.pnlHeader.Controls.Add(this.button1);
+            this.pnlHeader.Controls.Add(this.btnTotalStop);
+            this.pnlHeader.Controls.Add(this.btnTotalPlay);
             this.pnlHeader.Controls.Add(this.lbHeader);
             this.pnlHeader.Location = new System.Drawing.Point(12, 12);
             this.pnlHeader.Name = "pnlHeader";
@@ -390,14 +398,14 @@
             this.pnlHeader.TabIndex = 2;
             this.pnlHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
-            // button5
+            // btnVisible
             // 
-            this.button5.Location = new System.Drawing.Point(47, 315);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(227, 55);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "Visible";
-            this.button5.UseVisualStyleBackColor = true;
+            this.btnVisible.Location = new System.Drawing.Point(47, 315);
+            this.btnVisible.Name = "btnVisible";
+            this.btnVisible.Size = new System.Drawing.Size(227, 55);
+            this.btnVisible.TabIndex = 5;
+            this.btnVisible.Text = "Visible";
+            this.btnVisible.UseVisualStyleBackColor = true;
             // 
             // Analysis_button
             // 
@@ -417,25 +425,26 @@
             this.button3.TabIndex = 3;
             this.button3.Text = "Close";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
-            // button2
+            // btnTotalStop
             // 
-            this.button2.Location = new System.Drawing.Point(47, 230);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(227, 55);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Total stop";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnTotalStop.Location = new System.Drawing.Point(47, 230);
+            this.btnTotalStop.Name = "btnTotalStop";
+            this.btnTotalStop.Size = new System.Drawing.Size(227, 55);
+            this.btnTotalStop.TabIndex = 2;
+            this.btnTotalStop.Text = "Total stop";
+            this.btnTotalStop.UseVisualStyleBackColor = true;
+            this.btnTotalStop.Click += new System.EventHandler(this.btnTotalStop_Click);
             // 
-            // button1
+            // btnTotalPlay
             // 
-            this.button1.Location = new System.Drawing.Point(47, 145);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(227, 55);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Total play";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnTotalPlay.Location = new System.Drawing.Point(47, 145);
+            this.btnTotalPlay.Name = "btnTotalPlay";
+            this.btnTotalPlay.Size = new System.Drawing.Size(227, 55);
+            this.btnTotalPlay.TabIndex = 1;
+            this.btnTotalPlay.Text = "Total play";
+            this.btnTotalPlay.UseVisualStyleBackColor = true;
+            this.btnTotalPlay.Click += new System.EventHandler(this.btnTotalPlay_Click);
             // 
             // pnlProperty
             // 
@@ -529,10 +538,10 @@
         private System.Windows.Forms.Button btnPrev2;
         private System.Windows.Forms.Button btnPlay2;
         private System.Windows.Forms.Button btnStop2;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnTotalStop;
+        private System.Windows.Forms.Button btnTotalPlay;
         private System.Windows.Forms.Button Analysis_button;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.Button btnVisible;
     }
 }
