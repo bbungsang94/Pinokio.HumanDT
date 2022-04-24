@@ -64,7 +64,7 @@ namespace HumanDT.UI
                 ImageObject temp_object = new()
                 {
                     frame_rate = 30,
-                    video_path = media_play(i) + "/",
+                    video_path = media_play(i),
                     frame_count = 0,
                     current_name = get_image_name(0, 30)
                 };
@@ -181,7 +181,7 @@ namespace HumanDT.UI
             string[] sperables = config.VideoPath[idx].Split('/');
             string folder_name = sperables[sperables.Length - 1].Substring(0, sperables[sperables.Length - 1].LastIndexOf('.'));
             
-            string save_path = config.SavePath + folder_name;
+            string save_path = config.SavePath + folder_name + "/";
 
             //실행할 파일 명 입력하기
             _process.Start();
