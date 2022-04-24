@@ -11,3 +11,5 @@
 *.bak
 /Unity Simulator
 /temp
+/GUI/HumanDT.UI/bin
+/GUI/.vs

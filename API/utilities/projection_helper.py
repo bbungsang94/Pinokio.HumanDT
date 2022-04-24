@@ -1,6 +1,7 @@
 import cv2
 import os
 
+
 class ColorMeasureMeter:
     def __init__(self, save_path):
         import shutil

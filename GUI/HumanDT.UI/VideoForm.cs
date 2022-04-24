@@ -19,6 +19,7 @@ namespace HumanDT.UI
         public VideoForm()
         {
             InitializeComponent();
+            this.TopMost = true;
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
