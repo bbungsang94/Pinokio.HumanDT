@@ -136,6 +136,7 @@
             this.btnNext4.TabIndex = 9;
             this.btnNext4.Text = "NEXT";
             this.btnNext4.UseVisualStyleBackColor = true;
+            this.btnNext4.Click += new System.EventHandler(this.btnNext4_Click);
             // 
             // btnPrev4
             // 
@@ -145,6 +146,7 @@
             this.btnPrev4.TabIndex = 8;
             this.btnPrev4.Text = "PREV";
             this.btnPrev4.UseVisualStyleBackColor = true;
+            this.btnPrev4.Click += new System.EventHandler(this.btnPrev4_Click);
             // 
             // picIdx4
             // 
@@ -205,6 +207,7 @@
             this.btnNext3.TabIndex = 9;
             this.btnNext3.Text = "NEXT";
             this.btnNext3.UseVisualStyleBackColor = true;
+            this.btnNext3.Click += new System.EventHandler(this.btnNext3_Click);
             // 
             // picIdx3
             // 
@@ -224,6 +227,7 @@
             this.btnPrev3.TabIndex = 8;
             this.btnPrev3.Text = "PREV";
             this.btnPrev3.UseVisualStyleBackColor = true;
+            this.btnPrev3.Click += new System.EventHandler(this.btnPrev3_Click);
             // 
             // btnPlay3
             // 
@@ -274,6 +278,7 @@
             this.btnNext2.TabIndex = 9;
             this.btnNext2.Text = "NEXT";
             this.btnNext2.UseVisualStyleBackColor = true;
+            this.btnNext2.Click += new System.EventHandler(this.btnNext2_Click);
             // 
             // picIdx2
             // 
@@ -293,6 +298,7 @@
             this.btnPrev2.TabIndex = 8;
             this.btnPrev2.Text = "PREV";
             this.btnPrev2.UseVisualStyleBackColor = true;
+            this.btnPrev2.Click += new System.EventHandler(this.btnPrev2_Click);
             // 
             // btnPlay2
             // 
@@ -336,6 +342,7 @@
             this.btnNext1.TabIndex = 5;
             this.btnNext1.Text = "NEXT";
             this.btnNext1.UseVisualStyleBackColor = true;
+            this.btnNext1.Click += new System.EventHandler(this.btnNext1_Click);
             // 
             // btnPrev1
             // 
@@ -345,6 +352,7 @@
             this.btnPrev1.TabIndex = 4;
             this.btnPrev1.Text = "PREV";
             this.btnPrev1.UseVisualStyleBackColor = true;
+            this.btnPrev1.Click += new System.EventHandler(this.btnPrev1_Click);
             // 
             // btnStop1
             // 
@@ -400,12 +408,17 @@
             // 
             // btnVisible
             // 
+            this.btnVisible.BackColor = System.Drawing.Color.ForestGreen;
+            this.btnVisible.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnVisible.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnVisible.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.btnVisible.Location = new System.Drawing.Point(47, 315);
             this.btnVisible.Name = "btnVisible";
             this.btnVisible.Size = new System.Drawing.Size(227, 55);
             this.btnVisible.TabIndex = 5;
-            this.btnVisible.Text = "Visible";
-            this.btnVisible.UseVisualStyleBackColor = true;
+            this.btnVisible.Text = "Visible Mode";
+            this.btnVisible.UseVisualStyleBackColor = false;
+            this.btnVisible.Click += new System.EventHandler(this.btnVisible_Click);
             // 
             // Analysis_button
             // 
@@ -425,6 +438,7 @@
             this.button3.TabIndex = 3;
             this.button3.Text = "Close";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // btnTotalStop
             // 
