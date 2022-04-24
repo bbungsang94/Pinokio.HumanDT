@@ -19,7 +19,9 @@ namespace HumanDT.UI
         {
             _process = process;
             InitializeComponent();
-            this.TopMost = false;
+#if DEBUG
+            this.TopMost = true;
+#endif
         }
 
         private void Cancel_button_Click(object sender, EventArgs e)

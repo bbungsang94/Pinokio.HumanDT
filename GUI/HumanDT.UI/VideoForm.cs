@@ -34,8 +34,10 @@ namespace HumanDT.UI
         {
             InitializeComponent();
             this.TopMost = true;
+#if DEBUG
+            this.TopMost = false;
+#endif
 
-            
             _processInfo.FileName = "cmd.exe";
 
             //cmd 창 띄우기
