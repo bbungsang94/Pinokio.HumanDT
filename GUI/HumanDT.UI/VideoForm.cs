@@ -210,27 +210,30 @@ namespace HumanDT.UI
 
         private void btnStop1_Click(object sender, EventArgs e)
         {
-            ImageRead[0] = true;
+            ImageRead[0] = false;
         }
 
         private void btnStop2_Click(object sender, EventArgs e)
         {
-
+            ImageRead[1] = false;
         }
 
         private void btnStop3_Click(object sender, EventArgs e)
         {
-
+            ImageRead[2] = false;
         }
 
         private void btnStop4_Click(object sender, EventArgs e)
         {
-
+            ImageRead[3] = false;
         }
 
         private void btnTotalStop_Click(object sender, EventArgs e)
         {
-
+            for (int i = 0; i < config.VideoPath.Count; i++)
+            {
+                ImageRead[i] = false;
+            }
         }
     }
 }
