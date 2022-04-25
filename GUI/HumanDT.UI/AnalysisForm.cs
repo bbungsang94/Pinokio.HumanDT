@@ -13,7 +13,7 @@ namespace HumanDT.UI
 {
     public partial class AnalysisForm : DevExpress.XtraEditors.XtraForm
     {
-        public AnalysisForm()
+        public AnalysisForm(List<ImageObject> imageObjects)
         {
             InitializeComponent();
         }
