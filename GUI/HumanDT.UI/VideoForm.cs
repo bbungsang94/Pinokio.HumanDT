@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using Timer = System.Windows.Forms.Timer;
 using System.Drawing;
+using DevExpress.XtraSplashScreen;
 
 namespace HumanDT.UI
 {
@@ -81,23 +82,23 @@ namespace HumanDT.UI
             Image image = null;
             if (framecount > -1)
             {
-                obj.frame_count = framecount;
+                obj.Frame_count = framecount;
             }
 
             try
             {
-                obj.current_name = GetImageName(obj.frame_count, obj.frame_rate);
-                image = Image.FromFile(obj.video_path + obj.current_name);
+                obj.Current_name = GetImageName(obj.Frame_count, obj.Frame_rate);
+                image = Image.FromFile(obj.Video_path + obj.Current_name);
                 if (increase)
                 {
-                    obj.frame_count += 1;
+                    obj.Frame_count += 1;
                 }
                 _PictureBoxes[idx].BackgroundImage = image;
                 _ImageObjects[idx] = obj;
             }
             catch
             {
-                obj.frame_count -= 1;
+                obj.Frame_count -= 1;
                 _ImageRead[idx] = false;
             }
         }
@@ -120,7 +121,7 @@ namespace HumanDT.UI
             _Process.StandardInput.WriteLine("python image_extractor.py --video_path \"" + _Config.VideoPath[idx] + "\" --save_path \"" + save_path);
 
             _Process.StandardInput.Close();
-            Thread.Sleep(3000);
+            Thread.Sleep(3500);
             return save_path;
         }
 
@@ -140,13 +141,13 @@ namespace HumanDT.UI
             int framecount = 0;
             if (next)
             {
-                framecount = obj.frame_count + 1;
+                framecount = obj.Frame_count + 1;
             }
             else
             {
-                if (obj.frame_count > 0)
+                if (obj.Frame_count > 0)
                 {
-                    framecount = obj.frame_count - 1;
+                    framecount = obj.Frame_count - 1;
                 }
             }
             LoadImage(idx, false, framecount);
@@ -246,7 +247,7 @@ namespace HumanDT.UI
 
         private void AnalysisButtonClick(object sender, EventArgs e)
         {
-            MappingForm mappingForm = new MappingForm(_Config);
+            MappingForm mappingForm = new MappingForm(_Config, _ImageObjects);
             mappingForm.ShowDialog();
             this.Close();
 
@@ -317,6 +318,9 @@ namespace HumanDT.UI
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
+                var currentPath = System.IO.Directory.GetCurrentDirectory();
+                string newPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(currentPath, @"..\..\..\..\..\..\"));
+                folderBrowserDialog.SelectedPath = newPath;
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(folderBrowserDialog.SelectedPath);
@@ -328,20 +332,22 @@ namespace HumanDT.UI
                         }
                     }
                 }
+                SplashScreenManager.ShowForm(typeof(ProgressForm));
                 for (int i = 0; i < _Config.VideoPath.Count; i++)
                 {
                     ImageObject temp_object = new()
                     {
-                        frame_rate = 15,
-                        video_path = MediaPlay(i),
-                        frame_count = 0,
-                        current_name = GetImageName(0, 30)
+                        Frame_rate = 15,
+                        Video_path = MediaPlay(i),
+                        Frame_count = 0,
+                        Current_name = GetImageName(0, 30)
                     };
                     _ImageObjects.Add(temp_object);
                     _ImageRead.Add(false);
 
                 }
                 TimerStart();
+                SplashScreenManager.CloseForm();
             }
         }
 
@@ -349,6 +355,9 @@ namespace HumanDT.UI
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
+                var currentPath = System.IO.Directory.GetCurrentDirectory();
+                string newPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(currentPath, @"..\..\..\..\..\..\"));
+                folderBrowserDialog.SelectedPath = newPath;
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";
