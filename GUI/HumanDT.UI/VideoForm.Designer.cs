@@ -63,10 +63,10 @@
             this.btnTotalPlay = new System.Windows.Forms.Button();
             this.btnTotalStop = new System.Windows.Forms.Button();
             this.pnlHeader = new System.Windows.Forms.Panel();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.SavePathButton = new System.Windows.Forms.Button();
+            this.ImportButton = new System.Windows.Forms.Button();
             this.btnVisible = new System.Windows.Forms.Button();
-            this.Analysis_button = new System.Windows.Forms.Button();
+            this.AnalysisButton = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbStartTime = new System.Windows.Forms.Label();
@@ -118,7 +118,6 @@
             this.pnlView.Controls.Add(this.pnlIdx1);
             this.pnlView.Controls.Add(this.btnTotalPlay);
             this.pnlView.Controls.Add(this.btnTotalStop);
-            this.pnlView.Enabled = false;
             this.pnlView.Location = new System.Drawing.Point(344, 12);
             this.pnlView.Name = "pnlView";
             this.pnlView.Size = new System.Drawing.Size(1309, 1056);
@@ -465,10 +464,10 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
-            this.pnlHeader.Controls.Add(this.button2);
-            this.pnlHeader.Controls.Add(this.button1);
+            this.pnlHeader.Controls.Add(this.SavePathButton);
+            this.pnlHeader.Controls.Add(this.ImportButton);
             this.pnlHeader.Controls.Add(this.btnVisible);
-            this.pnlHeader.Controls.Add(this.Analysis_button);
+            this.pnlHeader.Controls.Add(this.AnalysisButton);
             this.pnlHeader.Controls.Add(this.button3);
             this.pnlHeader.Controls.Add(this.lbHeader);
             this.pnlHeader.Location = new System.Drawing.Point(12, 12);
@@ -476,31 +475,31 @@
             this.pnlHeader.Size = new System.Drawing.Size(326, 1056);
             this.pnlHeader.TabIndex = 2;
             // 
-            // button2
+            // SavePathButton
             // 
-            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.button2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.button2.Location = new System.Drawing.Point(47, 117);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(227, 55);
-            this.button2.TabIndex = 9;
-            this.button2.Text = "Save path";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.BtnSavePathClick);
+            this.SavePathButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.SavePathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.SavePathButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.SavePathButton.Location = new System.Drawing.Point(47, 117);
+            this.SavePathButton.Name = "SavePathButton";
+            this.SavePathButton.Size = new System.Drawing.Size(227, 55);
+            this.SavePathButton.TabIndex = 9;
+            this.SavePathButton.Text = "Save path";
+            this.SavePathButton.UseVisualStyleBackColor = false;
+            this.SavePathButton.Click += new System.EventHandler(this.BtnSavePathClick);
             // 
-            // button1
+            // ImportButton
             // 
-            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.button1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.button1.Location = new System.Drawing.Point(47, 197);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(227, 55);
-            this.button1.TabIndex = 8;
-            this.button1.Text = "Import Videos";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.BtnImportClick);
+            this.ImportButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.ImportButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.ImportButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.ImportButton.Location = new System.Drawing.Point(47, 197);
+            this.ImportButton.Name = "ImportButton";
+            this.ImportButton.Size = new System.Drawing.Size(227, 55);
+            this.ImportButton.TabIndex = 8;
+            this.ImportButton.Text = "Import Videos";
+            this.ImportButton.UseVisualStyleBackColor = false;
+            this.ImportButton.Click += new System.EventHandler(this.BtnImportClick);
             // 
             // btnVisible
             // 
@@ -516,17 +515,17 @@
             this.btnVisible.UseVisualStyleBackColor = false;
             this.btnVisible.Click += new System.EventHandler(this.BtnVisibleClick);
             // 
-            // Analysis_button
+            // AnalysisButton
             // 
-            this.Analysis_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.Analysis_button.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.Analysis_button.Location = new System.Drawing.Point(47, 856);
-            this.Analysis_button.Name = "Analysis_button";
-            this.Analysis_button.Size = new System.Drawing.Size(227, 55);
-            this.Analysis_button.TabIndex = 4;
-            this.Analysis_button.Text = "Analysis";
-            this.Analysis_button.UseVisualStyleBackColor = true;
-            this.Analysis_button.Click += new System.EventHandler(this.AnalysisButtonClick);
+            this.AnalysisButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.AnalysisButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.AnalysisButton.Location = new System.Drawing.Point(47, 856);
+            this.AnalysisButton.Name = "AnalysisButton";
+            this.AnalysisButton.Size = new System.Drawing.Size(227, 55);
+            this.AnalysisButton.TabIndex = 4;
+            this.AnalysisButton.Text = "Analysis";
+            this.AnalysisButton.UseVisualStyleBackColor = true;
+            this.AnalysisButton.Click += new System.EventHandler(this.AnalysisButtonClick);
             // 
             // button3
             // 
@@ -735,13 +734,13 @@
         private System.Windows.Forms.Button btnStop2;
         private System.Windows.Forms.Button btnTotalStop;
         private System.Windows.Forms.Button btnTotalPlay;
-        private System.Windows.Forms.Button Analysis_button;
+        private System.Windows.Forms.Button AnalysisButton;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button btnVisible;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Button btnSync;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button ImportButton;
+        private System.Windows.Forms.Button SavePathButton;
         private System.Windows.Forms.Label lbt;
         private System.Windows.Forms.Label lbStartTime;
         private System.Windows.Forms.Label lbCurrentTime;

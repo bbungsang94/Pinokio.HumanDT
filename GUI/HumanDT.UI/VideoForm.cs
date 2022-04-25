@@ -17,7 +17,11 @@ namespace HumanDT.UI
         private readonly List<ImageObject> _ImageObjects = new();
         private readonly List<bool> _ImageRead = new();
         readonly List<PictureBox> _PictureBoxes = new();
+        private List<object> _GuideButtons = new();
+        
         private int _Focused = 0;
+        private int _Selected = 0;
+
         public VideoForm()
         {
             InitializeComponent();
@@ -27,6 +31,21 @@ namespace HumanDT.UI
             _PictureBoxes.Add(picIdx3);
             _PictureBoxes.Add(picIdx4);
 
+            _GuideButtons.Add(SavePathButton);
+            _GuideButtons.Add(ImportButton);
+            _GuideButtons.Add(btnTotalPlay);
+            List<Button> controls = new();
+            controls.Add(btnNext1);
+            controls.Add(btnNext2);
+            controls.Add(btnNext3);
+            controls.Add(btnNext4);
+            controls.Add(btnPrev1);
+            controls.Add(btnPrev2);
+            controls.Add(btnPrev3);
+            controls.Add(btnPrev4);
+            controls.Add(btnSync);
+            _GuideButtons.Add(controls);
+            _GuideButtons.Add(AnalysisButton);
 
             this.TopMost = true;
 #if DEBUG
@@ -64,7 +83,75 @@ namespace HumanDT.UI
             _Config.CondaEnv = "";
 
             pnlView.Visible = false;
+            pnlProperty.Visible = false;
 
+            Timer guide_checker = new();
+            guide_checker.Interval = 700;
+            guide_checker.Tick += new EventHandler(UpdateGuide);
+            guide_checker.Start();
+        }
+
+        private void UpdateGuide(object sender, EventArgs e)
+        {
+            for (int i = 0; i < _Selected; i++)
+            {
+                object item = _GuideButtons[i];
+                Type temp_type = item.GetType();
+                if (temp_type.Name.Equals("Button"))
+                {
+                    Button button = (Button)item;
+                    button.BackColor = Color.FromArgb(210, 210, 210);
+                }
+                else
+                {
+                    List<Button> buttons = (List<Button>)item;
+                    foreach (Button button in buttons)
+                    {
+                        button.BackColor = Color.FromArgb(210, 210, 210);
+                    }
+                }
+            }
+            int origin = -2960686;
+            object target_button = _GuideButtons[_Selected];
+            Type type = target_button.GetType();
+            if (type.Name.Equals("Button"))
+            {
+                Button button = (Button)target_button;
+                Color this_color = button.BackColor;
+                if (this_color.ToArgb() == origin)
+                {
+                    button.BackColor = Color.RoyalBlue;
+                }
+                else
+                {
+                    button.BackColor = Color.FromArgb(210, 210, 210);
+                }
+            }
+            else
+            {
+                bool changed = false;
+                Color color = Color.FromArgb(210, 210, 210);
+                List<Button> buttons = (List<Button>)target_button;
+                foreach (Button button in buttons)
+                {
+                    Color this_color = button.BackColor;
+                    if (!changed)
+                    {
+                        if (this_color.ToArgb() == origin)
+                        {
+                            changed = true;
+                            color = Color.RoyalBlue;
+                        }
+                        else
+                        {
+                            changed = true;
+                            color = Color.FromArgb(210, 210, 210);
+                        }
+                    }
+
+                    button.BackColor = color;
+                }
+            }
         }
 
         private void UpdateProperty(object sender, EventArgs e)
@@ -297,6 +384,7 @@ namespace HumanDT.UI
                 obj.StartCount = obj.FrameCount;
                 _ImageObjects[i] = obj;
             }
+            _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void AnalysisButtonClick(object sender, EventArgs e)
@@ -368,6 +456,7 @@ namespace HumanDT.UI
             {
                 _ImageRead[i] = true;
             }
+            _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnImportClick(object sender, EventArgs e)
@@ -402,10 +491,12 @@ namespace HumanDT.UI
                     _ImageRead.Add(false);
 
                 }
+                SplashScreenManager.CloseForm();
                 TimerStart();
                 pnlView.Visible = true;
-                SplashScreenManager.CloseForm();
+                pnlProperty.Visible = true;
             }
+            _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnSavePathClick(object sender, EventArgs e)
@@ -420,6 +511,7 @@ namespace HumanDT.UI
                     _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";
                 }
             }
+            _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnResetClick(object sender, EventArgs e)
