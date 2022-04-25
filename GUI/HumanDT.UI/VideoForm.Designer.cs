@@ -44,6 +44,7 @@
             this.btnPrev3 = new System.Windows.Forms.Button();
             this.btnPlay3 = new System.Windows.Forms.Button();
             this.btnStop3 = new System.Windows.Forms.Button();
+            this.btnSync = new System.Windows.Forms.Button();
             this.pnlIdx2 = new System.Windows.Forms.Panel();
             this.progressBarControl2 = new DevExpress.XtraEditors.ProgressBarControl();
             this.btnNext2 = new System.Windows.Forms.Button();
@@ -51,6 +52,7 @@
             this.btnPrev2 = new System.Windows.Forms.Button();
             this.btnPlay2 = new System.Windows.Forms.Button();
             this.btnStop2 = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
             this.pnlIdx1 = new System.Windows.Forms.Panel();
             this.btnNext1 = new System.Windows.Forms.Button();
             this.btnPrev1 = new System.Windows.Forms.Button();
@@ -58,17 +60,23 @@
             this.btnPlay1 = new System.Windows.Forms.Button();
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
+            this.btnTotalPlay = new System.Windows.Forms.Button();
+            this.btnTotalStop = new System.Windows.Forms.Button();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.btnSync = new System.Windows.Forms.Button();
-            this.btnReset = new System.Windows.Forms.Button();
             this.btnVisible = new System.Windows.Forms.Button();
             this.Analysis_button = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
-            this.btnTotalStop = new System.Windows.Forms.Button();
-            this.btnTotalPlay = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
+            this.lbStartTime = new System.Windows.Forms.Label();
+            this.lbCurrentTime = new System.Windows.Forms.Label();
+            this.lbFrameRate = new System.Windows.Forms.Label();
+            this.lbVideoLength = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.lbt = new System.Windows.Forms.Label();
             this.lbProperty = new System.Windows.Forms.Label();
             this.pnlView.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -92,7 +100,7 @@
             this.lbHeader.AutoSize = true;
             this.lbHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 33F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbHeader.ForeColor = System.Drawing.Color.Gainsboro;
-            this.lbHeader.Location = new System.Drawing.Point(3, 21);
+            this.lbHeader.Location = new System.Drawing.Point(19, 21);
             this.lbHeader.Name = "lbHeader";
             this.lbHeader.Size = new System.Drawing.Size(293, 52);
             this.lbHeader.TabIndex = 0;
@@ -104,8 +112,13 @@
             this.pnlView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.pnlView.Controls.Add(this.panel2);
             this.pnlView.Controls.Add(this.panel1);
+            this.pnlView.Controls.Add(this.btnSync);
             this.pnlView.Controls.Add(this.pnlIdx2);
+            this.pnlView.Controls.Add(this.btnReset);
             this.pnlView.Controls.Add(this.pnlIdx1);
+            this.pnlView.Controls.Add(this.btnTotalPlay);
+            this.pnlView.Controls.Add(this.btnTotalStop);
+            this.pnlView.Enabled = false;
             this.pnlView.Location = new System.Drawing.Point(344, 12);
             this.pnlView.Name = "pnlView";
             this.pnlView.Size = new System.Drawing.Size(1309, 1056);
@@ -161,6 +174,7 @@
             this.picIdx4.Size = new System.Drawing.Size(640, 360);
             this.picIdx4.TabIndex = 3;
             this.picIdx4.TabStop = false;
+            this.picIdx4.Click += new System.EventHandler(this.PicIdx4Click);
             // 
             // btnPlay4
             // 
@@ -222,6 +236,7 @@
             this.picIdx3.Size = new System.Drawing.Size(640, 360);
             this.picIdx3.TabIndex = 2;
             this.picIdx3.TabStop = false;
+            this.picIdx3.Click += new System.EventHandler(this.PicIdx3Click);
             // 
             // btnPrev3
             // 
@@ -253,6 +268,19 @@
             this.btnStop3.UseVisualStyleBackColor = true;
             this.btnStop3.Click += new System.EventHandler(this.BtnStop3Click);
             // 
+            // btnSync
+            // 
+            this.btnSync.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnSync.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnSync.Location = new System.Drawing.Point(780, 3);
+            this.btnSync.Name = "btnSync";
+            this.btnSync.Size = new System.Drawing.Size(227, 55);
+            this.btnSync.TabIndex = 7;
+            this.btnSync.Text = "Apply";
+            this.btnSync.UseVisualStyleBackColor = false;
+            this.btnSync.Click += new System.EventHandler(this.BtnSyncClick);
+            // 
             // pnlIdx2
             // 
             this.pnlIdx2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(110)))), ((int)(((byte)(110)))), ((int)(((byte)(110)))));
@@ -262,21 +290,21 @@
             this.pnlIdx2.Controls.Add(this.btnPrev2);
             this.pnlIdx2.Controls.Add(this.btnPlay2);
             this.pnlIdx2.Controls.Add(this.btnStop2);
-            this.pnlIdx2.Location = new System.Drawing.Point(661, 21);
+            this.pnlIdx2.Location = new System.Drawing.Point(661, 63);
             this.pnlIdx2.Name = "pnlIdx2";
-            this.pnlIdx2.Size = new System.Drawing.Size(640, 487);
+            this.pnlIdx2.Size = new System.Drawing.Size(640, 445);
             this.pnlIdx2.TabIndex = 5;
             // 
             // progressBarControl2
             // 
-            this.progressBarControl2.Location = new System.Drawing.Point(3, 466);
+            this.progressBarControl2.Location = new System.Drawing.Point(3, 424);
             this.progressBarControl2.Name = "progressBarControl2";
             this.progressBarControl2.Size = new System.Drawing.Size(634, 18);
             this.progressBarControl2.TabIndex = 10;
             // 
             // btnNext2
             // 
-            this.btnNext2.Location = new System.Drawing.Point(585, 417);
+            this.btnNext2.Location = new System.Drawing.Point(585, 375);
             this.btnNext2.Name = "btnNext2";
             this.btnNext2.Size = new System.Drawing.Size(52, 43);
             this.btnNext2.TabIndex = 9;
@@ -288,15 +316,16 @@
             // 
             this.picIdx2.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample2;
             this.picIdx2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.picIdx2.Location = new System.Drawing.Point(0, 51);
+            this.picIdx2.Location = new System.Drawing.Point(0, 9);
             this.picIdx2.Name = "picIdx2";
             this.picIdx2.Size = new System.Drawing.Size(640, 360);
             this.picIdx2.TabIndex = 1;
             this.picIdx2.TabStop = false;
+            this.picIdx2.Click += new System.EventHandler(this.PicIdx2Click);
             // 
             // btnPrev2
             // 
-            this.btnPrev2.Location = new System.Drawing.Point(527, 417);
+            this.btnPrev2.Location = new System.Drawing.Point(527, 375);
             this.btnPrev2.Name = "btnPrev2";
             this.btnPrev2.Size = new System.Drawing.Size(52, 43);
             this.btnPrev2.TabIndex = 8;
@@ -306,7 +335,7 @@
             // 
             // btnPlay2
             // 
-            this.btnPlay2.Location = new System.Drawing.Point(3, 417);
+            this.btnPlay2.Location = new System.Drawing.Point(3, 375);
             this.btnPlay2.Name = "btnPlay2";
             this.btnPlay2.Size = new System.Drawing.Size(52, 43);
             this.btnPlay2.TabIndex = 6;
@@ -316,13 +345,26 @@
             // 
             // btnStop2
             // 
-            this.btnStop2.Location = new System.Drawing.Point(61, 417);
+            this.btnStop2.Location = new System.Drawing.Point(61, 375);
             this.btnStop2.Name = "btnStop2";
             this.btnStop2.Size = new System.Drawing.Size(52, 43);
             this.btnStop2.TabIndex = 7;
             this.btnStop2.Text = "STOP";
             this.btnStop2.UseVisualStyleBackColor = true;
             this.btnStop2.Click += new System.EventHandler(this.BtnStop2Click);
+            // 
+            // btnReset
+            // 
+            this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnReset.Location = new System.Drawing.Point(547, 3);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(227, 55);
+            this.btnReset.TabIndex = 6;
+            this.btnReset.Text = "Reset";
+            this.btnReset.UseVisualStyleBackColor = false;
+            this.btnReset.Click += new System.EventHandler(this.BtnResetClick);
             // 
             // pnlIdx1
             // 
@@ -333,14 +375,14 @@
             this.pnlIdx1.Controls.Add(this.btnPlay1);
             this.pnlIdx1.Controls.Add(this.progressBarControl1);
             this.pnlIdx1.Controls.Add(this.picIdx1);
-            this.pnlIdx1.Location = new System.Drawing.Point(13, 21);
+            this.pnlIdx1.Location = new System.Drawing.Point(13, 63);
             this.pnlIdx1.Name = "pnlIdx1";
-            this.pnlIdx1.Size = new System.Drawing.Size(640, 487);
+            this.pnlIdx1.Size = new System.Drawing.Size(640, 445);
             this.pnlIdx1.TabIndex = 4;
             // 
             // btnNext1
             // 
-            this.btnNext1.Location = new System.Drawing.Point(585, 417);
+            this.btnNext1.Location = new System.Drawing.Point(585, 375);
             this.btnNext1.Name = "btnNext1";
             this.btnNext1.Size = new System.Drawing.Size(52, 43);
             this.btnNext1.TabIndex = 5;
@@ -350,7 +392,7 @@
             // 
             // btnPrev1
             // 
-            this.btnPrev1.Location = new System.Drawing.Point(527, 417);
+            this.btnPrev1.Location = new System.Drawing.Point(527, 375);
             this.btnPrev1.Name = "btnPrev1";
             this.btnPrev1.Size = new System.Drawing.Size(52, 43);
             this.btnPrev1.TabIndex = 4;
@@ -360,7 +402,7 @@
             // 
             // btnStop1
             // 
-            this.btnStop1.Location = new System.Drawing.Point(61, 417);
+            this.btnStop1.Location = new System.Drawing.Point(61, 375);
             this.btnStop1.Name = "btnStop1";
             this.btnStop1.Size = new System.Drawing.Size(52, 43);
             this.btnStop1.TabIndex = 3;
@@ -370,7 +412,7 @@
             // 
             // btnPlay1
             // 
-            this.btnPlay1.Location = new System.Drawing.Point(3, 417);
+            this.btnPlay1.Location = new System.Drawing.Point(3, 375);
             this.btnPlay1.Name = "btnPlay1";
             this.btnPlay1.Size = new System.Drawing.Size(52, 43);
             this.btnPlay1.TabIndex = 2;
@@ -380,7 +422,7 @@
             // 
             // progressBarControl1
             // 
-            this.progressBarControl1.Location = new System.Drawing.Point(3, 466);
+            this.progressBarControl1.Location = new System.Drawing.Point(3, 424);
             this.progressBarControl1.Name = "progressBarControl1";
             this.progressBarControl1.Size = new System.Drawing.Size(634, 18);
             this.progressBarControl1.TabIndex = 1;
@@ -389,24 +431,45 @@
             // 
             this.picIdx1.BackgroundImage = global::HumanDT.UI.Properties.Resources.sample1;
             this.picIdx1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.picIdx1.Location = new System.Drawing.Point(0, 51);
+            this.picIdx1.Location = new System.Drawing.Point(0, 9);
             this.picIdx1.Name = "picIdx1";
             this.picIdx1.Size = new System.Drawing.Size(640, 360);
             this.picIdx1.TabIndex = 0;
             this.picIdx1.TabStop = false;
+            this.picIdx1.Click += new System.EventHandler(this.PicIdx1Click);
+            // 
+            // btnTotalPlay
+            // 
+            this.btnTotalPlay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnTotalPlay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnTotalPlay.Location = new System.Drawing.Point(13, 3);
+            this.btnTotalPlay.Name = "btnTotalPlay";
+            this.btnTotalPlay.Size = new System.Drawing.Size(227, 55);
+            this.btnTotalPlay.TabIndex = 1;
+            this.btnTotalPlay.Text = "Total play";
+            this.btnTotalPlay.UseVisualStyleBackColor = true;
+            this.btnTotalPlay.Click += new System.EventHandler(this.BtnTotalPlayClick);
+            // 
+            // btnTotalStop
+            // 
+            this.btnTotalStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnTotalStop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnTotalStop.Location = new System.Drawing.Point(246, 3);
+            this.btnTotalStop.Name = "btnTotalStop";
+            this.btnTotalStop.Size = new System.Drawing.Size(227, 55);
+            this.btnTotalStop.TabIndex = 2;
+            this.btnTotalStop.Text = "Total stop";
+            this.btnTotalStop.UseVisualStyleBackColor = true;
+            this.btnTotalStop.Click += new System.EventHandler(this.BtnTotalStopClick);
             // 
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.pnlHeader.Controls.Add(this.button2);
             this.pnlHeader.Controls.Add(this.button1);
-            this.pnlHeader.Controls.Add(this.btnSync);
-            this.pnlHeader.Controls.Add(this.btnReset);
             this.pnlHeader.Controls.Add(this.btnVisible);
             this.pnlHeader.Controls.Add(this.Analysis_button);
             this.pnlHeader.Controls.Add(this.button3);
-            this.pnlHeader.Controls.Add(this.btnTotalStop);
-            this.pnlHeader.Controls.Add(this.btnTotalPlay);
             this.pnlHeader.Controls.Add(this.lbHeader);
             this.pnlHeader.Location = new System.Drawing.Point(12, 12);
             this.pnlHeader.Name = "pnlHeader";
@@ -435,34 +498,9 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(227, 55);
             this.button1.TabIndex = 8;
-            this.button1.Text = "Import";
+            this.button1.Text = "Import Videos";
             this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.BtnImportClick);
-            // 
-            // btnSync
-            // 
-            this.btnSync.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnSync.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnSync.Location = new System.Drawing.Point(47, 559);
-            this.btnSync.Name = "btnSync";
-            this.btnSync.Size = new System.Drawing.Size(227, 55);
-            this.btnSync.TabIndex = 7;
-            this.btnSync.Text = "Apply";
-            this.btnSync.UseVisualStyleBackColor = false;
-            this.btnSync.Click += new System.EventHandler(this.BtnSyncClick);
-            // 
-            // btnReset
-            // 
-            this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnReset.Location = new System.Drawing.Point(47, 477);
-            this.btnReset.Name = "btnReset";
-            this.btnReset.Size = new System.Drawing.Size(227, 55);
-            this.btnReset.TabIndex = 6;
-            this.btnReset.Text = "Reset";
-            this.btnReset.UseVisualStyleBackColor = false;
             // 
             // btnVisible
             // 
@@ -470,7 +508,7 @@
             this.btnVisible.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnVisible.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnVisible.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnVisible.Location = new System.Drawing.Point(47, 700);
+            this.btnVisible.Location = new System.Drawing.Point(47, 365);
             this.btnVisible.Name = "btnVisible";
             this.btnVisible.Size = new System.Drawing.Size(227, 55);
             this.btnVisible.TabIndex = 5;
@@ -502,38 +540,114 @@
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.Button3Click);
             // 
-            // btnTotalStop
-            // 
-            this.btnTotalStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnTotalStop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnTotalStop.Location = new System.Drawing.Point(47, 395);
-            this.btnTotalStop.Name = "btnTotalStop";
-            this.btnTotalStop.Size = new System.Drawing.Size(227, 55);
-            this.btnTotalStop.TabIndex = 2;
-            this.btnTotalStop.Text = "Total stop";
-            this.btnTotalStop.UseVisualStyleBackColor = true;
-            this.btnTotalStop.Click += new System.EventHandler(this.BtnTotalStopClick);
-            // 
-            // btnTotalPlay
-            // 
-            this.btnTotalPlay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnTotalPlay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnTotalPlay.Location = new System.Drawing.Point(47, 313);
-            this.btnTotalPlay.Name = "btnTotalPlay";
-            this.btnTotalPlay.Size = new System.Drawing.Size(227, 55);
-            this.btnTotalPlay.TabIndex = 1;
-            this.btnTotalPlay.Text = "Total play";
-            this.btnTotalPlay.UseVisualStyleBackColor = true;
-            this.btnTotalPlay.Click += new System.EventHandler(this.BtnTotalPlayClick);
-            // 
             // pnlProperty
             // 
             this.pnlProperty.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlProperty.Controls.Add(this.lbStartTime);
+            this.pnlProperty.Controls.Add(this.lbCurrentTime);
+            this.pnlProperty.Controls.Add(this.lbFrameRate);
+            this.pnlProperty.Controls.Add(this.lbVideoLength);
+            this.pnlProperty.Controls.Add(this.label3);
+            this.pnlProperty.Controls.Add(this.label2);
+            this.pnlProperty.Controls.Add(this.label1);
+            this.pnlProperty.Controls.Add(this.lbt);
             this.pnlProperty.Controls.Add(this.lbProperty);
             this.pnlProperty.Location = new System.Drawing.Point(1659, 12);
             this.pnlProperty.Name = "pnlProperty";
             this.pnlProperty.Size = new System.Drawing.Size(247, 1056);
             this.pnlProperty.TabIndex = 3;
+            // 
+            // lbStartTime
+            // 
+            this.lbStartTime.AutoSize = true;
+            this.lbStartTime.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbStartTime.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.lbStartTime.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbStartTime.Location = new System.Drawing.Point(54, 347);
+            this.lbStartTime.Name = "lbStartTime";
+            this.lbStartTime.Size = new System.Drawing.Size(113, 26);
+            this.lbStartTime.TabIndex = 9;
+            this.lbStartTime.Text = "Start Time";
+            // 
+            // lbCurrentTime
+            // 
+            this.lbCurrentTime.AutoSize = true;
+            this.lbCurrentTime.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbCurrentTime.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.lbCurrentTime.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbCurrentTime.Location = new System.Drawing.Point(54, 277);
+            this.lbCurrentTime.Name = "lbCurrentTime";
+            this.lbCurrentTime.Size = new System.Drawing.Size(139, 26);
+            this.lbCurrentTime.TabIndex = 8;
+            this.lbCurrentTime.Text = "Current Time";
+            // 
+            // lbFrameRate
+            // 
+            this.lbFrameRate.AutoSize = true;
+            this.lbFrameRate.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbFrameRate.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.lbFrameRate.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbFrameRate.Location = new System.Drawing.Point(54, 207);
+            this.lbFrameRate.Name = "lbFrameRate";
+            this.lbFrameRate.Size = new System.Drawing.Size(122, 26);
+            this.lbFrameRate.TabIndex = 7;
+            this.lbFrameRate.Text = "Frame Rate";
+            // 
+            // lbVideoLength
+            // 
+            this.lbVideoLength.AutoSize = true;
+            this.lbVideoLength.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbVideoLength.ForeColor = System.Drawing.Color.RoyalBlue;
+            this.lbVideoLength.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbVideoLength.Location = new System.Drawing.Point(54, 137);
+            this.lbVideoLength.Name = "lbVideoLength";
+            this.lbVideoLength.Size = new System.Drawing.Size(139, 26);
+            this.lbVideoLength.TabIndex = 6;
+            this.lbVideoLength.Text = "Video Length";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.label3.Location = new System.Drawing.Point(17, 313);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(113, 26);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Start Time";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.label2.Location = new System.Drawing.Point(17, 243);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(139, 26);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Current Time";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.label1.Location = new System.Drawing.Point(17, 173);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(122, 26);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "Frame Rate";
+            // 
+            // lbt
+            // 
+            this.lbt.AutoSize = true;
+            this.lbt.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.lbt.Location = new System.Drawing.Point(17, 103);
+            this.lbt.Name = "lbt";
+            this.lbt.Size = new System.Drawing.Size(139, 26);
+            this.lbt.TabIndex = 2;
+            this.lbt.Text = "Video Length";
             // 
             // lbProperty
             // 
@@ -628,5 +742,13 @@
         private System.Windows.Forms.Button btnSync;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label lbt;
+        private System.Windows.Forms.Label lbStartTime;
+        private System.Windows.Forms.Label lbCurrentTime;
+        private System.Windows.Forms.Label lbFrameRate;
+        private System.Windows.Forms.Label lbVideoLength;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
     }
 }
