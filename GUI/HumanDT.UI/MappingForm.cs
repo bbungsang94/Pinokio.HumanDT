@@ -15,9 +15,13 @@ namespace HumanDT.UI
     {
         private bool _video_points_flag = false;
         private int _video_points_count = 0;
+        private List<int> _xPonts;
+        private List<int> _yPonts;
         public MappingForm()
         {
             InitializeComponent();
+            _xPonts = new List<int>();
+            _yPonts = new List<int>();
         }
 
         private void Video_Points_Click(object sender, EventArgs e)
@@ -43,14 +47,9 @@ namespace HumanDT.UI
 
                     Point mousePos = new Point(x, y); //프로그램 내 좌표
                     Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
-                    Point mousePosPtoScreen = pic.PointToScreen(mousePos);  //스크린 내 좌표 (좌우 스크린 합친듯?)
 
-                    this.Text = x.ToString() + ", " + y.ToString() +
-                        ", " + mousePosPtoClient.X.ToString() + ", " + mousePosPtoClient.Y.ToString() +
-                        ", " + mousePosPtoScreen.X.ToString() + ", " + mousePosPtoScreen.Y.ToString();
-
+                    // 좌표 이미지 원본 크기에 맞게 바꿔줘야함
                     if (((MouseEventArgs)e).Button == MouseButtons.Left)
-
                     {
 
                         //do something                    
@@ -58,7 +57,6 @@ namespace HumanDT.UI
                     }
 
                     if (((MouseEventArgs)e).Button == MouseButtons.Right)
-
                     {
                         //do something
 

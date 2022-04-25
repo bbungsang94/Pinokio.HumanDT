@@ -23,6 +23,7 @@ class ImageExtractor:
             shutil.rmtree(save_path)
         os.mkdir(save_path)
 
+
         self.extract()
 
     def extract(self):
