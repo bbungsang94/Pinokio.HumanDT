@@ -1,6 +1,9 @@
 import os
 import shutil
 import argparse
+
+import yaml
+
 from media_handler import PipeliningVideoManager, ImageManager
 
 parser = argparse.ArgumentParser()
@@ -13,16 +16,23 @@ parser.add_argument(
 
 
 class ImageExtractor:
-    def __init__(self, video_path, save_path):
+    def __init__(self, video_path, save_path:str):
         self._VideoHandle = PipeliningVideoManager()
         self.FrameRate, self.ImageSize = self._VideoHandle.load_video(video_path)
         self.VideoPath = video_path
         self.SavePath = save_path
 
+        path_split = save_path.split('\\')
+        video_name = path_split[len(path_split)-2]
+        txt_path = save_path.replace(video_name + "\\", "")
+
+        video_info = {'image_size': list(self.ImageSize), 'frame_rate': self.FrameRate}
+        with open(txt_path + video_name + ".yaml", 'w') as f:
+            yaml.dump(video_info, f)
+
         if os.path.exists(save_path):
             shutil.rmtree(save_path)
         os.mkdir(save_path)
-
 
         self.extract()
 

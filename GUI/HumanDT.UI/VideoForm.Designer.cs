@@ -59,6 +59,9 @@
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnSync = new System.Windows.Forms.Button();
             this.btnReset = new System.Windows.Forms.Button();
             this.btnVisible = new System.Windows.Forms.Button();
             this.Analysis_button = new System.Windows.Forms.Button();
@@ -67,7 +70,6 @@
             this.btnTotalPlay = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbProperty = new System.Windows.Forms.Label();
-            this.btnSync = new System.Windows.Forms.Button();
             this.pnlView.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
@@ -138,7 +140,7 @@
             this.btnNext4.TabIndex = 9;
             this.btnNext4.Text = "NEXT";
             this.btnNext4.UseVisualStyleBackColor = true;
-            this.btnNext4.Click += new System.EventHandler(this.btnNext4_Click);
+            this.btnNext4.Click += new System.EventHandler(this.BtnNext4Click);
             // 
             // btnPrev4
             // 
@@ -148,7 +150,7 @@
             this.btnPrev4.TabIndex = 8;
             this.btnPrev4.Text = "PREV";
             this.btnPrev4.UseVisualStyleBackColor = true;
-            this.btnPrev4.Click += new System.EventHandler(this.btnPrev4_Click);
+            this.btnPrev4.Click += new System.EventHandler(this.BtnPrev4Click);
             // 
             // picIdx4
             // 
@@ -168,7 +170,7 @@
             this.btnPlay4.TabIndex = 6;
             this.btnPlay4.Text = "PLAY";
             this.btnPlay4.UseVisualStyleBackColor = true;
-            this.btnPlay4.Click += new System.EventHandler(this.btnPlay4_Click);
+            this.btnPlay4.Click += new System.EventHandler(this.BtnPlay4Click);
             // 
             // btnStop4
             // 
@@ -178,7 +180,7 @@
             this.btnStop4.TabIndex = 7;
             this.btnStop4.Text = "STOP";
             this.btnStop4.UseVisualStyleBackColor = true;
-            this.btnStop4.Click += new System.EventHandler(this.btnStop4_Click);
+            this.btnStop4.Click += new System.EventHandler(this.BtnStop4Click);
             // 
             // panel1
             // 
@@ -209,7 +211,7 @@
             this.btnNext3.TabIndex = 9;
             this.btnNext3.Text = "NEXT";
             this.btnNext3.UseVisualStyleBackColor = true;
-            this.btnNext3.Click += new System.EventHandler(this.btnNext3_Click);
+            this.btnNext3.Click += new System.EventHandler(this.BtnNext3Click);
             // 
             // picIdx3
             // 
@@ -229,7 +231,7 @@
             this.btnPrev3.TabIndex = 8;
             this.btnPrev3.Text = "PREV";
             this.btnPrev3.UseVisualStyleBackColor = true;
-            this.btnPrev3.Click += new System.EventHandler(this.btnPrev3_Click);
+            this.btnPrev3.Click += new System.EventHandler(this.BtnPrev3Click);
             // 
             // btnPlay3
             // 
@@ -239,7 +241,7 @@
             this.btnPlay3.TabIndex = 6;
             this.btnPlay3.Text = "PLAY";
             this.btnPlay3.UseVisualStyleBackColor = true;
-            this.btnPlay3.Click += new System.EventHandler(this.btnPlay3_Click);
+            this.btnPlay3.Click += new System.EventHandler(this.BtnPlay3Click);
             // 
             // btnStop3
             // 
@@ -249,7 +251,7 @@
             this.btnStop3.TabIndex = 7;
             this.btnStop3.Text = "STOP";
             this.btnStop3.UseVisualStyleBackColor = true;
-            this.btnStop3.Click += new System.EventHandler(this.btnStop3_Click);
+            this.btnStop3.Click += new System.EventHandler(this.BtnStop3Click);
             // 
             // pnlIdx2
             // 
@@ -280,7 +282,7 @@
             this.btnNext2.TabIndex = 9;
             this.btnNext2.Text = "NEXT";
             this.btnNext2.UseVisualStyleBackColor = true;
-            this.btnNext2.Click += new System.EventHandler(this.btnNext2_Click);
+            this.btnNext2.Click += new System.EventHandler(this.BtnNext2Click);
             // 
             // picIdx2
             // 
@@ -300,7 +302,7 @@
             this.btnPrev2.TabIndex = 8;
             this.btnPrev2.Text = "PREV";
             this.btnPrev2.UseVisualStyleBackColor = true;
-            this.btnPrev2.Click += new System.EventHandler(this.btnPrev2_Click);
+            this.btnPrev2.Click += new System.EventHandler(this.BtnPrev2Click);
             // 
             // btnPlay2
             // 
@@ -310,7 +312,7 @@
             this.btnPlay2.TabIndex = 6;
             this.btnPlay2.Text = "PLAY";
             this.btnPlay2.UseVisualStyleBackColor = true;
-            this.btnPlay2.Click += new System.EventHandler(this.btnPlay2_Click);
+            this.btnPlay2.Click += new System.EventHandler(this.BtnPlay2Click);
             // 
             // btnStop2
             // 
@@ -320,7 +322,7 @@
             this.btnStop2.TabIndex = 7;
             this.btnStop2.Text = "STOP";
             this.btnStop2.UseVisualStyleBackColor = true;
-            this.btnStop2.Click += new System.EventHandler(this.btnStop2_Click);
+            this.btnStop2.Click += new System.EventHandler(this.BtnStop2Click);
             // 
             // pnlIdx1
             // 
@@ -344,7 +346,7 @@
             this.btnNext1.TabIndex = 5;
             this.btnNext1.Text = "NEXT";
             this.btnNext1.UseVisualStyleBackColor = true;
-            this.btnNext1.Click += new System.EventHandler(this.btnNext1_Click);
+            this.btnNext1.Click += new System.EventHandler(this.BtnNext1Click);
             // 
             // btnPrev1
             // 
@@ -354,7 +356,7 @@
             this.btnPrev1.TabIndex = 4;
             this.btnPrev1.Text = "PREV";
             this.btnPrev1.UseVisualStyleBackColor = true;
-            this.btnPrev1.Click += new System.EventHandler(this.btnPrev1_Click);
+            this.btnPrev1.Click += new System.EventHandler(this.BtnPrev1Click);
             // 
             // btnStop1
             // 
@@ -364,7 +366,7 @@
             this.btnStop1.TabIndex = 3;
             this.btnStop1.Text = "STOP";
             this.btnStop1.UseVisualStyleBackColor = true;
-            this.btnStop1.Click += new System.EventHandler(this.btnStop1_Click);
+            this.btnStop1.Click += new System.EventHandler(this.BtnStop1Click);
             // 
             // btnPlay1
             // 
@@ -374,7 +376,7 @@
             this.btnPlay1.TabIndex = 2;
             this.btnPlay1.Text = "PLAY";
             this.btnPlay1.UseVisualStyleBackColor = true;
-            this.btnPlay1.Click += new System.EventHandler(this.btnPlay1_Click);
+            this.btnPlay1.Click += new System.EventHandler(this.BtnPlay1Click);
             // 
             // progressBarControl1
             // 
@@ -396,6 +398,8 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlHeader.Controls.Add(this.button2);
+            this.pnlHeader.Controls.Add(this.button1);
             this.pnlHeader.Controls.Add(this.btnSync);
             this.pnlHeader.Controls.Add(this.btnReset);
             this.pnlHeader.Controls.Add(this.btnVisible);
@@ -409,12 +413,51 @@
             this.pnlHeader.Size = new System.Drawing.Size(326, 1056);
             this.pnlHeader.TabIndex = 2;
             // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.button2.Location = new System.Drawing.Point(47, 117);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(227, 55);
+            this.button2.TabIndex = 9;
+            this.button2.Text = "Save path";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.BtnSavePathClick);
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.button1.Location = new System.Drawing.Point(47, 197);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(227, 55);
+            this.button1.TabIndex = 8;
+            this.button1.Text = "Import";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.BtnImportClick);
+            // 
+            // btnSync
+            // 
+            this.btnSync.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnSync.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnSync.Location = new System.Drawing.Point(47, 559);
+            this.btnSync.Name = "btnSync";
+            this.btnSync.Size = new System.Drawing.Size(227, 55);
+            this.btnSync.TabIndex = 7;
+            this.btnSync.Text = "Apply";
+            this.btnSync.UseVisualStyleBackColor = false;
+            this.btnSync.Click += new System.EventHandler(this.BtnSyncClick);
+            // 
             // btnReset
             // 
             this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnReset.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnReset.Location = new System.Drawing.Point(47, 309);
+            this.btnReset.Location = new System.Drawing.Point(47, 477);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(227, 55);
             this.btnReset.TabIndex = 6;
@@ -425,19 +468,19 @@
             // 
             this.btnVisible.BackColor = System.Drawing.Color.ForestGreen;
             this.btnVisible.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnVisible.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnVisible.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnVisible.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnVisible.Location = new System.Drawing.Point(47, 593);
+            this.btnVisible.Location = new System.Drawing.Point(47, 700);
             this.btnVisible.Name = "btnVisible";
             this.btnVisible.Size = new System.Drawing.Size(227, 55);
             this.btnVisible.TabIndex = 5;
             this.btnVisible.Text = "Visible Mode";
             this.btnVisible.UseVisualStyleBackColor = false;
-            this.btnVisible.Click += new System.EventHandler(this.btnVisible_Click);
+            this.btnVisible.Click += new System.EventHandler(this.BtnVisibleClick);
             // 
             // Analysis_button
             // 
-            this.Analysis_button.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Analysis_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.Analysis_button.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.Analysis_button.Location = new System.Drawing.Point(47, 856);
             this.Analysis_button.Name = "Analysis_button";
@@ -445,11 +488,11 @@
             this.Analysis_button.TabIndex = 4;
             this.Analysis_button.Text = "Analysis";
             this.Analysis_button.UseVisualStyleBackColor = true;
-            this.Analysis_button.Click += new System.EventHandler(this.Analysis_button_Click);
+            this.Analysis_button.Click += new System.EventHandler(this.AnalysisButtonClick);
             // 
             // button3
             // 
-            this.button3.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.button3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.button3.Location = new System.Drawing.Point(47, 947);
             this.button3.Name = "button3";
@@ -457,31 +500,31 @@
             this.button3.TabIndex = 3;
             this.button3.Text = "Close";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.Button3Click);
             // 
             // btnTotalStop
             // 
-            this.btnTotalStop.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnTotalStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnTotalStop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnTotalStop.Location = new System.Drawing.Point(47, 227);
+            this.btnTotalStop.Location = new System.Drawing.Point(47, 395);
             this.btnTotalStop.Name = "btnTotalStop";
             this.btnTotalStop.Size = new System.Drawing.Size(227, 55);
             this.btnTotalStop.TabIndex = 2;
             this.btnTotalStop.Text = "Total stop";
             this.btnTotalStop.UseVisualStyleBackColor = true;
-            this.btnTotalStop.Click += new System.EventHandler(this.btnTotalStop_Click);
+            this.btnTotalStop.Click += new System.EventHandler(this.BtnTotalStopClick);
             // 
             // btnTotalPlay
             // 
-            this.btnTotalPlay.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnTotalPlay.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnTotalPlay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnTotalPlay.Location = new System.Drawing.Point(47, 145);
+            this.btnTotalPlay.Location = new System.Drawing.Point(47, 313);
             this.btnTotalPlay.Name = "btnTotalPlay";
             this.btnTotalPlay.Size = new System.Drawing.Size(227, 55);
             this.btnTotalPlay.TabIndex = 1;
             this.btnTotalPlay.Text = "Total play";
             this.btnTotalPlay.UseVisualStyleBackColor = true;
-            this.btnTotalPlay.Click += new System.EventHandler(this.btnTotalPlay_Click);
+            this.btnTotalPlay.Click += new System.EventHandler(this.BtnTotalPlayClick);
             // 
             // pnlProperty
             // 
@@ -503,19 +546,6 @@
             this.lbProperty.TabIndex = 1;
             this.lbProperty.Text = "Property";
             this.lbProperty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // btnSync
-            // 
-            this.btnSync.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnSync.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnSync.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnSync.Location = new System.Drawing.Point(47, 391);
-            this.btnSync.Name = "btnSync";
-            this.btnSync.Size = new System.Drawing.Size(227, 55);
-            this.btnSync.TabIndex = 7;
-            this.btnSync.Text = "Apply";
-            this.btnSync.UseVisualStyleBackColor = false;
-            this.btnSync.Click += new System.EventHandler(this.btnSync_Click);
             // 
             // VideoForm
             // 
@@ -595,5 +625,7 @@
         private System.Windows.Forms.Button btnVisible;
         private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Button btnSync;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button button2;
     }
 }

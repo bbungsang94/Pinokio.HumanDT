@@ -24,13 +24,13 @@ namespace HumanDT.UI
         }
 
         private void Start_button_Click(object sender, EventArgs e)
-        {   
-            MappingForm mapping_form = new MappingForm();
-            mapping_form.ShowDialog();
-            this.Close();
-            //VideoForm video_form = new VideoForm();
-            //video_form.ShowDialog();
+        {
+            //MappingForm mapping_form = new MappingForm();
+            //mapping_form.ShowDialog();
             //this.Close();
+            VideoForm video_form = new VideoForm();
+            video_form.ShowDialog();
+            this.Close();
         }
     }
 }

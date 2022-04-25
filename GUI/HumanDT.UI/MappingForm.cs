@@ -13,20 +13,22 @@ namespace HumanDT.UI
 {
     public partial class MappingForm : DevExpress.XtraEditors.XtraForm
     {
-        private bool _video_points_flag = false;
-        private int _video_points_count = 0;
-        private List<int> _xPonts;
-        private List<int> _yPonts;
+        private bool _Video_points_flag = false;
+        private int _Video_points_count = 0;
+        private List<int> _XPonts;
+        private List<int> _YPonts;
         public MappingForm()
         {
             InitializeComponent();
-            _xPonts = new List<int>();
-            _yPonts = new List<int>();
+            _Video_points_flag = false;
+            _Video_points_count = 0;
+            _XPonts = new List<int>();
+            _YPonts = new List<int>();
         }
 
         private void Video_Points_Click(object sender, EventArgs e)
         {
-            _video_points_flag = true;
+            _Video_points_flag = true;
         }
 
         private void Plan_Points_Click(object sender, EventArgs e)
@@ -37,7 +39,7 @@ namespace HumanDT.UI
 
         private void Video1_pictureBox_Click(object sender, EventArgs e)
         {
-            if (_video_points_flag)
+            if (_Video_points_flag)
             {
                 if (sender.GetType() == Video1_pictureBox.GetType())
                 {

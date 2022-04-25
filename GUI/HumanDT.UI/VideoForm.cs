@@ -10,21 +10,20 @@ namespace HumanDT.UI
 {
     public partial class VideoForm : Form
     {
-        private readonly ProcessStartInfo _processInfo = new();
-        private readonly Process _process = new();
-        private ConfigStruct config;
-        private List<ImageObject> image_Objects = new();
-        private readonly List<bool> ImageRead = new();
-
-        List<PictureBox> pictureBoxes = new();
+        private readonly ProcessStartInfo _ProcessInfo = new();
+        private readonly Process _Process = new();
+        private ConfigStruct _Config;
+        private readonly List<ImageObject> _ImageObjects = new();
+        private readonly List<bool> _ImageRead = new();
+        readonly List<PictureBox> _PictureBoxes = new();
         public VideoForm()
         {
             InitializeComponent();
 
-            pictureBoxes.Add(picIdx1);
-            pictureBoxes.Add(picIdx2);
-            pictureBoxes.Add(picIdx3);
-            pictureBoxes.Add(picIdx4);
+            _PictureBoxes.Add(picIdx1);
+            _PictureBoxes.Add(picIdx2);
+            _PictureBoxes.Add(picIdx3);
+            _PictureBoxes.Add(picIdx4);
 
 
             this.TopMost = true;
@@ -32,45 +31,33 @@ namespace HumanDT.UI
             this.TopMost = false;
 #endif
 
-            _processInfo.FileName = "cmd.exe";
+            _ProcessInfo.FileName = "cmd.exe";
 
-            _processInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            _processInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
-            _processInfo.UseShellExecute = false;
-            _processInfo.RedirectStandardInput = true;
-            _processInfo.RedirectStandardOutput = true;
-            _processInfo.RedirectStandardError = true;
+            _ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            _ProcessInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
+            _ProcessInfo.UseShellExecute = false;
+            _ProcessInfo.RedirectStandardInput = true;
+            _ProcessInfo.RedirectStandardOutput = true;
+            _ProcessInfo.RedirectStandardError = true;
 
-            _process.StartInfo = _processInfo;
+            _Process.StartInfo = _ProcessInfo;
 
-            config = new ConfigStruct
+            _Config = new ConfigStruct
             {
                 VideoPath = new List<string>()
             };
-            config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 9-10.avi");
-            config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 11-12.avi");
-            config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 13 - 14.avi");
-            config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 15-16.avi");
-            config.SavePath = "D:/MnS/HumanDT/Pinokio.HumanDT/API/temp/";
-            config.FilePath = "D:/MnS/HumanDT/Pinokio.HumanDT/API/utilities/";
-            config.CondaEnv = "VDT";
-            for (int i = 0; i < config.VideoPath.Count; i++)
-            {
-                ImageObject temp_object = new()
-                {
-                    frame_rate = 15,
-                    video_path = media_play(i),
-                    frame_count = 0,
-                    current_name = get_image_name(0, 30)
-                };
-                image_Objects.Add(temp_object);
-                ImageRead.Add(false);
-
-            }
-            timer_start();
+            //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 9-10.avi");
+            //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 11-12.avi");
+            //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 13 - 14.avi");
+            //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 15-16.avi");
+            //_Config.SavePath = @"../../API/temp/";
+            _Config.FilePath = "../../../../../../API/utilities/";
+            //_Config.CondaEnv = "VDT";
+            _Config.CondaEnv = "";
+            
         }
 
-        private void timer_start()
+        private void TimerStart()
         {
             Timer timer = new();
             timer.Interval = 66;
@@ -80,17 +67,17 @@ namespace HumanDT.UI
 
         private void Image_reader(object sender, EventArgs e)
         {
-            for (int i = 0; i < config.VideoPath.Count; i++)
+            for (int i = 0; i < _Config.VideoPath.Count; i++)
             {
-                if (ImageRead[i])
+                if (_ImageRead[i])
                 {
-                    load_image(i, true);
+                    LoadImage(i, true);
                 }
             }
         }
-        private void load_image(int idx, bool increase, int framecount = -1)
+        private void LoadImage(int idx, bool increase, int framecount = -1)
         {
-            var obj = image_Objects[idx];
+            var obj = _ImageObjects[idx];
             Image image = null;
             if (framecount > -1)
             {
@@ -99,45 +86,45 @@ namespace HumanDT.UI
 
             try
             {
-                obj.current_name = get_image_name(obj.frame_count, obj.frame_rate);
+                obj.current_name = GetImageName(obj.frame_count, obj.frame_rate);
                 image = Image.FromFile(obj.video_path + obj.current_name);
                 if (increase)
                 {
                     obj.frame_count += 1;
                 }
-                pictureBoxes[idx].BackgroundImage = image;
-                image_Objects[idx] = obj;
+                _PictureBoxes[idx].BackgroundImage = image;
+                _ImageObjects[idx] = obj;
             }
             catch
             {
                 obj.frame_count -= 1;
-                ImageRead[idx] = false;
+                _ImageRead[idx] = false;
             }
         }
 
-        private string media_play(int idx)
+        private string MediaPlay(int idx)
         {
-            string[] sperables = config.VideoPath[idx].Split('/');
+            string[] sperables = _Config.VideoPath[idx].Split('\\');
             string folder_name = sperables[sperables.Length - 1].Substring(0, sperables[sperables.Length - 1].LastIndexOf('.'));
 
-            string save_path = config.SavePath + folder_name + "/";
+            string save_path = _Config.SavePath + folder_name + "\\";
 
-            _process.Start();
+            _Process.Start();
 
-            _process.StandardInput.WriteLine("conda activate " + config.CondaEnv);
+            _Process.StandardInput.WriteLine("conda activate " + _Config.CondaEnv);
             if (sperables[0].Equals("D:"))
             {
-                _process.StandardInput.WriteLine("D:");
+                _Process.StandardInput.WriteLine("D:");
             }
-            _process.StandardInput.WriteLine("cd " + config.FilePath);
-            _process.StandardInput.WriteLine("python image_extractor.py --video_path \"" + config.VideoPath[idx] + "\" --save_path \"" + save_path);
+            _Process.StandardInput.WriteLine("cd " + System.IO.Path.GetFullPath(_Config.FilePath));
+            _Process.StandardInput.WriteLine("python image_extractor.py --video_path \"" + _Config.VideoPath[idx] + "\" --save_path \"" + save_path);
 
-            _process.StandardInput.Close();
+            _Process.StandardInput.Close();
             Thread.Sleep(3000);
             return save_path;
         }
 
-        private string get_image_name(int count, int frame_rate)
+        private string GetImageName(int count, int frame_rate)
         {
             double time_val = (double)count / (double)frame_rate;
             string time_str = string.Format("{0:00000.00000}", time_val);
@@ -148,8 +135,8 @@ namespace HumanDT.UI
 
         private void ImageStep(int idx, bool next)
         {
-            ImageRead[idx] = false;
-            var obj = image_Objects[idx];
+            _ImageRead[idx] = false;
+            var obj = _ImageObjects[idx];
             int framecount = 0;
             if (next)
             {
@@ -162,78 +149,78 @@ namespace HumanDT.UI
                     framecount = obj.frame_count - 1;
                 }
             }
-            load_image(idx, false, framecount);
+            LoadImage(idx, false, framecount);
         }
 
-        private void btnStop1_Click(object sender, EventArgs e)
+        private void BtnStop1Click(object sender, EventArgs e)
         {
-            ImageRead[0] = false;
+            _ImageRead[0] = false;
         }
 
-        private void btnStop2_Click(object sender, EventArgs e)
+        private void BtnStop2Click(object sender, EventArgs e)
         {
-            ImageRead[1] = false;
+            _ImageRead[1] = false;
         }
 
-        private void btnStop3_Click(object sender, EventArgs e)
+        private void BtnStop3Click(object sender, EventArgs e)
         {
-            ImageRead[2] = false;
+            _ImageRead[2] = false;
         }
 
-        private void btnStop4_Click(object sender, EventArgs e)
+        private void BtnStop4Click(object sender, EventArgs e)
         {
-            ImageRead[3] = false;
+            _ImageRead[3] = false;
         }
 
-        private void btnTotalStop_Click(object sender, EventArgs e)
+        private void BtnTotalStopClick(object sender, EventArgs e)
         {
-            for (int i = 0; i < config.VideoPath.Count; i++)
+            for (int i = 0; i < _Config.VideoPath.Count; i++)
             {
-                ImageRead[i] = false;
+                _ImageRead[i] = false;
             }
         }
 
-        private void btnPrev1_Click(object sender, EventArgs e)
+        private void BtnPrev1Click(object sender, EventArgs e)
         {
             ImageStep(0, false);
         }
 
-        private void btnPrev2_Click(object sender, EventArgs e)
+        private void BtnPrev2Click(object sender, EventArgs e)
         {
             ImageStep(1, false);
         }
 
-        private void btnPrev3_Click(object sender, EventArgs e)
+        private void BtnPrev3Click(object sender, EventArgs e)
         {
             ImageStep(2, false);
         }
 
-        private void btnPrev4_Click(object sender, EventArgs e)
+        private void BtnPrev4Click(object sender, EventArgs e)
         {
             ImageStep(3, false);
         }
 
-        private void btnNext1_Click(object sender, EventArgs e)
+        private void BtnNext1Click(object sender, EventArgs e)
         {
             ImageStep(0, true);
         }
 
-        private void btnNext2_Click(object sender, EventArgs e)
+        private void BtnNext2Click(object sender, EventArgs e)
         {
             ImageStep(1, true);
         }
 
-        private void btnNext3_Click(object sender, EventArgs e)
+        private void BtnNext3Click(object sender, EventArgs e)
         {
             ImageStep(2, true);
         }
 
-        private void btnNext4_Click(object sender, EventArgs e)
+        private void BtnNext4Click(object sender, EventArgs e)
         {
             ImageStep(3, true);
         }
 
-        private void btnVisible_Click(object sender, EventArgs e)
+        private void BtnVisibleClick(object sender, EventArgs e)
         {
             if (btnVisible.Text.Equals("Visible Mode"))
             {
@@ -247,78 +234,121 @@ namespace HumanDT.UI
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void Button3Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        private void btnSync_Click(object sender, EventArgs e)
+        private void BtnSyncClick(object sender, EventArgs e)
         {
 
         }
 
-        private void Analysis_button_Click(object sender, EventArgs e)
+        private void AnalysisButtonClick(object sender, EventArgs e)
         {
             #region Python 실행
-            _process.Start();
+            _Process.Start();
 
-            _process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
-            _process.StandardInput.WriteLine("conda activate FLOM");
-            _process.StandardInput.WriteLine("D:");
-            _process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
-            _process.StandardInput.WriteLine("python main.py");
+            _Process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
+            _Process.StandardInput.WriteLine("conda activate FLOM");
+            _Process.StandardInput.WriteLine("D:");
+            _Process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
+            _Process.StandardInput.WriteLine("python main.py");
 
-            _process.StandardInput.Close();
+            _Process.StandardInput.Close();
 
             Thread.Sleep(5000);
 
-            string resultValue = _process.StandardOutput.ReadToEnd();
+            string resultValue = _Process.StandardOutput.ReadToEnd();
 
-            _process.WaitForExit();
+            _Process.WaitForExit();
 
-            _process.Close();
+            _Process.Close();
             #endregion
 
             DialogResult result = MessageBox.Show("실시간 분석 결과를 보겠습니까?", "최종 결과만 보기 위해서는 '아니요' 버튼을 눌러주세요.", MessageBoxButtons.YesNo);
             if (result == DialogResult.Yes)
             {
-                AnalysisForm mainForm = new AnalysisForm();
+                AnalysisForm mainForm = new AnalysisForm(_ImageObjects);
                 mainForm.ShowDialog();
                 this.Close();
             }
             else if (result == DialogResult.No)
             {
-                ProgressBar progressBar = new ProgressBar(_process);
+                ProgressBar progressBar = new ProgressBar(_Process);
                 progressBar.Show();
             }
 
         }
 
-        private void btnPlay1_Click(object sender, EventArgs e)
+        private void BtnPlay1Click(object sender, EventArgs e)
         {
-            ImageRead[0] = true;
+            _ImageRead[0] = true;
         }
 
-        private void btnPlay2_Click(object sender, EventArgs e)
+        private void BtnPlay2Click(object sender, EventArgs e)
         {
-            ImageRead[1] = true;
+            _ImageRead[1] = true;
         }
 
-        private void btnPlay3_Click(object sender, EventArgs e)
+        private void BtnPlay3Click(object sender, EventArgs e)
         {
-            ImageRead[2] = true;
+            _ImageRead[2] = true;
         }
 
-        private void btnPlay4_Click(object sender, EventArgs e)
+        private void BtnPlay4Click(object sender, EventArgs e)
         {
-            ImageRead[3] = true;
+            _ImageRead[3] = true;
         }
 
-        private void btnTotalPlay_Click(object sender, EventArgs e)
+        private void BtnTotalPlayClick(object sender, EventArgs e)
         {
-            for (int i = 0; i < config.VideoPath.Count; i++)
+            for (int i = 0; i < _Config.VideoPath.Count; i++)
             {
-                ImageRead[i] = true;
+                _ImageRead[i] = true;
+            }
+        }
+
+        private void BtnImportClick(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(folderBrowserDialog.SelectedPath);
+                    foreach(System.IO.FileInfo file in di.GetFiles())
+                    {
+                        if (file.Name.Contains(".avi") || file.Name.Contains(".mp4") || file.Name.Contains(".mkv"))
+                        {
+                            _Config.VideoPath.Add(file.FullName);
+                        }
+                    }
+                }
+                for (int i = 0; i < _Config.VideoPath.Count; i++)
+                {
+                    ImageObject temp_object = new()
+                    {
+                        frame_rate = 15,
+                        video_path = MediaPlay(i),
+                        frame_count = 0,
+                        current_name = GetImageName(0, 30)
+                    };
+                    _ImageObjects.Add(temp_object);
+                    _ImageRead.Add(false);
+
+                }
+                TimerStart();
+            }
+        }
+
+        private void BtnSavePathClick(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
+            {
+                if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+                {
+                    _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";
+                }
             }
         }
     }
