@@ -18,8 +18,10 @@ namespace HumanDT.UI
         private bool _PlanPointsFlag;
         private Dictionary<int, int> _VideoPointsCounts;
         private int _PlanPointsCount;
-        private Dictionary<int, List<Tuple<float, float>>> _VideoPoints;
+        private List<Tuple<float, float>> _VideoPoints;
         private List<Tuple<float, float>> _PlanPoints;
+        private int _TargetVideoIdx;
+        
         private List<int> _XPonts;
         private List<int> _YPonts;
         private ConfigStruct _Config;
@@ -34,7 +36,7 @@ namespace HumanDT.UI
             _VideoPointsCounts = new Dictionary<int, int>();
             _XPonts = new List<int>();
             _YPonts = new List<int>();
-            _VideoPoints = new Dictionary<int, List<Tuple<float, float>>>();
+            _VideoPoints = new List<Tuple<float, float>>();
             _Config = config;
             _ImageObjects = imageObjects;
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
@@ -59,10 +61,7 @@ namespace HumanDT.UI
             _PictureBoxes.Add(Video3_pictureBox);
             _PictureBoxes.Add(Video4_pictureBox);
 
-            _VideoPoints.Add(0, new List<Tuple<float, float>>());
-            _VideoPoints.Add(1, new List<Tuple<float, float>>());
-            _VideoPoints.Add(2, new List<Tuple<float, float>>());
-            _VideoPoints.Add(3, new List<Tuple<float, float>>());
+            _VideoPoints = new List<Tuple<float, float>>();
             _PlanPoints = new List<Tuple<float, float>>();
 
             _VideoPointsCounts.Add(0, 0);
@@ -133,7 +132,8 @@ namespace HumanDT.UI
                         var xPoint = (float)mousePosPtoClient.X / widthRate;
                         var yPoint = (float)mousePosPtoClient.Y / heightRate;
 
-                        _VideoPoints[0].Add(new Tuple<float, float>(xPoint, yPoint));
+                        _VideoPoints.Add(new Tuple<float, float>(xPoint, yPoint));
+                        _TargetVideoIdx = 0;
                         _VideoPointsCounts[0]++;
                         g.FillEllipse(Brushes.Red, mousePosPtoClient.X - 5, mousePosPtoClient.Y - 5, 10, 10);
                     }
@@ -149,7 +149,7 @@ namespace HumanDT.UI
         private void Video_Points_Click(object sender, EventArgs e)
         {
             _VideoPointsFlag = true;
-            _VideoPoints[0].Clear();
+            _VideoPoints.Clear();
             Video1_pictureBox.Image = null;
             _VideoPointsCounts[0] = 0;
             btnVideoPoints.BackColor = Color.ForestGreen;
@@ -236,7 +236,20 @@ namespace HumanDT.UI
 
         private void BtnAnalysisClick(object sender, EventArgs e)
         {
+            if (_VideoPoints.Count == 4 && _PlanPoints.Count == 4)
+            {
+                Point2f[] srcPoint = new Point2f[4];
+                srcPoint[0] = new Point2f(_VideoPoints[0].Item1, _VideoPoints[0].Item2);
+                srcPoint[1] = new Point2f(_VideoPoints[1].Item1, _VideoPoints[1].Item2);
+                srcPoint[2] = new Point2f(_VideoPoints[2].Item1, _VideoPoints[2].Item2);
+                srcPoint[3] = new Point2f(_VideoPoints[3].Item1, _VideoPoints[3].Item2);
 
+                //Point2f[] dstPoint = new Point2f[4];
+
+
+                //Mat matrix = Cv2.GetPerspectiveTransform()
+            }
+            
         }
     }
 }
