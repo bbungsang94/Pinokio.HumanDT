@@ -8,21 +8,6 @@ using System.Drawing;
 
 namespace HumanDT.UI
 {
-    struct ImageObject
-    {
-        public int video_length;
-        public string video_path;
-        public string current_name;
-        public int frame_rate;
-        public int frame_count;
-    }
-    struct ConfigStruct
-    {
-        public string CondaEnv;
-        public string FilePath;
-        public List<string> VideoPath;
-        public string SavePath;
-    }
     public partial class VideoForm : Form
     {
         private readonly ProcessStartInfo _processInfo = new();
@@ -83,76 +68,6 @@ namespace HumanDT.UI
 
             }
             timer_start();
-        }
-
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-        private void Analysis_button_Click(object sender, EventArgs e)
-        {
-            #region Python 실행
-            _process.Start();
-
-            _process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
-            _process.StandardInput.WriteLine("conda activate FLOM");
-            _process.StandardInput.WriteLine("D:");
-            _process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
-            _process.StandardInput.WriteLine("python main.py");
-
-            _process.StandardInput.Close();
-
-            Thread.Sleep(5000);
-
-            string resultValue = _process.StandardOutput.ReadToEnd();
-
-            _process.WaitForExit();
-
-            _process.Close();
-            #endregion
-
-            DialogResult result = MessageBox.Show("실시간 분석 결과를 보겠습니까?", "최종 결과만 보기 위해서는 '아니요' 버튼을 눌러주세요.", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
-            {
-                AnalysisForm mainForm = new AnalysisForm();
-                mainForm.ShowDialog();
-                this.Close();
-            }
-            else if (result == DialogResult.No)
-            {
-                ProgressBar progressBar = new ProgressBar(_process);
-                progressBar.Show();
-            }
-
-        }
-
-        private void btnPlay1_Click(object sender, EventArgs e)
-        {
-            ImageRead[0] = true;
-        }
-
-        private void btnPlay2_Click(object sender, EventArgs e)
-        {
-            ImageRead[1] = true;
-        }
-
-        private void btnPlay3_Click(object sender, EventArgs e)
-        {
-            ImageRead[2] = true;
-        }
-
-        private void btnPlay4_Click(object sender, EventArgs e)
-        {
-            ImageRead[3] = true;
-        }
-
-        private void btnTotalPlay_Click(object sender, EventArgs e)
-        {
-            for (int i = 0; i < config.VideoPath.Count; i++)
-            {
-                ImageRead[i] = true;
-            }
         }
 
         private void timer_start()
@@ -231,6 +146,25 @@ namespace HumanDT.UI
             return time_str;
         }
 
+        private void ImageStep(int idx, bool next)
+        {
+            ImageRead[idx] = false;
+            var obj = image_Objects[idx];
+            int framecount = 0;
+            if (next)
+            {
+                framecount = obj.frame_count + 1;
+            }
+            else
+            {
+                if (obj.frame_count > 0)
+                {
+                    framecount = obj.frame_count - 1;
+                }
+            }
+            load_image(idx, false, framecount);
+        }
+
         private void btnStop1_Click(object sender, EventArgs e)
         {
             ImageRead[0] = false;
@@ -299,25 +233,6 @@ namespace HumanDT.UI
             ImageStep(3, true);
         }
 
-        private void ImageStep(int idx, bool next)
-        {
-            ImageRead[idx] = false;
-            var obj = image_Objects[idx];
-            int framecount = 0;
-            if (next)
-            {
-                framecount = obj.frame_count + 1;
-            }
-            else
-            {
-                if (obj.frame_count > 0)
-                {
-                    framecount = obj.frame_count - 1;
-                }
-            }
-            load_image(idx, false, framecount);
-        }
-
         private void btnVisible_Click(object sender, EventArgs e)
         {
             if (btnVisible.Text.Equals("Visible Mode"))
@@ -335,6 +250,76 @@ namespace HumanDT.UI
         private void button3_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void btnSync_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Analysis_button_Click(object sender, EventArgs e)
+        {
+            #region Python 실행
+            _process.Start();
+
+            _process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
+            _process.StandardInput.WriteLine("conda activate FLOM");
+            _process.StandardInput.WriteLine("D:");
+            _process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
+            _process.StandardInput.WriteLine("python main.py");
+
+            _process.StandardInput.Close();
+
+            Thread.Sleep(5000);
+
+            string resultValue = _process.StandardOutput.ReadToEnd();
+
+            _process.WaitForExit();
+
+            _process.Close();
+            #endregion
+
+            DialogResult result = MessageBox.Show("실시간 분석 결과를 보겠습니까?", "최종 결과만 보기 위해서는 '아니요' 버튼을 눌러주세요.", MessageBoxButtons.YesNo);
+            if (result == DialogResult.Yes)
+            {
+                AnalysisForm mainForm = new AnalysisForm();
+                mainForm.ShowDialog();
+                this.Close();
+            }
+            else if (result == DialogResult.No)
+            {
+                ProgressBar progressBar = new ProgressBar(_process);
+                progressBar.Show();
+            }
+
+        }
+
+        private void btnPlay1_Click(object sender, EventArgs e)
+        {
+            ImageRead[0] = true;
+        }
+
+        private void btnPlay2_Click(object sender, EventArgs e)
+        {
+            ImageRead[1] = true;
+        }
+
+        private void btnPlay3_Click(object sender, EventArgs e)
+        {
+            ImageRead[2] = true;
+        }
+
+        private void btnPlay4_Click(object sender, EventArgs e)
+        {
+            ImageRead[3] = true;
+        }
+
+        private void btnTotalPlay_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < config.VideoPath.Count; i++)
+            {
+                ImageRead[i] = true;
+            }
         }
     }
 }

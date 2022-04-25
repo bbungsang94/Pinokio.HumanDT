@@ -59,6 +59,7 @@
             this.progressBarControl1 = new DevExpress.XtraEditors.ProgressBarControl();
             this.picIdx1 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
+            this.btnReset = new System.Windows.Forms.Button();
             this.btnVisible = new System.Windows.Forms.Button();
             this.Analysis_button = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -66,6 +67,7 @@
             this.btnTotalPlay = new System.Windows.Forms.Button();
             this.pnlProperty = new System.Windows.Forms.Panel();
             this.lbProperty = new System.Windows.Forms.Label();
+            this.btnSync = new System.Windows.Forms.Button();
             this.pnlView.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
@@ -394,6 +396,8 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlHeader.Controls.Add(this.btnSync);
+            this.pnlHeader.Controls.Add(this.btnReset);
             this.pnlHeader.Controls.Add(this.btnVisible);
             this.pnlHeader.Controls.Add(this.Analysis_button);
             this.pnlHeader.Controls.Add(this.button3);
@@ -404,7 +408,18 @@
             this.pnlHeader.Name = "pnlHeader";
             this.pnlHeader.Size = new System.Drawing.Size(326, 1056);
             this.pnlHeader.TabIndex = 2;
-            this.pnlHeader.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            // 
+            // btnReset
+            // 
+            this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnReset.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnReset.Location = new System.Drawing.Point(47, 309);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(227, 55);
+            this.btnReset.TabIndex = 6;
+            this.btnReset.Text = "Reset";
+            this.btnReset.UseVisualStyleBackColor = false;
             // 
             // btnVisible
             // 
@@ -412,7 +427,7 @@
             this.btnVisible.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnVisible.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnVisible.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnVisible.Location = new System.Drawing.Point(47, 315);
+            this.btnVisible.Location = new System.Drawing.Point(47, 593);
             this.btnVisible.Name = "btnVisible";
             this.btnVisible.Size = new System.Drawing.Size(227, 55);
             this.btnVisible.TabIndex = 5;
@@ -422,7 +437,9 @@
             // 
             // Analysis_button
             // 
-            this.Analysis_button.Location = new System.Drawing.Point(47, 886);
+            this.Analysis_button.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Analysis_button.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.Analysis_button.Location = new System.Drawing.Point(47, 856);
             this.Analysis_button.Name = "Analysis_button";
             this.Analysis_button.Size = new System.Drawing.Size(227, 55);
             this.Analysis_button.TabIndex = 4;
@@ -432,6 +449,8 @@
             // 
             // button3
             // 
+            this.button3.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.button3.Location = new System.Drawing.Point(47, 947);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(227, 55);
@@ -442,7 +461,9 @@
             // 
             // btnTotalStop
             // 
-            this.btnTotalStop.Location = new System.Drawing.Point(47, 230);
+            this.btnTotalStop.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnTotalStop.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnTotalStop.Location = new System.Drawing.Point(47, 227);
             this.btnTotalStop.Name = "btnTotalStop";
             this.btnTotalStop.Size = new System.Drawing.Size(227, 55);
             this.btnTotalStop.TabIndex = 2;
@@ -452,6 +473,8 @@
             // 
             // btnTotalPlay
             // 
+            this.btnTotalPlay.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnTotalPlay.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnTotalPlay.Location = new System.Drawing.Point(47, 145);
             this.btnTotalPlay.Name = "btnTotalPlay";
             this.btnTotalPlay.Size = new System.Drawing.Size(227, 55);
@@ -480,6 +503,19 @@
             this.lbProperty.TabIndex = 1;
             this.lbProperty.Text = "Property";
             this.lbProperty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // btnSync
+            // 
+            this.btnSync.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnSync.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnSync.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnSync.Location = new System.Drawing.Point(47, 391);
+            this.btnSync.Name = "btnSync";
+            this.btnSync.Size = new System.Drawing.Size(227, 55);
+            this.btnSync.TabIndex = 7;
+            this.btnSync.Text = "Apply";
+            this.btnSync.UseVisualStyleBackColor = false;
+            this.btnSync.Click += new System.EventHandler(this.btnSync_Click);
             // 
             // VideoForm
             // 
@@ -557,5 +593,7 @@
         private System.Windows.Forms.Button Analysis_button;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button btnVisible;
+        private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Button btnSync;
     }
 }
