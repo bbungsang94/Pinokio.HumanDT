@@ -8,12 +8,12 @@ namespace HumanDT.UI
 {
     public struct ImageObject
     {
-        public int video_length;
-        public string video_path;
-        public string current_name;
-        public int frame_rate;
-        public int frame_count;
-        public int start_count;
+        public int VideoLength;
+        public string VideoPath;
+        public string CurrentName;
+        public int FrameRate;
+        public int FrameCount;
+        public int StartCount;
     }
     public struct ConfigStruct
     {

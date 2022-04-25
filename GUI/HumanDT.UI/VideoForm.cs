@@ -16,6 +16,7 @@ namespace HumanDT.UI
         private readonly List<ImageObject> _ImageObjects = new();
         private readonly List<bool> _ImageRead = new();
         readonly List<PictureBox> _PictureBoxes = new();
+        private int _Focused = 0;
         public VideoForm()
         {
             InitializeComponent();
@@ -51,10 +52,37 @@ namespace HumanDT.UI
             //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 13 - 14.avi");
             //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 15-16.avi");
             //_Config.SavePath = @"../../API/temp/";
-            _Config.FilePath = "../../../../../../API/utilities/";
-            //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "";
-            
+
+            string program_path = Application.StartupPath;
+            System.IO.DirectoryInfo directory = new System.IO.DirectoryInfo(program_path);
+            directory = GetParent(6, directory);
+            System.IO.FileInfo[] filepath = directory.GetFiles("image_extractor.py", System.IO.SearchOption.AllDirectories);
+            _Config.FilePath = filepath[0].DirectoryName;
+
+            _Config.CondaEnv = "VDT";
+            //_Config.CondaEnv = "";
+
+            pnlView.Visible = false;
+
+        }
+
+        private void UpdateProperty(object sender, EventArgs e)
+        {
+            var obj = _ImageObjects[_Focused];
+            System.IO.DirectoryInfo dir = new(obj.VideoPath);
+            var length = dir.GetFiles().Length;
+            double video_frame_rate = (double)obj.FrameRate;
+            double current_time = (double)obj.FrameCount / video_frame_rate;
+            double start_time = (double)obj.StartCount / video_frame_rate;
+            double video_length_second = (double)length / video_frame_rate;
+
+            TimeSpan time = TimeSpan.FromSeconds(current_time);
+            lbCurrentTime.Text = time.ToString(@"hh\:mm\:ss\:fff");
+            time = TimeSpan.FromSeconds(start_time);
+            lbStartTime.Text = time.ToString(@"hh\:mm\:ss\:fff");
+            time = TimeSpan.FromSeconds(video_length_second);
+            lbVideoLength.Text = time.ToString(@"hh\:mm\:ss\:fff");
+            lbFrameRate.Text = obj.FrameRate.ToString();
         }
 
         private void TimerStart()
@@ -63,6 +91,11 @@ namespace HumanDT.UI
             timer.Interval = 66;
             timer.Tick += new EventHandler(Image_reader);
             timer.Start();
+
+            Timer update_checker = new();
+            update_checker.Interval = 1000;
+            update_checker.Tick += new EventHandler(UpdateProperty);
+            update_checker.Start();
         }
 
         private void Image_reader(object sender, EventArgs e)
@@ -78,26 +111,25 @@ namespace HumanDT.UI
         private void LoadImage(int idx, bool increase, int framecount = -1)
         {
             var obj = _ImageObjects[idx];
-            Image image = null;
             if (framecount > -1)
             {
-                obj.frame_count = framecount;
+                obj.FrameCount = framecount;
             }
 
             try
             {
-                obj.current_name = GetImageName(obj.frame_count, obj.frame_rate);
-                image = Image.FromFile(obj.video_path + obj.current_name);
+                obj.CurrentName = GetImageName(obj.FrameCount, obj.FrameRate);
+                Image image = Image.FromFile(obj.VideoPath + obj.CurrentName);
                 if (increase)
                 {
-                    obj.frame_count += 1;
+                    obj.FrameCount += 1;
                 }
                 _PictureBoxes[idx].BackgroundImage = image;
                 _ImageObjects[idx] = obj;
             }
             catch
             {
-                obj.frame_count -= 1;
+                obj.FrameCount -= 1;
                 _ImageRead[idx] = false;
             }
         }
@@ -105,7 +137,7 @@ namespace HumanDT.UI
         private string MediaPlay(int idx)
         {
             string[] sperables = _Config.VideoPath[idx].Split('\\');
-            string folder_name = sperables[sperables.Length - 1].Substring(0, sperables[sperables.Length - 1].LastIndexOf('.'));
+            string folder_name = sperables[sperables.Length - 1][..sperables[sperables.Length - 1].LastIndexOf('.')];
 
             string save_path = _Config.SavePath + folder_name + "\\";
 
@@ -116,7 +148,7 @@ namespace HumanDT.UI
             {
                 _Process.StandardInput.WriteLine("D:");
             }
-            _Process.StandardInput.WriteLine("cd " + System.IO.Path.GetFullPath(_Config.FilePath));
+            _Process.StandardInput.WriteLine("cd " + _Config.FilePath);
             _Process.StandardInput.WriteLine("python image_extractor.py --video_path \"" + _Config.VideoPath[idx] + "\" --save_path \"" + save_path);
 
             _Process.StandardInput.Close();
@@ -124,7 +156,7 @@ namespace HumanDT.UI
             return save_path;
         }
 
-        private string GetImageName(int count, int frame_rate)
+        private static string GetImageName(int count, int frame_rate)
         {
             double time_val = (double)count / (double)frame_rate;
             string time_str = string.Format("{0:00000.00000}", time_val);
@@ -140,35 +172,52 @@ namespace HumanDT.UI
             int framecount = 0;
             if (next)
             {
-                framecount = obj.frame_count + 1;
+                framecount = obj.FrameCount + 1;
             }
             else
             {
-                if (obj.frame_count > 0)
+                if (obj.FrameCount > 0)
                 {
-                    framecount = obj.frame_count - 1;
+                    framecount = obj.FrameCount - 1;
                 }
             }
+            _Focused = idx;
             LoadImage(idx, false, framecount);
+        }
+
+        private System.IO.DirectoryInfo GetParent(int Iteration, System.IO.DirectoryInfo Directory)
+        {
+            if (Iteration == 0)
+            {
+                return Directory;
+            }
+            else
+            {
+                return GetParent(--Iteration, Directory.Parent);
+            }
         }
 
         private void BtnStop1Click(object sender, EventArgs e)
         {
+            _Focused = 0;
             _ImageRead[0] = false;
         }
 
         private void BtnStop2Click(object sender, EventArgs e)
         {
+            _Focused = 1;
             _ImageRead[1] = false;
         }
 
         private void BtnStop3Click(object sender, EventArgs e)
         {
+            _Focused = 2;
             _ImageRead[2] = false;
         }
 
         private void BtnStop4Click(object sender, EventArgs e)
         {
+            _Focused = 3;
             _ImageRead[3] = false;
         }
 
@@ -241,7 +290,12 @@ namespace HumanDT.UI
 
         private void BtnSyncClick(object sender, EventArgs e)
         {
-
+            for (int i = 0; i < _Config.VideoPath.Count; i++)
+            {
+                var obj = _ImageObjects[i];
+                obj.StartCount = obj.FrameCount;
+                _ImageObjects[i] = obj;
+            }
         }
 
         private void AnalysisButtonClick(object sender, EventArgs e)
@@ -270,38 +324,40 @@ namespace HumanDT.UI
             _Process.Close();
             #endregion
 
-            DialogResult result = MessageBox.Show("실시간 분석 결과를 보겠습니까?", "최종 결과만 보기 위해서는 '아니요' 버튼을 눌러주세요.", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
+            if (btnVisible.Text.Equals("Visible Mode"))
             {
-                AnalysisForm mainForm = new AnalysisForm(_ImageObjects);
+                AnalysisForm mainForm = new(_ImageObjects);
                 mainForm.ShowDialog();
                 this.Close();
             }
-            else if (result == DialogResult.No)
+            else
             {
-                ProgressBar progressBar = new ProgressBar(_Process);
+                ProgressBar progressBar = new(_Process);
                 progressBar.Show();
             }
-
         }
 
         private void BtnPlay1Click(object sender, EventArgs e)
         {
+            _Focused = 0;
             _ImageRead[0] = true;
         }
 
         private void BtnPlay2Click(object sender, EventArgs e)
         {
+            _Focused = 1;
             _ImageRead[1] = true;
         }
 
         private void BtnPlay3Click(object sender, EventArgs e)
         {
+            _Focused = 2;
             _ImageRead[2] = true;
         }
 
         private void BtnPlay4Click(object sender, EventArgs e)
         {
+            _Focused = 3;
             _ImageRead[3] = true;
         }
 
@@ -332,16 +388,17 @@ namespace HumanDT.UI
                 {
                     ImageObject temp_object = new()
                     {
-                        frame_rate = 15,
-                        video_path = MediaPlay(i),
-                        frame_count = 0,
-                        current_name = GetImageName(0, 30)
+                        FrameRate = 15,
+                        VideoPath = MediaPlay(i),
+                        FrameCount = 0,
+                        CurrentName = GetImageName(0, 30)
                     };
                     _ImageObjects.Add(temp_object);
                     _ImageRead.Add(false);
 
                 }
                 TimerStart();
+                pnlView.Visible = true;
             }
         }
 
@@ -354,6 +411,37 @@ namespace HumanDT.UI
                     _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";
                 }
             }
+        }
+
+        private void BtnResetClick(object sender, EventArgs e)
+        {
+            for (int i = 0; i < _Config.VideoPath.Count; i++)
+            {
+                var obj = _ImageObjects[i];
+                obj.FrameCount = 0;
+                _ImageObjects[i] = obj;
+                LoadImage(i, false);
+            }
+        }
+
+        private void PicIdx1Click(object sender, EventArgs e)
+        {
+            _Focused = 0;
+        }
+
+        private void PicIdx2Click(object sender, EventArgs e)
+        {
+            _Focused = 1;
+        }
+
+        private void PicIdx3Click(object sender, EventArgs e)
+        {
+            _Focused = 2;
+        }
+
+        private void PicIdx4Click(object sender, EventArgs e)
+        {
+            _Focused = 3;
         }
     }
 }
