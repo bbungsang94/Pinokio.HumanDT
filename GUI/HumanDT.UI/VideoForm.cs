@@ -60,8 +60,8 @@ namespace HumanDT.UI
             System.IO.FileInfo[] filepath = directory.GetFiles("image_extractor.py", System.IO.SearchOption.AllDirectories);
             _Config.FilePath = filepath[0].DirectoryName;
 
-            _Config.CondaEnv = "VDT";
-            //_Config.CondaEnv = "";
+            //_Config.CondaEnv = "VDT";
+            _Config.CondaEnv = "";
 
             pnlView.Visible = false;
 
@@ -404,6 +404,7 @@ namespace HumanDT.UI
                 }
                 TimerStart();
                 pnlView.Visible = true;
+                SplashScreenManager.CloseForm();
             }
         }
 

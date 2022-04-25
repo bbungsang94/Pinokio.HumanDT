@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using OpenCvSharp;
 
 namespace HumanDT.UI
 {
@@ -16,7 +17,9 @@ namespace HumanDT.UI
         private bool _VideoPointsFlag;
         private bool _PlanPointsFlag;
         private Dictionary<int, int> _VideoPointsCounts;
+        private int _PlanPointsCount;
         private Dictionary<int, List<Tuple<float, float>>> _VideoPoints;
+        private List<Tuple<float, float>> _PlanPoints;
         private List<int> _XPonts;
         private List<int> _YPonts;
         private ConfigStruct _Config;
@@ -37,7 +40,7 @@ namespace HumanDT.UI
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
             _VideoInfoList = new List<VideoInfo>();
 
-            
+
 
             foreach (System.IO.FileInfo file in di.GetFiles("*.yaml"))
             {
@@ -60,11 +63,13 @@ namespace HumanDT.UI
             _VideoPoints.Add(1, new List<Tuple<float, float>>());
             _VideoPoints.Add(2, new List<Tuple<float, float>>());
             _VideoPoints.Add(3, new List<Tuple<float, float>>());
+            _PlanPoints = new List<Tuple<float, float>>();
 
             _VideoPointsCounts.Add(0, 0);
             _VideoPointsCounts.Add(1, 0);
             _VideoPointsCounts.Add(2, 0);
             _VideoPointsCounts.Add(3, 0);
+
         }
 
         private void InitializeImages()
@@ -72,9 +77,9 @@ namespace HumanDT.UI
             for (int idx = 0; idx < _ImageObjects.Count; idx++)
             {
                 var obj = _ImageObjects[idx];
-                
-                obj.Current_name = GetImageName(obj.Frame_count, obj.Frame_rate);
-                Image image = Image.FromFile(obj.Video_path + obj.Current_name);
+
+                obj.CurrentName = GetImageName(obj.FrameCount, obj.FrameRate);
+                Image image = Image.FromFile(obj.VideoPath + obj.CurrentName);
                 _PictureBoxes[idx].BackgroundImage = image;
                 _ImageObjects[idx] = obj;
             }
@@ -94,7 +99,7 @@ namespace HumanDT.UI
 
 
         }
-        
+
 
         private void Video_pictureBox_Click(object sender, EventArgs e)
         {
@@ -108,19 +113,19 @@ namespace HumanDT.UI
                         Graphics g = Video1_pictureBox.CreateGraphics();
                         if (_VideoPointsCounts[0] == 4)
                         {
-                            _VideoPoints[0].Clear();
-                            Video1_pictureBox.Image = null;
-                            _VideoPointsCounts[0] = 0;
-                            _VideoPointsFlag = false;
-                            btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
-                            btnVideoPoints.Enabled = true;
                             return;
+                            //_VideoPoints[0].Clear();
+                            //Video1_pictureBox.Image = null;
+                            //_VideoPointsCounts[0] = 0;
+                            //_VideoPointsFlag = false;
+                            //btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
+                            //btnVideoPoints.Enabled = true;
                         }
                         int x = Control.MousePosition.X;
                         int y = Control.MousePosition.Y;
 
-                        Point mousePos = new Point(x, y); //프로그램 내 좌표
-                        Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
+                        System.Drawing.Point mousePos = new System.Drawing.Point(x, y); //프로그램 내 좌표
+                        System.Drawing.Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
                         var test = Video1_pictureBox.Size;
                         var widthRate = (float)Video1_pictureBox.Size.Width / (float)Video1_pictureBox.BackgroundImage.Size.Width;
                         var heightRate = (float)Video1_pictureBox.Size.Height / (float)Video1_pictureBox.BackgroundImage.Size.Height;
@@ -138,7 +143,7 @@ namespace HumanDT.UI
                     }
                 }
             }
-            
+
         }
 
         private void Video_Points_Click(object sender, EventArgs e)
@@ -148,7 +153,10 @@ namespace HumanDT.UI
             Video1_pictureBox.Image = null;
             _VideoPointsCounts[0] = 0;
             btnVideoPoints.BackColor = Color.ForestGreen;
-            btnVideoPoints.Enabled = false;
+
+            _PlanPointsFlag = false;
+            btnPlanPoints.Enabled = true;
+            btnPlanPoints.BackColor = Color.FromArgb(210, 210, 210);
         }
 
         private void BtnPlanImportClick(object sender, EventArgs e)
@@ -158,7 +166,7 @@ namespace HumanDT.UI
                 openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;...";
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    pictureBox5.BackgroundImage = new Bitmap(openFileDialog.FileName);
+                    planPictureBox.BackgroundImage = new Bitmap(openFileDialog.FileName);
                 }
             }
         }
@@ -175,6 +183,60 @@ namespace HumanDT.UI
             btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
 
             _PlanPointsFlag = true;
+            btnPlanPoints.BackColor = Color.ForestGreen;
+
+            _PlanPoints.Clear();
+            planPictureBox.Image = null;
+            _PlanPointsCount = 0;
+        }
+
+        private void BtnPlanPictureClick(object sender, EventArgs e)
+        {
+            if (_PlanPointsFlag)
+            {
+                if (sender.GetType() == planPictureBox.GetType())
+                {
+                    PictureBox pic = (PictureBox)sender;
+                    if (((MouseEventArgs)e).Button == MouseButtons.Left)
+                    {
+                        Graphics g = planPictureBox.CreateGraphics();
+                        if (_PlanPointsCount == 4)
+                        {
+                            return;
+                            //_PlanPoints.Clear();
+                            //planPictureBox.Image = null;
+                            //_PlanPointsCount = 0;
+                            //_PlanPointsFlag = false;
+                            //btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
+                            //btnVideoPoints.Enabled = true;
+                        }
+                        int x = Control.MousePosition.X;
+                        int y = Control.MousePosition.Y;
+
+                        System.Drawing.Point mousePos = new System.Drawing.Point(x, y); //프로그램 내 좌표
+                        System.Drawing.Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
+                        var test = planPictureBox.Size;
+                        var widthRate = (float)planPictureBox.Size.Width / (float)planPictureBox.BackgroundImage.Size.Width;
+                        var heightRate = (float)planPictureBox.Size.Height / (float)planPictureBox.BackgroundImage.Size.Height;
+
+                        var xPoint = (float)mousePosPtoClient.X / widthRate;
+                        var yPoint = (float)mousePosPtoClient.Y / heightRate;
+
+                        _PlanPoints.Add(new Tuple<float, float>(xPoint, yPoint));
+                        _PlanPointsCount++;
+                        g.FillEllipse(Brushes.Blue, mousePosPtoClient.X - 5, mousePosPtoClient.Y - 5, 10, 10);
+                    }
+                    if (((MouseEventArgs)e).Button == MouseButtons.Right)
+                    {
+                        //do something
+                    }
+                }
+            }
+        }
+
+        private void BtnAnalysisClick(object sender, EventArgs e)
+        {
+
         }
     }
 }

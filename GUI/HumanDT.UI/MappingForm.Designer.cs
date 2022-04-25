@@ -36,11 +36,11 @@
             this.splitContainerControl4 = new DevExpress.XtraEditors.SplitContainerControl();
             this.Video3_pictureBox = new System.Windows.Forms.PictureBox();
             this.Video4_pictureBox = new System.Windows.Forms.PictureBox();
-            this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.planPictureBox = new System.Windows.Forms.PictureBox();
             this.button3 = new System.Windows.Forms.Button();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
-            this.btnReset = new System.Windows.Forms.Button();
+            this.btnAnalysis = new System.Windows.Forms.Button();
             this.Analysis_button = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.btnPlanPoints = new System.Windows.Forms.Button();
@@ -74,7 +74,7 @@
             this.splitContainerControl4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Video3_pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Video4_pictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.planPictureBox)).BeginInit();
             this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -90,7 +90,7 @@
             // 
             // splitContainerControl1.Panel2
             // 
-            this.splitContainerControl1.Panel2.Controls.Add(this.pictureBox5);
+            this.splitContainerControl1.Panel2.Controls.Add(this.planPictureBox);
             this.splitContainerControl1.Panel2.Text = "Panel2";
             this.splitContainerControl1.Size = new System.Drawing.Size(1548, 1056);
             this.splitContainerControl1.SplitterPosition = 1200;
@@ -199,16 +199,17 @@
             this.Video4_pictureBox.TabIndex = 0;
             this.Video4_pictureBox.TabStop = false;
             // 
-            // pictureBox5
+            // planPictureBox
             // 
-            this.pictureBox5.BackgroundImage = global::HumanDT.UI.Properties.Resources.plan3_15;
-            this.pictureBox5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pictureBox5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox5.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox5.Name = "pictureBox5";
-            this.pictureBox5.Size = new System.Drawing.Size(338, 1056);
-            this.pictureBox5.TabIndex = 0;
-            this.pictureBox5.TabStop = false;
+            this.planPictureBox.BackgroundImage = global::HumanDT.UI.Properties.Resources.plan3_15;
+            this.planPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.planPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.planPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.planPictureBox.Name = "planPictureBox";
+            this.planPictureBox.Size = new System.Drawing.Size(338, 1056);
+            this.planPictureBox.TabIndex = 0;
+            this.planPictureBox.TabStop = false;
+            this.planPictureBox.Click += new System.EventHandler(this.BtnPlanPictureClick);
             // 
             // button3
             // 
@@ -223,7 +224,7 @@
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
             this.pnlHeader.Controls.Add(this.button1);
-            this.pnlHeader.Controls.Add(this.btnReset);
+            this.pnlHeader.Controls.Add(this.btnAnalysis);
             this.pnlHeader.Controls.Add(this.Analysis_button);
             this.pnlHeader.Controls.Add(this.button4);
             this.pnlHeader.Controls.Add(this.btnPlanPoints);
@@ -248,15 +249,16 @@
             // 
             // btnReset
             // 
-            this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
-            this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.btnReset.Location = new System.Drawing.Point(47, 477);
-            this.btnReset.Name = "btnReset";
-            this.btnReset.Size = new System.Drawing.Size(227, 55);
-            this.btnReset.TabIndex = 4;
-            this.btnReset.Text = "Apply";
-            this.btnReset.UseVisualStyleBackColor = false;
+            this.btnAnalysis.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnAnalysis.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnAnalysis.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnAnalysis.Location = new System.Drawing.Point(47, 477);
+            this.btnAnalysis.Name = "btnReset";
+            this.btnAnalysis.Size = new System.Drawing.Size(227, 55);
+            this.btnAnalysis.TabIndex = 4;
+            this.btnAnalysis.Text = "Apply";
+            this.btnAnalysis.UseVisualStyleBackColor = false;
+            this.btnAnalysis.Click += new System.EventHandler(this.BtnAnalysisClick);
             // 
             // Analysis_button
             // 
@@ -281,12 +283,12 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.BtnCloseClick);
             // 
-            // btnTotalStop
+            // btnPlanPoints
             // 
             this.btnPlanPoints.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnPlanPoints.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnPlanPoints.Location = new System.Drawing.Point(47, 395);
-            this.btnPlanPoints.Name = "btnTotalStop";
+            this.btnPlanPoints.Name = "btnPlanPoints";
             this.btnPlanPoints.Size = new System.Drawing.Size(227, 55);
             this.btnPlanPoints.TabIndex = 3;
             this.btnPlanPoints.Text = "Plan Points";
@@ -358,7 +360,7 @@
             this.splitContainerControl4.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Video3_pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Video4_pictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.planPictureBox)).EndInit();
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
             this.ResumeLayout(false);
@@ -375,7 +377,7 @@
         private DevExpress.XtraEditors.SplitContainerControl splitContainerControl4;
         private System.Windows.Forms.PictureBox Video3_pictureBox;
         private System.Windows.Forms.PictureBox Video4_pictureBox;
-        private System.Windows.Forms.PictureBox pictureBox5;
+        private System.Windows.Forms.PictureBox planPictureBox;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Panel pnlHeader;
         private System.Windows.Forms.Button Analysis_button;
@@ -383,7 +385,7 @@
         private System.Windows.Forms.Button btnPlanPoints;
         private System.Windows.Forms.Button btnVideoPoints;
         private System.Windows.Forms.Label lbHeader;
-        private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Button btnAnalysis;
         private System.Windows.Forms.Button button1;
     }
 }
