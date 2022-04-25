@@ -37,10 +37,15 @@
             this.Video3_pictureBox = new System.Windows.Forms.PictureBox();
             this.Video4_pictureBox = new System.Windows.Forms.PictureBox();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
-            this.splitContainerControl5 = new DevExpress.XtraEditors.SplitContainerControl();
             this.button3 = new System.Windows.Forms.Button();
-            this.Plan_Points = new System.Windows.Forms.Button();
-            this.Video_Points = new System.Windows.Forms.Button();
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnReset = new System.Windows.Forms.Button();
+            this.Analysis_button = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
+            this.btnPlanPoints = new System.Windows.Forms.Button();
+            this.btnVideoPoints = new System.Windows.Forms.Button();
+            this.lbHeader = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1.Panel1)).BeginInit();
             this.splitContainerControl1.Panel1.SuspendLayout();
@@ -70,18 +75,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.Video3_pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Video4_pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl5.Panel1)).BeginInit();
-            this.splitContainerControl5.Panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl5.Panel2)).BeginInit();
-            this.splitContainerControl5.Panel2.SuspendLayout();
-            this.splitContainerControl5.SuspendLayout();
+            this.pnlHeader.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainerControl1
             // 
-            this.splitContainerControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainerControl1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainerControl1.Location = new System.Drawing.Point(344, 12);
             this.splitContainerControl1.Name = "splitContainerControl1";
             // 
             // splitContainerControl1.Panel1
@@ -93,8 +92,8 @@
             // 
             this.splitContainerControl1.Panel2.Controls.Add(this.pictureBox5);
             this.splitContainerControl1.Panel2.Text = "Panel2";
-            this.splitContainerControl1.Size = new System.Drawing.Size(1918, 1018);
-            this.splitContainerControl1.SplitterPosition = 1600;
+            this.splitContainerControl1.Size = new System.Drawing.Size(1548, 1056);
+            this.splitContainerControl1.SplitterPosition = 1200;
             this.splitContainerControl1.TabIndex = 0;
             // 
             // splitContainerControl2
@@ -113,7 +112,7 @@
             // 
             this.splitContainerControl2.Panel2.Controls.Add(this.splitContainerControl4);
             this.splitContainerControl2.Panel2.Text = "Panel2";
-            this.splitContainerControl2.Size = new System.Drawing.Size(1600, 1018);
+            this.splitContainerControl2.Size = new System.Drawing.Size(1200, 1056);
             this.splitContainerControl2.SplitterPosition = 524;
             this.splitContainerControl2.TabIndex = 0;
             // 
@@ -132,8 +131,8 @@
             // 
             this.splitContainerControl3.Panel2.Controls.Add(this.Video2_pictureBox);
             this.splitContainerControl3.Panel2.Text = "Panel2";
-            this.splitContainerControl3.Size = new System.Drawing.Size(1600, 524);
-            this.splitContainerControl3.SplitterPosition = 800;
+            this.splitContainerControl3.Size = new System.Drawing.Size(1200, 524);
+            this.splitContainerControl3.SplitterPosition = 600;
             this.splitContainerControl3.TabIndex = 0;
             // 
             // Video1_pictureBox
@@ -143,10 +142,10 @@
             this.Video1_pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Video1_pictureBox.Location = new System.Drawing.Point(0, 0);
             this.Video1_pictureBox.Name = "Video1_pictureBox";
-            this.Video1_pictureBox.Size = new System.Drawing.Size(800, 524);
+            this.Video1_pictureBox.Size = new System.Drawing.Size(600, 524);
             this.Video1_pictureBox.TabIndex = 0;
             this.Video1_pictureBox.TabStop = false;
-            this.Video1_pictureBox.Click += new System.EventHandler(this.Video1_pictureBox_Click);
+            this.Video1_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // Video2_pictureBox
             // 
@@ -155,7 +154,7 @@
             this.Video2_pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Video2_pictureBox.Location = new System.Drawing.Point(0, 0);
             this.Video2_pictureBox.Name = "Video2_pictureBox";
-            this.Video2_pictureBox.Size = new System.Drawing.Size(790, 524);
+            this.Video2_pictureBox.Size = new System.Drawing.Size(590, 524);
             this.Video2_pictureBox.TabIndex = 0;
             this.Video2_pictureBox.TabStop = false;
             // 
@@ -174,8 +173,8 @@
             // 
             this.splitContainerControl4.Panel2.Controls.Add(this.Video4_pictureBox);
             this.splitContainerControl4.Panel2.Text = "Panel2";
-            this.splitContainerControl4.Size = new System.Drawing.Size(1600, 484);
-            this.splitContainerControl4.SplitterPosition = 800;
+            this.splitContainerControl4.Size = new System.Drawing.Size(1200, 522);
+            this.splitContainerControl4.SplitterPosition = 600;
             this.splitContainerControl4.TabIndex = 0;
             // 
             // Video3_pictureBox
@@ -185,7 +184,7 @@
             this.Video3_pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Video3_pictureBox.Location = new System.Drawing.Point(0, 0);
             this.Video3_pictureBox.Name = "Video3_pictureBox";
-            this.Video3_pictureBox.Size = new System.Drawing.Size(800, 484);
+            this.Video3_pictureBox.Size = new System.Drawing.Size(600, 522);
             this.Video3_pictureBox.TabIndex = 0;
             this.Video3_pictureBox.TabStop = false;
             // 
@@ -196,7 +195,7 @@
             this.Video4_pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Video4_pictureBox.Location = new System.Drawing.Point(0, 0);
             this.Video4_pictureBox.Name = "Video4_pictureBox";
-            this.Video4_pictureBox.Size = new System.Drawing.Size(790, 484);
+            this.Video4_pictureBox.Size = new System.Drawing.Size(590, 522);
             this.Video4_pictureBox.TabIndex = 0;
             this.Video4_pictureBox.TabStop = false;
             // 
@@ -207,31 +206,9 @@
             this.pictureBox5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox5.Location = new System.Drawing.Point(0, 0);
             this.pictureBox5.Name = "pictureBox5";
-            this.pictureBox5.Size = new System.Drawing.Size(308, 1018);
+            this.pictureBox5.Size = new System.Drawing.Size(338, 1056);
             this.pictureBox5.TabIndex = 0;
             this.pictureBox5.TabStop = false;
-            // 
-            // splitContainerControl5
-            // 
-            this.splitContainerControl5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainerControl5.Horizontal = false;
-            this.splitContainerControl5.Location = new System.Drawing.Point(0, 0);
-            this.splitContainerControl5.Name = "splitContainerControl5";
-            // 
-            // splitContainerControl5.Panel1
-            // 
-            this.splitContainerControl5.Panel1.Controls.Add(this.button3);
-            this.splitContainerControl5.Panel1.Controls.Add(this.Plan_Points);
-            this.splitContainerControl5.Panel1.Controls.Add(this.Video_Points);
-            this.splitContainerControl5.Panel1.Text = "Panel1";
-            // 
-            // splitContainerControl5.Panel2
-            // 
-            this.splitContainerControl5.Panel2.Controls.Add(this.splitContainerControl1);
-            this.splitContainerControl5.Panel2.Text = "Panel2";
-            this.splitContainerControl5.Size = new System.Drawing.Size(1918, 1048);
-            this.splitContainerControl5.SplitterPosition = 20;
-            this.splitContainerControl5.TabIndex = 1;
             // 
             // button3
             // 
@@ -242,34 +219,116 @@
             this.button3.Text = "Apply";
             this.button3.UseVisualStyleBackColor = true;
             // 
-            // Plan_Points
+            // pnlHeader
             // 
-            this.Plan_Points.Location = new System.Drawing.Point(1610, 0);
-            this.Plan_Points.Name = "Plan_Points";
-            this.Plan_Points.Size = new System.Drawing.Size(84, 23);
-            this.Plan_Points.TabIndex = 1;
-            this.Plan_Points.Text = "Plan Points";
-            this.Plan_Points.UseVisualStyleBackColor = true;
-            this.Plan_Points.Click += new System.EventHandler(this.Plan_Points_Click);
+            this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlHeader.Controls.Add(this.button1);
+            this.pnlHeader.Controls.Add(this.btnReset);
+            this.pnlHeader.Controls.Add(this.Analysis_button);
+            this.pnlHeader.Controls.Add(this.button4);
+            this.pnlHeader.Controls.Add(this.btnPlanPoints);
+            this.pnlHeader.Controls.Add(this.btnVideoPoints);
+            this.pnlHeader.Controls.Add(this.lbHeader);
+            this.pnlHeader.Location = new System.Drawing.Point(12, 12);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(326, 1056);
+            this.pnlHeader.TabIndex = 3;
             // 
-            // Video_Points
+            // button1
             // 
-            this.Video_Points.Location = new System.Drawing.Point(0, 0);
-            this.Video_Points.Name = "Video_Points";
-            this.Video_Points.Size = new System.Drawing.Size(94, 23);
-            this.Video_Points.TabIndex = 0;
-            this.Video_Points.Text = "Video Points";
-            this.Video_Points.UseVisualStyleBackColor = true;
-            this.Video_Points.Click += new System.EventHandler(this.Video_Points_Click);
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.button1.Location = new System.Drawing.Point(47, 232);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(227, 55);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "Plan Import";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.BtnPlanImportClick);
+            // 
+            // btnReset
+            // 
+            this.btnReset.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.btnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnReset.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnReset.Location = new System.Drawing.Point(47, 477);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(227, 55);
+            this.btnReset.TabIndex = 4;
+            this.btnReset.Text = "Apply";
+            this.btnReset.UseVisualStyleBackColor = false;
+            // 
+            // Analysis_button
+            // 
+            this.Analysis_button.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.Analysis_button.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.Analysis_button.Location = new System.Drawing.Point(47, 856);
+            this.Analysis_button.Name = "Analysis_button";
+            this.Analysis_button.Size = new System.Drawing.Size(227, 55);
+            this.Analysis_button.TabIndex = 5;
+            this.Analysis_button.Text = "Analysis";
+            this.Analysis_button.UseVisualStyleBackColor = true;
+            // 
+            // button4
+            // 
+            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.button4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.button4.Location = new System.Drawing.Point(47, 947);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(227, 55);
+            this.button4.TabIndex = 6;
+            this.button4.Text = "Close";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.BtnCloseClick);
+            // 
+            // btnTotalStop
+            // 
+            this.btnPlanPoints.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnPlanPoints.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnPlanPoints.Location = new System.Drawing.Point(47, 395);
+            this.btnPlanPoints.Name = "btnTotalStop";
+            this.btnPlanPoints.Size = new System.Drawing.Size(227, 55);
+            this.btnPlanPoints.TabIndex = 3;
+            this.btnPlanPoints.Text = "Plan Points";
+            this.btnPlanPoints.UseVisualStyleBackColor = true;
+            this.btnPlanPoints.Click += new System.EventHandler(this.BtnPlanPointsClick);
+            // 
+            // btnVideoPoints
+            // 
+            this.btnVideoPoints.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.btnVideoPoints.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.btnVideoPoints.Location = new System.Drawing.Point(47, 313);
+            this.btnVideoPoints.Name = "btnVideoPoints";
+            this.btnVideoPoints.Size = new System.Drawing.Size(227, 55);
+            this.btnVideoPoints.TabIndex = 2;
+            this.btnVideoPoints.Text = "Video Points";
+            this.btnVideoPoints.UseVisualStyleBackColor = true;
+            this.btnVideoPoints.Click += new System.EventHandler(this.Video_Points_Click);
+            // 
+            // lbHeader
+            // 
+            this.lbHeader.AutoSize = true;
+            this.lbHeader.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbHeader.ForeColor = System.Drawing.Color.Gainsboro;
+            this.lbHeader.Location = new System.Drawing.Point(3, 21);
+            this.lbHeader.Name = "lbHeader";
+            this.lbHeader.Size = new System.Drawing.Size(322, 46);
+            this.lbHeader.TabIndex = 0;
+            this.lbHeader.Text = "Mapping Setting";
+            this.lbHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MappingForm
             // 
+            this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.Appearance.Options.UseBackColor = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1918, 1048);
-            this.Controls.Add(this.splitContainerControl5);
+            this.ClientSize = new System.Drawing.Size(1904, 1064);
+            this.ControlBox = false;
+            this.Controls.Add(this.splitContainerControl1);
+            this.Controls.Add(this.pnlHeader);
             this.Name = "MappingForm";
-            this.Text = "MappingFormcs";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1.Panel1)).EndInit();
             this.splitContainerControl1.Panel1.ResumeLayout(false);
@@ -300,12 +359,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.Video3_pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.Video4_pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl5.Panel1)).EndInit();
-            this.splitContainerControl5.Panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl5.Panel2)).EndInit();
-            this.splitContainerControl5.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl5)).EndInit();
-            this.splitContainerControl5.ResumeLayout(false);
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlHeader.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -321,9 +376,14 @@
         private System.Windows.Forms.PictureBox Video3_pictureBox;
         private System.Windows.Forms.PictureBox Video4_pictureBox;
         private System.Windows.Forms.PictureBox pictureBox5;
-        private DevExpress.XtraEditors.SplitContainerControl splitContainerControl5;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button Plan_Points;
-        private System.Windows.Forms.Button Video_Points;
+        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.Button Analysis_button;
+        private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button btnPlanPoints;
+        private System.Windows.Forms.Button btnVideoPoints;
+        private System.Windows.Forms.Label lbHeader;
+        private System.Windows.Forms.Button btnReset;
+        private System.Windows.Forms.Button button1;
     }
 }

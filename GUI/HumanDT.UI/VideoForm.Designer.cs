@@ -670,6 +670,7 @@
             this.Controls.Add(this.pnlProperty);
             this.Controls.Add(this.pnlHeader);
             this.Controls.Add(this.pnlView);
+            this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "VideoForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using Timer = System.Windows.Forms.Timer;
 using System.Drawing;
+using DevExpress.XtraSplashScreen;
 
 namespace HumanDT.UI
 {
@@ -239,7 +240,7 @@ namespace HumanDT.UI
             _Process.StandardInput.WriteLine("python image_extractor.py --video_path \"" + _Config.VideoPath[idx] + "\" --save_path \"" + save_path);
 
             _Process.StandardInput.Close();
-            Thread.Sleep(3000);
+            Thread.Sleep(3500);
             return save_path;
         }
 
@@ -388,7 +389,7 @@ namespace HumanDT.UI
 
         private void AnalysisButtonClick(object sender, EventArgs e)
         {
-            MappingForm mappingForm = new MappingForm(_Config);
+            MappingForm mappingForm = new MappingForm(_Config, _ImageObjects);
             mappingForm.ShowDialog();
             this.Close();
 
@@ -462,6 +463,9 @@ namespace HumanDT.UI
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
+                var currentPath = System.IO.Directory.GetCurrentDirectory();
+                string newPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(currentPath, @"..\..\..\..\..\..\"));
+                folderBrowserDialog.SelectedPath = newPath;
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(folderBrowserDialog.SelectedPath);
@@ -473,6 +477,7 @@ namespace HumanDT.UI
                         }
                     }
                 }
+                SplashScreenManager.ShowForm(typeof(ProgressForm));
                 for (int i = 0; i < _Config.VideoPath.Count; i++)
                 {
                     ImageObject temp_object = new()
@@ -497,6 +502,9 @@ namespace HumanDT.UI
         {
             using (FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog())
             {
+                var currentPath = System.IO.Directory.GetCurrentDirectory();
+                string newPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(currentPath, @"..\..\..\..\..\..\"));
+                folderBrowserDialog.SelectedPath = newPath;
                 if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
                 {
                     _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";

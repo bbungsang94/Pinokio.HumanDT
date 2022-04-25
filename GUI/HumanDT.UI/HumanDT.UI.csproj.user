@@ -11,11 +11,22 @@
     <Compile Update="ProgressBar.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="ProgressForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ProgressForm.Designer.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="StartForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="VideoForm.cs">
       <SubType>Form</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="ProgressForm.resx">
+      <SubType>Code</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
