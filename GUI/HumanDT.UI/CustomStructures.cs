@@ -22,6 +22,12 @@ namespace HumanDT.UI
         public List<string> VideoPath;
         public string SavePath;
     }
+    public struct VideoInfo
+    {
+        public double FrameRate { get; set; }
+        public string VideoName { get; set; }
+        public List<int> VideoSize { get; set; }
+    }
     internal class CustomStructures
     {
     }

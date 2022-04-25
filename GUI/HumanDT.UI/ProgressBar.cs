@@ -14,10 +14,10 @@ namespace HumanDT.UI
 {
     public partial class ProgressBar : DevExpress.XtraEditors.XtraForm
     {
-        private Process _process;
+        private Process _Process;
         public ProgressBar(Process process)
         {
-            _process = process;
+            _Process = process;
             InitializeComponent();
 #if DEBUG
             this.TopMost = true;
@@ -26,7 +26,7 @@ namespace HumanDT.UI
 
         private void Cancel_button_Click(object sender, EventArgs e)
         {
-            _process.Close();
+            _Process.Close();
             this.Close();
         }
     }

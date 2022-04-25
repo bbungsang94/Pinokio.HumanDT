@@ -246,6 +246,10 @@ namespace HumanDT.UI
 
         private void AnalysisButtonClick(object sender, EventArgs e)
         {
+            MappingForm mappingForm = new MappingForm(_Config);
+            mappingForm.ShowDialog();
+            this.Close();
+
             #region Python 실행
             _Process.Start();
 
