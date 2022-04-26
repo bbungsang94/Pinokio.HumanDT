@@ -58,6 +58,7 @@ class StateProcessor:
                              'Put': ['Empty_Move'],
                              'Empty_Move': ['In', 'Load_Move', 'NA'],
                              'NA': ['Load_Move', 'Empty_Move']}
+
         self.OldStates = dict()
         self.T_now = 0
         self.Monitor = StateMonitor()
@@ -147,7 +148,7 @@ class StateDecisionMaker:
             if not enter:
                 if x > max_x:
                     return "Ready"
-                if x < min_x:
+                else:
                     return "Move"
             else:
                 return "In"
