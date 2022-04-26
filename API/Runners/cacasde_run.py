@@ -118,7 +118,7 @@ class CascadeRunner(AbstractRunner):
         release_flag = False
         for iteration in range(0, len(self.__VideoHandles)):
             frame_count, handle = self.__VideoHandles[iteration]
-            if frame_count is -1:
+            if frame_count == -1:
                 _, np_bgr_image = handle.pop()
             else:
                 image_path = handle.make_image_name(frame_count)
