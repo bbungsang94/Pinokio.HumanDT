@@ -118,20 +118,21 @@ class ColorTracker(AbstractTracker):
         width_min = int(min(box[1], box[3]))
         width_max = int(max(box[1], box[3]))
         roi = img[int((height_max + height_min) / 2):height_max, width_min:width_max]
-        im = Image.fromarray(roi)
+        # im = Image.fromarray(roi)
         roi_hsv = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
         assign_id = len(self.ColorID['hsv'])
         ProjectionManager.ColorChecker.new_line(video_id=self.Video_idx)
-        im.save(ProjectionManager.ColorChecker.SavePath + str(ProjectionManager.ColorChecker.RowCount - 1) + "/roi.jpeg")
+        # im.save(ProjectionManager.ColorChecker.SavePath + str(ProjectionManager.ColorChecker.RowCount - 1) + "/roi.jpeg")
         for key, value in enumerate(self.ColorID['hsv']):
             if self.__is_exist_tracker(key=key):
                 img_mask = cv2.inRange(src=roi_hsv,
                                        lowerb=tuple(self.ColorID['lower'][key]),
                                        upperb=tuple(self.ColorID['upper'][key]))
-                img_result = cv2.bitwise_and(roi, roi, mask=img_mask)
-                im = Image.fromarray(img_result)
-                im.save(ProjectionManager.ColorChecker.SavePath + str(ProjectionManager.ColorChecker.RowCount - 1) +
-                        "/Result" + str(key) + ".jpeg")
+                # image debug할때 켜야함
+                # img_result = cv2.bitwise_and(roi, roi, mask=img_mask)
+                # im = Image.fromarray(img_result)
+                # im.save(ProjectionManager.ColorChecker.SavePath + str(ProjectionManager.ColorChecker.RowCount - 1) +
+                #         "/Result" + str(key) + ".jpeg")
 
                 # pre-assign section
                 pixels = int(np.sum(img_mask) / 255)

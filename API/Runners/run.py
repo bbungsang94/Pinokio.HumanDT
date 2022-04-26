@@ -49,11 +49,11 @@ def run_sequential(args, log=None):
         runner.tracking(detect_result, image)
         print("Tracking time: ", (time.time() - begin) * 1000, "ms")
         begin = time.time()
-        runner.post_processing(paths, whole_image=image)
-        print("Post processing time: ", (time.time() - begin) * 1000, "ms")
-        begin = time.time()
-        runner.interaction_processing(box_anchors, None)
+        state_trackers = runner.interaction_processing(box_anchors, None)
         print("Interaction time: ", (time.time() - begin) * 1000, "ms")
+        begin = time.time()
+        runner.post_processing(path=paths, state_trackers=state_trackers)
+        print("Post processing time: ", (time.time() - begin) * 1000, "ms")
 
 
 def args_sanity_check(config, _log):

@@ -33,14 +33,6 @@ if __name__ == "__main__":
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['run_name'] = config['run_name'] + '/'
 
-    # if config['run_mode'] != 'Single':
-        # int(sqrt(counter)) - 1로 하면됨
-        # video_list = {0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
-        #                   "LOADING DOCK F3 Rampa 11-12.avi",
-        #                   "LOADING DOCK F3 Rampa 9-10.avi"]
-        #               }
-        # provide = config['provide']
-        # config[provide]['list'] = video_list
     clear_folder(folder_list=[config['image_path'],
                               config['detected_path'],
                               config['tracking_path'],
@@ -49,7 +41,3 @@ if __name__ == "__main__":
                  body=config['run_name'],
                  history=config['history'])
     run.standard_run(config)
-
-# Hardware 요구사항, 컨셉, 롤 -> 차주 POC
-# 작업세분화 + 기존: 색, 모니터링, 속도
-# 요구사항 분석, 진행 마일스톤, 업무내용, 정량적 평가, 릴리즈방식, WSC 논문 요청인원, 양식, 파일첨부
