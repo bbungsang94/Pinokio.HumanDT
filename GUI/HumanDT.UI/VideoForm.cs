@@ -86,8 +86,8 @@ namespace HumanDT.UI
             directory = GetParent(6, directory);
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
-            //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "";
+            _Config.CondaEnv = "VDT";
+            //_Config.CondaEnv = "";
 
             
 
@@ -389,11 +389,11 @@ namespace HumanDT.UI
 
         private void BtnSyncClick(object sender, EventArgs e)
         {
-            //foreach (Process process in Process.GetProcesses())
-            //{
-            //    if (process.ProcessName.Contains("python"))
-            //        process.Kill();
-            //}
+            foreach (Process process in Process.GetProcesses())
+            {
+                if (process.ProcessName.Contains("python"))
+                    process.Kill();
+            }
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
             List<string> yamlList = new List<string>();
             foreach (System.IO.FileInfo file in di.GetFiles("*.yaml"))
