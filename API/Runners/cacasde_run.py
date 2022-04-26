@@ -145,9 +145,9 @@ class CascadeRunner(AbstractRunner):
         result_list = []
         box_anchors = []
         for image in tensor_image:
-            begin = time.time()
+            # begin = time.time()
             raw_image, veh_info, box_info, person_info = self._PrimaryDetector.detection(image)
-            print("Inference time: ", (time.time() - begin) * 1000, "ms")
+            # print("Inference time: ", (time.time() - begin) * 1000, "ms")
             detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
             (box_boxes, _, _) = box_info
             (veh_boxes, veh_classes, veh_scores) = veh_info
