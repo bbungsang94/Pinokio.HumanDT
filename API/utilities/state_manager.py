@@ -15,7 +15,7 @@ class StateMonitor:
             self.Calculator[self.Mapper[key]] = []
 
     def new_object(self):
-        object_name = 'ForkLift_' + str(len(self.Object_list) + 1)
+        object_name = 'ForkLift_' + str(len(self.Object_list))
         self.Object_list.append(object_name)
         for key, value in self.Calculator.items():
             value.append(0.0)
