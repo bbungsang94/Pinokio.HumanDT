@@ -31,8 +31,13 @@ namespace HumanDT.UI
     }
     public struct MappingMatrix
     {
-        public Dictionary<int, List<float[]>> Seperates { get; set; }
+        public Dictionary<int, List<float[]>> Division { get; set; }
         public Dictionary<int, List<double[]>> Matrices { get; set; }
+    }
+    
+    public struct DockInfo
+    {
+        public List<double[]> DockRegion { get; set; }
     }
 
     internal class CustomStructures

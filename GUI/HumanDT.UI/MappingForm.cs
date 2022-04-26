@@ -21,6 +21,7 @@ namespace HumanDT.UI
         private List<Tuple<float, float>> _VideoPoints;
         private List<Tuple<float, float>> _PlanPoints;
         private Dictionary<int, List<Point2f[]>> _FixedVideoPoints;
+        private List<Point2f[]> _FixedPlanPoints;
         private int _TargetVideoIdx;
         private Dictionary<int, List<double[]>> _MappingMatrix;
         private ConfigStruct _Config;
@@ -69,6 +70,8 @@ namespace HumanDT.UI
             _FixedVideoPoints[1] = new List<Point2f[]>();
             _FixedVideoPoints[2] = new List<Point2f[]>();
             _FixedVideoPoints[3] = new List<Point2f[]>();
+
+            _FixedPlanPoints = new List<Point2f[]>();
         }
 
         private void InitializeImages()
@@ -275,6 +278,7 @@ namespace HumanDT.UI
 
                 _MappingMatrix[_TargetVideoIdx].Add(copied);
                 _FixedVideoPoints[_TargetVideoIdx].Add(srcPoint);
+                _FixedPlanPoints.Add(dstPoint);
 
                 _PictureBoxes[_TargetVideoIdx].Image = null;
                 planPictureBox.Image = null;
@@ -297,47 +301,54 @@ namespace HumanDT.UI
             {
                 if (matrices.Count == 0) return;
             }
-            var seperates = GetSeperates();
+            var division = GetDivision();
             var mappingMatrices = GetMatrices();
             
             MappingMatrix mappingMatrix = new MappingMatrix()
             {
-                Seperates = seperates,
+                Division = division,
                 Matrices = mappingMatrices
             };
             var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
             var yaml = serializer.Serialize(mappingMatrix);
             System.IO.File.WriteAllText(_MatrixPath + "\\MappingMatrix.yaml", yaml);
             
-            
+            List<double[]> docksInfo = new List<double[]>();
+            foreach (var points in _FixedPlanPoints)
+            {
+                docksInfo.Add(new double[] { points[1].X, points[0].Y, points[3].X, points[2].Y});
+            }
+            DockInfo dockInfo = new DockInfo() { DockRegion = docksInfo };
+            var dockYaml = serializer.Serialize(dockInfo);
+            System.IO.File.WriteAllText(_MatrixPath + "\\DockEntrance.yaml", dockYaml);
         }
-        private Dictionary<int, List<float[]>> GetSeperates()
+        private Dictionary<int, List<float[]>> GetDivision()
         {
             float[] parameter = null;
-            Dictionary<int, List<float[]>> seperates = new Dictionary<int, List<float[]>>();
-            seperates[0] = new List<float[]>();
-            seperates[1] = new List<float[]>();
-            seperates[2] = new List<float[]>();
-            seperates[3] = new List<float[]>();
+            Dictionary<int, List<float[]>> divisions = new Dictionary<int, List<float[]>>();
+            divisions[0] = new List<float[]>();
+            divisions[1] = new List<float[]>();
+            divisions[2] = new List<float[]>();
+            divisions[3] = new List<float[]>();
 
             foreach (var idx in _FixedVideoPoints.Keys)
             {
                 if (_FixedVideoPoints[idx].Count == 2)
                 {
                     parameter = GetParameter(_FixedVideoPoints[idx][0], _FixedVideoPoints[idx][1]);
-                    seperates[idx].Add(parameter);
+                    divisions[idx].Add(parameter);
                 }
                 else if (_FixedVideoPoints[idx].Count == 3)
                 {
                     parameter = GetParameter(_FixedVideoPoints[idx][0], _FixedVideoPoints[idx][1]);
-                    seperates[idx].Add(parameter);
+                    divisions[idx].Add(parameter);
                     parameter = GetParameter(_FixedVideoPoints[idx][1], _FixedVideoPoints[idx][2]);
-                    seperates[idx].Add(parameter);
+                    divisions[idx].Add(parameter);
                 }
             }
             
 
-            return seperates;
+            return divisions;
         }
 
         private Dictionary<int, List<double[]>> GetMatrices()

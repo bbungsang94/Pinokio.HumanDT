@@ -137,7 +137,7 @@ class StateDecisionMaker:
         return decision_results
 
     def check_entrance(self, x, y):
-        for key, value in self.region_info.items():
+        for value in self.region_info:
             (left, top, right, bottom) = value
             max_y = max(top, bottom)
             min_y = min(top, bottom)
