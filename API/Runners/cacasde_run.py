@@ -172,15 +172,13 @@ class CascadeRunner(AbstractRunner):
 
         self.TrackerManager.post_tracking(target_trackers)
 
-    def post_processing(self, path, whole_image):
+    def post_processing(self, path, state_trackers):
         plan_image = self.OutputImages['plan_image']
-        trackers = self.TrackerManager.get_single_trackers()
-        for idx in range(len(self.OutputImages['raw_image'])):
-            np_image = whole_image[idx].numpy()
-            if idx in trackers:
-                for tracker in trackers[idx]:
+        for video_idx, np_image in enumerate(self.OutputImages['detected_image']):
+            for idx, state, tracker in state_trackers:
+                if idx is video_idx:
                     color = self.__ImageHandle.Colors[tracker.id % len(self.__ImageHandle.Colors)]
-                    np_image = draw_box_label(np_image, tracker.box, trk_id=tracker.id, box_color=color)
+                    np_image = draw_box_label(np_image, tracker.box, trk_id=tracker.id, box_color=color, tag=state)
                     x, y = ProjectionManager.transform(tracker.box, idx)
                     plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
             self.OutputImages['tracking_image'].append(np_image)
@@ -197,8 +195,8 @@ class CascadeRunner(AbstractRunner):
                 ImageManager.save_image(self.OutputImages['detected_image'][iteration],
                                         path['detected_path'] + file_name)
                 # Tracking
-                ImageManager.save_tensor(self.OutputImages['tracking_image'][iteration],
-                                         path['tracking_path'] + file_name)
+                ImageManager.save_image(self.OutputImages['tracking_image'][iteration],
+                                        path['tracking_path'] + file_name)
 
             frame_count, handle = self.__VideoHandles[0]
             # Plan
@@ -214,13 +212,26 @@ class CascadeRunner(AbstractRunner):
                              'tracking_image': [], 'plan_image': self.OutputImages['plan_image']}
 
     def interaction_processing(self, box_anchors, deleted_trackers=None):
-        results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_single_trackers(),
-                                                 boxes_list=box_anchors)
+        active_trackers = self.TrackerManager.get_single_trackers()
+        results, state_trackers = self.__interactor.get_decision(trackers_list=active_trackers,
+                                                                 boxes_list=box_anchors)
+        if self.TrackerManager.model_name == 'ColorWrapper':
+            idle_trackers = list(range(self.TrackerManager.IdLength + 1))
+            for _, single_trackers in active_trackers.items():
+                for tracker in single_trackers:
+                    if tracker.id in idle_trackers:
+                        idle_trackers.remove(tracker.id)
+            for idle in idle_trackers:
+                results.append(("NA", idle))
+
         frame_count, handle = self.__VideoHandles[0]
         self.__interactor.update_decision(image_name=handle.make_image_name(frame_count), results=results)
+
         if deleted_trackers is not None:
             self.__interactor.loss_tracker(deleted_trackers)
 
+        return state_trackers
+
     def interaction_clear(self):
-        for tracker_id in range(0, self.TrackerManager.IdLength):
-            self.__interactor.loss_tracker(tracker_id)
+        for tracker_id in range(0, self.TrackerManager.IdLength + 1):
+            self.__interactor.Processor.dequeue(tracker_id)

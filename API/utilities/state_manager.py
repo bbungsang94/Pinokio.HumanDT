@@ -75,8 +75,6 @@ class StateProcessor:
         else:
             # next state에 해당되는지
             (old_state, old_time, predict_state) = self.OldStates[idx]
-            if old_state == 'NA':
-                print('과거 NA인데 들어옴')
             self.OldStates[idx] = (state, real_time, next_state)
             if state in predict_state:
                 self.Monitor.cumtime_object(idx, old_state, real_time - old_time)
@@ -118,23 +116,23 @@ class StateDecisionMaker:
 
     def get_decision(self, trackers_list: dict, boxes_list: list):
         decision_results = []
+        state_trackers = []
         for idx, trackers in trackers_list.items():
-            for tracker in trackers.get_single_trackers():
+            for tracker in trackers:
                 xPt, yPt = ProjectionManager.transform(tracker.box, idx)
                 entrance = self.check_entrance(xPt, yPt)
-                if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
-                    if entrance:
-                        tracker_state = ('Ready', tracker.id)
+                if entrance == "Move":
+                    if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
+                        state = "Load_Move"
                     else:
-                        tracker_state = ('Load_Move', tracker.id)
+                        state = "Empty_Move"
                 else:
-                    if entrance:
-                        tracker_state = ('In', tracker.id)
-                    else:
-                        tracker_state = ('Empty_Move', tracker.id)
+                    state = entrance
 
+                tracker_state = (state, tracker.id)
                 decision_results.append(tracker_state)
-        return decision_results
+                state_trackers.append((idx, state, tracker))
+        return decision_results, state_trackers
 
     def check_entrance(self, x, y):
         for value in self.region_info:
@@ -145,7 +143,14 @@ class StateDecisionMaker:
             min_x = min(left, right)
             first_condition = min_x <= x <= max_x
             second_condition = min_y <= y <= max_y
-            return first_condition and second_condition
+            enter = first_condition and second_condition
+            if not enter:
+                if x > max_x:
+                    return "Ready"
+                if x < min_x:
+                    return "Move"
+            else:
+                return "In"
 
     def loss_tracker(self, trackers_id: dict):
         for single_deleted_list in trackers_id.values():

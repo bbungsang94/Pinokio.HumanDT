@@ -155,7 +155,7 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def draw_box_label(img, bbox_cv2, trk_id, box_color=(0, 255, 255), show_label=True):
+def draw_box_label(img, bbox_cv2, trk_id, box_color=(0, 255, 255), tag=None, show_label=True):
     """
     Helper function for drawing the bounding boxes and the labels
     bbox_cv2 = [left, top, right, bottom]
@@ -178,10 +178,14 @@ def draw_box_label(img, bbox_cv2, trk_id, box_color=(0, 255, 255), show_label=Tr
         # Output the labels that show the x and y coordinates of the bounding box center.
         text_id = 'ForkLift ID: ' + str(trk_id)
         cv2.putText(img, text_id, (left, top - 45), font, font_size, font_color, 1, cv2.LINE_AA)
-        text_x = 'x=' + str((left + right) / 2)
-        cv2.putText(img, text_x, (left, top - 25), font, font_size, font_color, 1, cv2.LINE_AA)
-        text_y = 'y=' + str((top + bottom) / 2)
-        cv2.putText(img, text_y, (left, top - 5), font, font_size, font_color, 1, cv2.LINE_AA)
+        if tag is None:
+            text_x = 'x=' + str((left + right) / 2)
+            cv2.putText(img, text_x, (left, top - 25), font, font_size, font_color, 1, cv2.LINE_AA)
+            text_y = 'y=' + str((top + bottom) / 2)
+            cv2.putText(img, text_y, (left, top - 5), font, font_size, font_color, 1, cv2.LINE_AA)
+        else:
+            text_state = "state: " + tag
+            cv2.putText(img, text_state, (left, top - 25), font, font_size, font_color, 1, cv2.LINE_AA)
     return img
 
 
