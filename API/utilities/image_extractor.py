@@ -33,20 +33,16 @@ class ImageExtractor:
         video_path = video_path.replace(new_video_name, "")
 
         relpath = os.path.relpath(video_path, start="..\\") + "\\"
+        save_relpath = os.path.relpath(txt_path, start="..\\") + "/"
         default_config = get_yaml("..\\config\\default.yaml")
+        image_path = default_config['Image']['path']
         new_video_path = default_config['Video']['path']
-        if relpath != new_video_path:
+        if relpath != new_video_path or save_relpath != image_path:
             default_config['Video']['path'] = relpath
+            default_config['Image']['path'] = save_relpath
             with open("..\\config\\default.yaml", 'w') as f:
                 yaml.dump(default_config, f)
 
-        # relpath = os.path.relpath(txt_path, start="..\\") + "/"
-        # default_config = get_yaml("..\\config\\default.yaml")
-        # image_path = default_config['Image']['path']
-        # if relpath != image_path:
-        #     default_config['Image']['path'] = relpath
-        #     with open("..\\config\\default.yaml", 'w')as f:
-        #         yaml.dump(default_config, f)
         video_info = {'VideoName': video_name, 'VideoSize': list(self.ImageSize), 'FrameRate': self.FrameRate,
                       'StartCount': 0}
         with open(txt_path + video_name + ".yaml", 'w') as f:
