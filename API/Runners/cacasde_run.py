@@ -12,45 +12,61 @@ from utilities.projection_helper import ProjectionManager
 from Detectors import REGISTRY as det_REGISTRY
 from Trackers import REGISTRY as trk_REGISTRY
 from utilities.state_manager import StateDecisionMaker
+from utilities.config_mapper import get_yaml
 
 
 class CascadeRunner(AbstractRunner):
     def __init__(self, args, logger=None):
-        self.__VideoMap = args['video_list']
-        self.__VideoHandles = []
+        # Private members
+        self.__Provide = args['provide']
+        self.__VideoMap = args[self.__Provide]['list']
         self.__ImageHandle = ImageManager()
-        self.__save = args['save']
-        self.__oldReservedTrkLen = dict()
+        self.__Save = args['save']
+        self.__OldReservedTrkLen = dict()
+        self.__VideoHandles = []
 
+        # Public members (to use as an output)
         plan_image = ImageManager.load_cv(args['plan_path'])
         self.FrameRate = 60
         self.SingleImageSize = None
         self.WholeImageSize = None
         self.MaxWidthIdx = 0
-        self.OutputImages = {'raw_image': [], 'detected_image': [],
-                             'tracking_image': [], 'plan_image': plan_image}
-
         self.DockInRegion = dict()
         with open(args['projection_path'] + "DockEntrance.pickle", 'rb') as f:
             self.DockInRegion = pickle.load(f)
-
         self.Matrices = dict()
+        self.OutputImages = {'raw_image': [], 'detected_image': [],
+                             'tracking_image': [], 'plan_image': plan_image}
+
+        # Initialize about Video
         count = 0
         for row, videos in self.__VideoMap.items():
             for idx, video_name in enumerate(videos):
-                (name, extension) = video_name.split('.')
+                (name, _) = video_name.split('.')
                 video_handle = PipeliningVideoManager()
-                frame_rate, image_size = video_handle.load_video(args['video_path'] + video_name)
-                video_handle.activate_video_object(args['output_base_path'] + args['run_name'] + video_name)
+                frame_count = -1
+                if self.__Provide == "Image":
+                    config = get_yaml(args[self.__Provide]['path'] + name + ".yaml")
+                    frame_rate = config['FrameRate']
+                    image_size = tuple(config['VideoSize'])
+                    frame_count = config['StartCount']
+                    width, height = image_size
+                    v_info = (frame_rate, width, height)
+                    video_handle.input_path = args[self.__Provide]['path'] + name + "/"
+                else:
+                    frame_rate, image_size = video_handle.load_video(args[self.__Provide]['path'] + video_name)
+                    v_info = None
+
+                video_handle.activate_video_object(args['output_base_path'] + args['run_name'] + video_name,
+                                                   v_info=v_info)
                 video_handle.video_name = name
                 if frame_rate < self.FrameRate:
                     self.FrameRate = frame_rate
                 if self.WholeImageSize is None:
                     self.WholeImageSize = image_size
                     self.SingleImageSize = image_size
-
-                self.__VideoHandles.append(video_handle)
-                self.__oldReservedTrkLen[idx] = 0
+                self.__VideoHandles.append((frame_count, video_handle))
+                self.__OldReservedTrkLen[idx] = 0
 
                 self.Matrices[idx] = []
                 for local_cnt in range(args['num_of_projection']):
@@ -62,10 +78,8 @@ class CascadeRunner(AbstractRunner):
                 count += 1
 
         self.WholeImageSize = (self.WholeImageSize[0], self.WholeImageSize[1])
-
-        ProjectionManager(video_list=args['video_list'], whole_image_size=self.WholeImageSize,
+        ProjectionManager(video_list=args[self.__Provide]['list'], whole_image_size=self.WholeImageSize,
                           single_image_size=self.SingleImageSize, matrices=self.Matrices)
-
         self.__PlanHandle = PipeliningVideoManager()
         height, width, _ = plan_image.shape
         self.__PlanHandle.activate_video_object(args['output_base_path'] + args['run_name'] + 'plan.avi',
@@ -99,45 +113,20 @@ class CascadeRunner(AbstractRunner):
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
         self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion, thr=0.4)
 
-    def clean_trackers(self, deleted_ids):
-        for video_idx, single_deleted_list in enumerate(deleted_ids):
-            for deleted_id in single_deleted_list:
-                # self._Trackers[video_idx].clean_reserved(deleted_id)
-                self._Trackers[video_idx].delete_tracker_forced(deleted_id)
-                target = deleted_id % 3
-                if video_idx is not target:
-                    self._Trackers[target].delete_tracker_forced(deleted_id)
-                    # 페어된 다른 트래커도 제거해줘야함
-
-    def check_overlap(self):
-        newReservedTrkLen = dict()
-        for idx in range(len(self.__VideoHandles)):
-            newReservedTrkLen[idx] = len(self._Trackers[idx].reserved_tracker_list)
-            if self.__oldReservedTrkLen[idx] < newReservedTrkLen[idx]:
-                add_count = newReservedTrkLen[idx] - self.__oldReservedTrkLen[idx]
-                tmp_list = copy.deepcopy(self._Trackers[idx].reserved_tracker_list)
-                for new_idx in range(add_count):
-                    self.delete_overlap(tmp_list.pop())
-            self.__oldReservedTrkLen[idx] = newReservedTrkLen[idx]
-
-    def pop_images(self, idx: int):
-        handle = self.__VideoHandles[idx]
-        rtn_value = (None, None, idx)
-        _, np_bgr_image = handle.pop()
-        if np_bgr_image is None:
-            handle.release_video_object()
-            return rtn_value
-        np_rgb_image = np_bgr_image[..., ::-1].copy()
-        tensor_image = ImageManager.convert_tensor(np_bgr_image)
-        rtn_value = (np_rgb_image, tensor_image, idx)
-        return rtn_value
-
     def get_image(self):
         rtn_images = []
         self.OutputImages['raw_image'] = []
         release_flag = False
-        for handle in self.__VideoHandles:
-            _, np_bgr_image = handle.pop()
+        for iteration in range(0, len(self.__VideoHandles)):
+            frame_count, handle = self.__VideoHandles[iteration]
+            if frame_count is -1:
+                _, np_bgr_image = handle.pop()
+            else:
+                image_path = handle.make_image_name(frame_count)
+                np_bgr_image = ImageManager.load_cv(handle.input_path + image_path)
+                frame_count += 1
+                self.__VideoHandles[iteration] = (frame_count, handle)
+
             if np_bgr_image is None:
                 self.__PlanHandle.release_video_object()
                 release_flag = True
@@ -147,7 +136,7 @@ class CascadeRunner(AbstractRunner):
             self.OutputImages['raw_image'].append(copy.deepcopy(tensor_image))
 
         if release_flag:
-            for handle in self.__VideoHandles:
+            for (_, handle) in self.__VideoHandles:
                 handle.release_video_object()
             return None
 
@@ -184,64 +173,6 @@ class CascadeRunner(AbstractRunner):
 
         self.TrackerManager.post_tracking(target_trackers)
 
-    def sub_detection(self, deleted_trks, image):
-        deleted_ids = dict()
-        for idx, deleted_list in deleted_trks.items():
-            temp_del = []
-            for trk in deleted_list:
-                # SSD Network 에도 잡히지 않는지 확인
-                recovery_image, boxes, classes, scores = self._RecoveryDetector.detection(image[idx])
-                post_box = self._RecoveryDetector.get_zboxes(boxes=boxes,
-                                                             im_width=self.WholeImageSize[0],
-                                                             im_height=self.WholeImageSize[1])
-
-                post_pass, box = post_iou_checker(trk.box, post_box, thr=0.2, offset=0.3)
-                if post_pass is False:
-                    temp_del.append(trk.id)
-            deleted_ids[idx] = temp_del
-
-        return deleted_ids
-
-    def post_tracking(self, deleted_trackers, whole_image):
-        self.TrackerManager.post_tracking()
-
-    def delete_overlap(self, tracker):
-        video_idx_dict = dict()
-        tracker_idx_dict = dict()
-        tmp_list = []  # 3개 Tracker 전체의 Reserved Trackers
-
-        for video_idx, trk in enumerate(self._Trackers):
-            tracker_idx = 0
-            for tmp_reserve_trk in trk.reserved_tracker_list:
-                video_idx_dict[tmp_reserve_trk.id] = video_idx
-                tracker_idx_dict[tmp_reserve_trk.id] = tracker_idx
-                tmp_list.append(tmp_reserve_trk)
-                tracker_idx += 1
-
-        xPt, yPt = ProjectionManager.transform(tracker.box, video_idx_dict[tracker.id])
-
-        for target_tracker in tmp_list:
-            if tracker.id == target_tracker.id:
-                continue
-            target_xPt, target_yPt = ProjectionManager.transform(target_tracker.box, video_idx_dict[target_tracker.id])
-            distance = get_distance((xPt, yPt), (target_xPt, target_yPt))
-            if distance < 20:
-                if video_idx_dict[tracker.id] is video_idx_dict[target_tracker.id]:
-                    for idx in range(len(self._Trackers)):
-                        self._Trackers[idx].adjust_division(1)
-                    self._Trackers[video_idx_dict[target_tracker.id]].delete_tracker_forced(target_tracker.id)
-                    return
-                trackers = self._Trackers[video_idx_dict[tracker.id]].get_single_trackers()
-                target_trackers = self._Trackers[video_idx_dict[target_tracker.id]].get_single_trackers()
-                if tracker.origin:
-                    target_tracker.id = tracker.id
-                    trackers.pop(tracker_idx_dict[tracker.id])
-                    return
-                else:
-                    trackers[tracker_idx_dict[tracker.id]].id = target_tracker.id
-                    target_trackers.pop(tracker_idx_dict[target_tracker.id])
-                    return
-
     def post_processing(self, path, whole_image):
         plan_image = self.OutputImages['plan_image']
         trackers = self.TrackerManager.get_single_trackers()
@@ -256,24 +187,27 @@ class CascadeRunner(AbstractRunner):
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
 
-        if self.__save:
-            for idx, handle in enumerate(self.__VideoHandles):
-                file_name = handle.video_name + '/' + handle.make_image_name()
+        if self.__Save:
+            for iteration in range(0, len(self.__VideoHandles)):
+                frame_count, handle = self.__VideoHandles[iteration]
+                file_name = handle.video_name + '/' + handle.make_image_name(frame_count)
                 # Test
-                ImageManager.save_tensor(self.OutputImages['raw_image'][idx],
+                ImageManager.save_tensor(self.OutputImages['raw_image'][iteration],
                                          path['test_path'] + file_name)
                 # Detection
-                ImageManager.save_image(self.OutputImages['detected_image'][idx],
+                ImageManager.save_image(self.OutputImages['detected_image'][iteration],
                                         path['detected_path'] + file_name)
                 # Tracking
-                ImageManager.save_tensor(self.OutputImages['tracking_image'][idx],
+                ImageManager.save_tensor(self.OutputImages['tracking_image'][iteration],
                                          path['tracking_path'] + file_name)
-                # Plan
-                temp_img = self.OutputImages['plan_image']
-                converted = cv2.cvtColor(temp_img, cv2.COLOR_BGR2RGB)
-                ImageManager.save_image(converted, path['plan_path'] + self.__VideoHandles[0].make_image_name())
 
-        for idx, handle in enumerate(self.__VideoHandles):
+            frame_count, handle = self.__VideoHandles[0]
+            # Plan
+            temp_img = self.OutputImages['plan_image']
+            converted = cv2.cvtColor(temp_img, cv2.COLOR_BGR2RGB)
+            ImageManager.save_image(converted, path['plan_path'] + handle.make_image_name(frame_count))
+
+        for idx, (_, handle) in enumerate(self.__VideoHandles):
             handle.append(self.OutputImages['tracking_image'][idx])
         self.__PlanHandle.append(self.OutputImages['plan_image'])
 
@@ -283,5 +217,6 @@ class CascadeRunner(AbstractRunner):
     def interaction_processing(self, box_anchors, deleted_trackers):
         results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_trackers(),
                                                  boxes_list=box_anchors)
-        self.__interactor.update_decision(image_name=self.__VideoHandles[0].make_image_name(), results=results)
+        frame_count, handle = self.__VideoHandles[0]
+        self.__interactor.update_decision(image_name=handle.make_image_name(frame_count), results=results)
         self.__interactor.loss_tracker(deleted_trackers)

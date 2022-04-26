@@ -80,7 +80,7 @@ namespace HumanDT.UI
             _Config.FilePath = filepath[0].DirectoryName;
 
             //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "";
+            _Config.CondaEnv = "VDT";
 
             pnlView.Visible = false;
             pnlProperty.Visible = false;
@@ -384,7 +384,8 @@ namespace HumanDT.UI
                 obj.StartCount = obj.FrameCount;
                 _ImageObjects[i] = obj;
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 3)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void AnalysisButtonClick(object sender, EventArgs e)
@@ -456,7 +457,8 @@ namespace HumanDT.UI
             {
                 _ImageRead[i] = true;
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 2)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnImportClick(object sender, EventArgs e)
@@ -496,7 +498,8 @@ namespace HumanDT.UI
                 pnlView.Visible = true;
                 pnlProperty.Visible = true;
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 1)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnSavePathClick(object sender, EventArgs e)
@@ -511,7 +514,8 @@ namespace HumanDT.UI
                     _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";
                 }
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 0)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnResetClick(object sender, EventArgs e)

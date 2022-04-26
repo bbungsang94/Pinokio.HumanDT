@@ -10,15 +10,13 @@ def standard_run(config, log=None):
     # check args sanity
     # _config = args_sanity_check(_config, _log)
 
-    args = config
-
     # setup loggers
     if log is not None:
         raise NotImplementedError
         # logger = Logger(log)
 
     # Run and train
-    run_sequential(args=args, log=None)
+    run_sequential(args=config, log=None)
 
 
 def run_sequential(args, log=None):
