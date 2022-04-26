@@ -29,6 +29,8 @@ namespace HumanDT.UI
         private string _MatrixPath;
         readonly List<PictureBox> _PictureBoxes = new();
 
+        private bool _MappingTestFlag;
+
         public MappingForm(ConfigStruct config, List<ImageObject> imageObjects, string matrixPath)
         {
             InitializeComponent();
@@ -40,8 +42,9 @@ namespace HumanDT.UI
             _Config = config;
             _ImageObjects = imageObjects;
             _MatrixPath = matrixPath;
-            
-            
+
+
+            _MappingTestFlag = false;
             Initialize();
             InitializeImages();
         }
@@ -142,7 +145,7 @@ namespace HumanDT.UI
                             int x = Control.MousePosition.X;
                             int y = Control.MousePosition.Y;
 
-                            System.Drawing.Point mousePos = new System.Drawing.Point(x, y); //프로그램 내 좌표
+                            System.Drawing.Point mousePos = new System.Drawing.Point(x, -y); //프로그램 내 좌표
                             System.Drawing.Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
                             var test = _PictureBoxes[pictureBoxIdx].Size;
                             var widthRate = (float)_PictureBoxes[pictureBoxIdx].Size.Width / (float)_PictureBoxes[pictureBoxIdx].BackgroundImage.Size.Width;
@@ -371,16 +374,16 @@ namespace HumanDT.UI
         
         private float[] GetParameter(Point2f[] points1, Point2f[] points2)
         {
-            var xCenter1 = (points1[2].X + points2[2].X) / 2;
-            var yCenter1 = (points1[2].Y + points2[2].Y) / 2;
+            var xCenter1 = (points1[2].X + points2[1].X) / 2;
+            var yCenter1 = (points1[2].Y + points2[1].Y) / 2;
 
-            var xCenter2 = (points1[3].X + points2[3].X) / 2;
-            var yCenter2 = (points1[3].Y + points2[3].Y) / 2;
+            var xCenter2 = (points1[3].X + points2[0].X) / 2;
+            var yCenter2 = (points1[3].Y + points2[0].Y) / 2;
 
             var gradient = (yCenter1 - yCenter2) / (xCenter1 - xCenter2);
             var constant = yCenter1 - gradient * xCenter1;
 
-            return new float[] { gradient, constant };
+            return new float[] { -gradient, -constant };
         }
     }
 }

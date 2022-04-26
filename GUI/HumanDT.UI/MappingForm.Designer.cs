@@ -204,7 +204,7 @@
             // 
             // planPictureBox
             // 
-            this.planPictureBox.BackgroundImage = global::HumanDT.UI.Properties.Resources.plan3_15;
+            this.planPictureBox.BackgroundImage = global::HumanDT.UI.Properties.Resources.plan;
             this.planPictureBox.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.planPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.planPictureBox.Location = new System.Drawing.Point(0, 0);
