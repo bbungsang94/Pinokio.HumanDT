@@ -389,11 +389,11 @@ namespace HumanDT.UI
 
         private void BtnSyncClick(object sender, EventArgs e)
         {
-            //foreach (Process process in Process.GetProcesses())
-            //{
-            //    if (process.ProcessName.Contains("python"))
-            //        process.Kill();
-            //}
+            foreach (Process process in Process.GetProcesses())
+            {
+                if (process.ProcessName.Contains("python"))
+                    process.Kill();
+            }
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
             List<string> yamlList = new List<string>();
             foreach (System.IO.FileInfo file in di.GetFiles("*.yaml"))
