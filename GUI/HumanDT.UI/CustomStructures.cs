@@ -15,6 +15,14 @@ namespace HumanDT.UI
         public int FrameCount;
         public int StartCount;
     }
+    public struct TrackingObject
+    {
+        public string CurrentName;
+        public int FrameCount;
+        public int FrameRate;
+        public string VideoPath;
+
+    }
     public struct ConfigStruct
     {
         public string CondaEnv;

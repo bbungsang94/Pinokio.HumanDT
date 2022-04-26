@@ -41,10 +41,11 @@ def get_config():
             config = yaml.load(f, Loader=yaml.FullLoader)
         except yaml.YAMLError as exc:
             assert False, "default.yaml error: {}".format(exc)
-    image_path = config['Image']['path']
-    file_list = os.listdir(image_path)
-    image_list = [image_name.replace('.yaml', "") for image_name in file_list if image_name.endswith(".yaml")]
-    config['Image']['list'][0] = image_list
+    video_path = config['Image']['path']
+    file_list = os.listdir(video_path)
+    video_list = [video_name for video_name in file_list if
+                  video_name.endswith(".avi") or video_name.endswith(".mp4") or video_name.endswith(".mkv")]
+    config['Video']['list'][0] = video_list
     with open(config_dir.format('config', "{}.yaml".format('default')), "w") as f:
         try:
             yaml.dump(config, f)

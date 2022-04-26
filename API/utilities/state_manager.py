@@ -121,6 +121,9 @@ class StateDecisionMaker:
         for idx, trackers in trackers_list.items():
             for tracker in trackers:
                 xPt, yPt = ProjectionManager.transform(tracker.box, idx)
+                if 357 < yPt < 380:
+                    if 140 < xPt:
+                        test = True
                 entrance = self.check_entrance(xPt, yPt)
                 if entrance == "Move":
                     if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
@@ -136,6 +139,7 @@ class StateDecisionMaker:
         return decision_results, state_trackers
 
     def check_entrance(self, x, y):
+        state = ""
         for value in self.region_info:
             (left, top, right, bottom) = value
             max_y = max(top, bottom)
@@ -149,9 +153,10 @@ class StateDecisionMaker:
                 if x > max_x:
                     return "Ready"
                 else:
-                    return "Move"
+                    state = "Move"
             else:
                 return "In"
+        return state
 
     def loss_tracker(self, trackers_id: dict):
         for single_deleted_list in trackers_id.values():

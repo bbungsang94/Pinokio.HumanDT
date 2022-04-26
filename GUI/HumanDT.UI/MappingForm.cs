@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 using OpenCvSharp;
 
 namespace HumanDT.UI
@@ -28,10 +29,11 @@ namespace HumanDT.UI
         private List<ImageObject> _ImageObjects;
         private string _MatrixPath;
         readonly List<PictureBox> _PictureBoxes = new();
+        private readonly Process _Process;
 
         private bool _MappingTestFlag;
 
-        public MappingForm(ConfigStruct config, List<ImageObject> imageObjects, string matrixPath)
+        public MappingForm(ConfigStruct config, List<ImageObject> imageObjects, string matrixPath, Process process)
         {
             InitializeComponent();
             _VideoPointsFlag = false;
@@ -42,7 +44,7 @@ namespace HumanDT.UI
             _Config = config;
             _ImageObjects = imageObjects;
             _MatrixPath = matrixPath;
-
+            _Process = process;
 
             _MappingTestFlag = false;
             Initialize();
@@ -145,7 +147,7 @@ namespace HumanDT.UI
                             int x = Control.MousePosition.X;
                             int y = Control.MousePosition.Y;
 
-                            System.Drawing.Point mousePos = new System.Drawing.Point(x, -y); //프로그램 내 좌표
+                            System.Drawing.Point mousePos = new System.Drawing.Point(x, y); //프로그램 내 좌표
                             System.Drawing.Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
                             var test = _PictureBoxes[pictureBoxIdx].Size;
                             var widthRate = (float)_PictureBoxes[pictureBoxIdx].Size.Width / (float)_PictureBoxes[pictureBoxIdx].BackgroundImage.Size.Width;
@@ -153,7 +155,7 @@ namespace HumanDT.UI
 
                             var xPoint = (float)mousePosPtoClient.X / widthRate;
                             var yPoint = (float)mousePosPtoClient.Y / heightRate;
-
+                            yPoint = _PictureBoxes[pictureBoxIdx].BackgroundImage.Size.Height - yPoint;
                             _VideoPoints.Add(new Tuple<float, float>(xPoint, yPoint));
                             _VideoPointsCounts[pictureBoxIdx]++;
                             g.FillEllipse(Brushes.Red, mousePosPtoClient.X - 5, mousePosPtoClient.Y - 5, 10, 10);
@@ -246,7 +248,7 @@ namespace HumanDT.UI
 
                         var xPoint = (float)mousePosPtoClient.X / widthRate;
                         var yPoint = (float)mousePosPtoClient.Y / heightRate;
-
+                        yPoint = planPictureBox.BackgroundImage.Size.Height - yPoint;
                         _PlanPoints.Add(new Tuple<float, float>(xPoint, yPoint));
                         _PlanPointsCount++;
                         g.FillEllipse(Brushes.Blue, mousePosPtoClient.X - 5, mousePosPtoClient.Y - 5, 10, 10);
@@ -324,6 +326,10 @@ namespace HumanDT.UI
             DockInfo dockInfo = new DockInfo() { DockRegion = docksInfo };
             var dockYaml = serializer.Serialize(dockInfo);
             System.IO.File.WriteAllText(_MatrixPath + "\\DockEntrance.yaml", dockYaml);
+
+            AnalysisForm analysisForm = new AnalysisForm(_ImageObjects, _Config, _Process);
+            analysisForm.ShowDialog();
+            this.Close();
         }
         private Dictionary<int, List<float[]>> GetDivision()
         {
@@ -383,7 +389,7 @@ namespace HumanDT.UI
             var gradient = (yCenter1 - yCenter2) / (xCenter1 - xCenter2);
             var constant = yCenter1 - gradient * xCenter1;
 
-            return new float[] { -gradient, -constant };
+            return new float[] { gradient, constant };
         }
     }
 }

@@ -66,7 +66,7 @@ class ProjectionManager:
         cls.whole_image_size = whole_image_size
         cls.single_image_size = single_image_size
         cls.mapping_info = mapping_info
-        cls.ColorChecker = ColorMeasureMeter(save_path=r"../temp/")
+        cls.ColorChecker = ColorMeasureMeter(save_path="../temp/")
         if not hasattr(cls, 'instance'):
             cls.instance = super(ProjectionManager, cls).__new__(cls)
             return cls.instance

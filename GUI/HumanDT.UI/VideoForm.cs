@@ -326,6 +326,7 @@ namespace HumanDT.UI
             }
         }
 
+        #region Prev&Next
         private void BtnPrev1Click(object sender, EventArgs e)
         {
             ImageStep(0, false);
@@ -364,7 +365,8 @@ namespace HumanDT.UI
         private void BtnNext4Click(object sender, EventArgs e)
         {
             ImageStep(3, true);
-        }
+        } 
+        #endregion
 
         private void BtnVisibleClick(object sender, EventArgs e)
         {
@@ -387,6 +389,11 @@ namespace HumanDT.UI
 
         private void BtnSyncClick(object sender, EventArgs e)
         {
+            //foreach (Process process in Process.GetProcesses())
+            //{
+            //    if (process.ProcessName.Contains("python"))
+            //        process.Kill();
+            //}
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
             List<string> yamlList = new List<string>();
             foreach (System.IO.FileInfo file in di.GetFiles("*.yaml"))
@@ -420,7 +427,6 @@ namespace HumanDT.UI
                 var videoInfoYaml = serializer.Serialize(_VideoInfoList[i]);
                 System.IO.File.WriteAllText(yamlList[i], videoInfoYaml); 
             }
-
         }
 
         private void AnalysisButtonClick(object sender, EventArgs e)
@@ -432,7 +438,7 @@ namespace HumanDT.UI
                 {
                     if (btnVisible.Text.Equals("Visible Mode"))
                     {
-                        AnalysisForm mainForm = new(_ImageObjects);
+                        AnalysisForm mainForm = new(_ImageObjects, _Config, _Process);
                         mainForm.ShowDialog();
                         this.Close();
                     }
@@ -446,7 +452,7 @@ namespace HumanDT.UI
                 {
                     if (_Config.VideoPath.Count > 0)
                     {
-                        MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath);
+                        MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath, _Process);
                         mappingForm.ShowDialog();
                         this.Close();
                     }
@@ -456,34 +462,10 @@ namespace HumanDT.UI
             }
             else
             {
-                MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath);
+                MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath, _Process);
                 mappingForm.ShowDialog();
                 this.Close();
             }
-            
-            
-
-            #region Python 실행
-            //_Process.Start();
-
-            //_Process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
-            //_Process.StandardInput.WriteLine("conda activate FLOM");
-            //_Process.StandardInput.WriteLine("D:");
-            //_Process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
-            //_Process.StandardInput.WriteLine("python main.py");
-
-            //_Process.StandardInput.Close();
-
-            //Thread.Sleep(5000);
-
-            //string resultValue = _Process.StandardOutput.ReadToEnd();
-
-            //_Process.WaitForExit();
-
-            //_Process.Close();
-            #endregion
-
-            
         }
 
         private void BtnPlay1Click(object sender, EventArgs e)
