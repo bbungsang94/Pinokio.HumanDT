@@ -37,6 +37,7 @@ def run_sequential(args, log=None):
         count += 1
         image = runner.get_image()
         if image is None:
+            runner.interaction_clear()
             return
         # if count < 2240 + 940:
         #     continue
@@ -50,9 +51,9 @@ def run_sequential(args, log=None):
         begin = time.time()
         runner.post_processing(paths, whole_image=image)
         print("Post processing time: ", (time.time() - begin) * 1000, "ms")
-        # begin = time.time()
-        # runner.interaction_processing(box_anchors, deleted_tracker_ids)
-        # print("Interaction time: ", (time.time() - begin) * 1000, "ms")
+        begin = time.time()
+        runner.interaction_processing(box_anchors, None)
+        print("Interaction time: ", (time.time() - begin) * 1000, "ms")
 
 
 def args_sanity_check(config, _log):

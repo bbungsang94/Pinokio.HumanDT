@@ -251,5 +251,10 @@ namespace HumanDT.UI
             }
             
         }
+
+        private void Analysis_button_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -214,9 +214,14 @@ class CascadeRunner(AbstractRunner):
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': self.OutputImages['plan_image']}
 
-    def interaction_processing(self, box_anchors, deleted_trackers):
-        results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_trackers(),
+    def interaction_processing(self, box_anchors, deleted_trackers=None):
+        results = self.__interactor.get_decision(trackers_list=self.TrackerManager.get_single_trackers(),
                                                  boxes_list=box_anchors)
         frame_count, handle = self.__VideoHandles[0]
         self.__interactor.update_decision(image_name=handle.make_image_name(frame_count), results=results)
-        self.__interactor.loss_tracker(deleted_trackers)
+        if deleted_trackers is not None:
+            self.__interactor.loss_tracker(deleted_trackers)
+
+    def interaction_clear(self):
+        for tracker_id in range(0, self.TrackerManager.IdLength):
+            self.__interactor.loss_tracker(tracker_id)

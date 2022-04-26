@@ -7,8 +7,8 @@ from utilities.projection_helper import ProjectionManager
 class StateMonitor:
     def __init__(self):
         self.Keys = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA']
-        self.Mapper = {'In': '빈 지게차 진입', 'Ready': '지게차 하역준비', 'Load_Move': '지게차 적재이동',
-                       'Put': '지게차 1차 하역', 'Empty_Move': '빈 지게차 이동', 'NA': 'N/A'}
+        self.Mapper = {'In': '도크 진입', 'Ready': '트레일러 작업', 'Load_Move': '지게차 적재이동',
+                       'Put': '1차 하역', 'Empty_Move': '빈 지게차 이동', 'NA': 'N/A'}
         self.Object_list = []
         self.Calculator = dict()
         for key in self.Keys:
@@ -53,11 +53,11 @@ class StateMonitor:
 class StateProcessor:
     def __init__(self):
         self.Linked_state = {'In': ['Ready'],
-                             'Ready': ['Load_Move'],
-                             'Load_Move': ['Put', 'NA'],
+                             'Ready': ['Load_Move', 'Empty_Move'],
+                             'Load_Move': ['In', 'Put', 'NA'],
                              'Put': ['Empty_Move'],
-                             'Empty_Move': ['In', 'Load_Move'],
-                             'NA': ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move']}
+                             'Empty_Move': ['In', 'Load_Move', 'NA'],
+                             'NA': ['Load_Move', 'Empty_Move']}
         self.OldStates = dict()
         self.T_now = 0
         self.Monitor = StateMonitor()
@@ -103,7 +103,7 @@ class StateProcessor:
             self.Monitor.cumtime_object(key, old_state, real_time - old_time)
             self.OldStates[key] = (old_state, real_time, predict_state)
 
-    def save(self, path):
+    def save(self, path): 
         self.Monitor.save_file(path)
 
 

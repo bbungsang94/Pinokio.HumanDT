@@ -33,14 +33,14 @@ if __name__ == "__main__":
     config['run_name'] = datetime.datetime.now().strftime('%m-%d %H%M%S')
     config['run_name'] = config['run_name'] + '/'
 
-    if config['run_mode'] != 'Single':
+    # if config['run_mode'] != 'Single':
         # int(sqrt(counter)) - 1로 하면됨
-        video_list = {0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
-                          "LOADING DOCK F3 Rampa 11-12.avi",
-                          "LOADING DOCK F3 Rampa 9-10.avi"]
-                      }
-        provide = config['provide']
-        config[provide]['list'] = video_list
+        # video_list = {0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
+        #                   "LOADING DOCK F3 Rampa 11-12.avi",
+        #                   "LOADING DOCK F3 Rampa 9-10.avi"]
+        #               }
+        # provide = config['provide']
+        # config[provide]['list'] = video_list
     clear_folder(folder_list=[config['image_path'],
                               config['detected_path'],
                               config['tracking_path'],

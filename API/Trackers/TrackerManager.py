@@ -14,6 +14,7 @@ class TrackerManager:
         self.__trackers = dict()
         self.__video_len = video_len
         self.__new_assigned_trks = []
+        self.IdLength = 0
 
     def add_tracker(self, tracker, tracker_idx, max_trackers):
         self.__trackers[tracker_idx] = tracker
@@ -95,8 +96,8 @@ class ColorWrapper:
         # 지역별로 존재하는 로컬 트랙커의 아이디를 관리해주는 Wrapper
         self.model_name = 'ColorWrapper'
         self.IdleIds = []
+        self.IdLength = 0
         self.__PublicTracker = []
-        self.__IdLength = 0
         self.__LocalTrackers = []
         self.__overlap_dist = 20
         if local_trackers is not None:
@@ -107,15 +108,15 @@ class ColorWrapper:
     def add_tracker(self, tracker, tracker_idx=None, max_trackers=None):
         tracker.set_video_idx(len(self.__LocalTrackers))
         self.__LocalTrackers.append(tracker)
-        if len(tracker.ColorID['hsv']) > self.__IdLength:
-            self.__IdLength = len(tracker.ColorID['hsv'])
+        if len(tracker.ColorID['hsv']) > self.IdLength:
+            self.IdLength = len(tracker.ColorID['hsv'])
             self.IdleIds = []
-            for key in range(0, self.__IdLength):
+            for key in range(0, self.IdLength):
                 self.IdleIds.append(key)
 
     # Call Init section
     def sync_id(self):
-        active_ids = [x for x in range(0, self.__IdLength) if x not in self.IdleIds]
+        active_ids = [x for x in range(0, self.IdLength) if x not in self.IdleIds]
         for idx, local_tracker in enumerate(self.__LocalTrackers):
             local_tracker.set_tracker_id(self.IdleIds)
             # Public tracker랑 동기화
