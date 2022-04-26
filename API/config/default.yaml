@@ -19,7 +19,7 @@ log: true
 num_of_projection: 3
 output_base_path: ./output/
 pipeline: true
-plan_path: ./params/plan3-15.png
+plan_path: ./params/plan.png
 primary_model_name: Yolov5
 projection_path: ./params/projection/
 provide: Image
