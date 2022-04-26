@@ -20,36 +20,28 @@ namespace HumanDT.UI
         private int _PlanPointsCount;
         private List<Tuple<float, float>> _VideoPoints;
         private List<Tuple<float, float>> _PlanPoints;
+        private Dictionary<int, List<Point2f[]>> _FixedVideoPoints;
+        private List<Point2f[]> _FixedPlanPoints;
         private int _TargetVideoIdx;
-        
-        private List<int> _XPonts;
-        private List<int> _YPonts;
+        private Dictionary<int, List<double[]>> _MappingMatrix;
         private ConfigStruct _Config;
         private List<ImageObject> _ImageObjects;
-        private List<VideoInfo> _VideoInfoList;
+        private string _MatrixPath;
         readonly List<PictureBox> _PictureBoxes = new();
 
-        public MappingForm(ConfigStruct config, List<ImageObject> imageObjects)
+        public MappingForm(ConfigStruct config, List<ImageObject> imageObjects, string matrixPath)
         {
             InitializeComponent();
             _VideoPointsFlag = false;
             _VideoPointsCounts = new Dictionary<int, int>();
-            _XPonts = new List<int>();
-            _YPonts = new List<int>();
+            _MappingMatrix = new Dictionary<int, List<double[]>>();
             _VideoPoints = new List<Tuple<float, float>>();
+            _FixedVideoPoints = new Dictionary<int, List<Point2f[]>>();
             _Config = config;
             _ImageObjects = imageObjects;
-            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
-            _VideoInfoList = new List<VideoInfo>();
-
-
-
-            foreach (System.IO.FileInfo file in di.GetFiles("*.yaml"))
-            {
-                var input = new System.IO.StreamReader(file.FullName);
-                var yaml = new YamlDotNet.Serialization.Deserializer();
-                _VideoInfoList.Add(yaml.Deserialize<VideoInfo>(input));
-            }
+            _MatrixPath = matrixPath;
+            
+            
             Initialize();
             InitializeImages();
         }
@@ -69,6 +61,17 @@ namespace HumanDT.UI
             _VideoPointsCounts.Add(2, 0);
             _VideoPointsCounts.Add(3, 0);
 
+            _MappingMatrix[0] = new List<double[]>();
+            _MappingMatrix[1] = new List<double[]>();
+            _MappingMatrix[2] = new List<double[]>();
+            _MappingMatrix[3] = new List<double[]>();
+
+            _FixedVideoPoints[0] = new List<Point2f[]>();
+            _FixedVideoPoints[1] = new List<Point2f[]>();
+            _FixedVideoPoints[2] = new List<Point2f[]>();
+            _FixedVideoPoints[3] = new List<Point2f[]>();
+
+            _FixedPlanPoints = new List<Point2f[]>();
         }
 
         private void InitializeImages()
@@ -81,6 +84,18 @@ namespace HumanDT.UI
                 Image image = Image.FromFile(obj.VideoPath + obj.CurrentName);
                 _PictureBoxes[idx].BackgroundImage = image;
                 _ImageObjects[idx] = obj;
+            }
+        }
+
+        private System.IO.DirectoryInfo GetParent(int Iteration, System.IO.DirectoryInfo Directory)
+        {
+            if (Iteration == 0)
+            {
+                return Directory;
+            }
+            else
+            {
+                return GetParent(--Iteration, Directory.Parent);
             }
         }
 
@@ -104,42 +119,46 @@ namespace HumanDT.UI
         {
             if (_VideoPointsFlag)
             {
-                if (sender.GetType() == Video1_pictureBox.GetType())
+                int pictureBoxIdx;
+                if (sender.Equals(Video1_pictureBox)) { pictureBoxIdx = 0; }
+                else if (sender.Equals(Video2_pictureBox)) { pictureBoxIdx = 1; }
+                else if (sender.Equals(Video3_pictureBox)) { pictureBoxIdx = 2; }
+                else { pictureBoxIdx = 3; }
+
+                if (_TargetVideoIdx == -1)
+                    _TargetVideoIdx = pictureBoxIdx;
+                if (_TargetVideoIdx == pictureBoxIdx)
                 {
-                    PictureBox pic = (PictureBox)sender;
-                    if (((MouseEventArgs)e).Button == MouseButtons.Left)
+                    if (sender.GetType() == _PictureBoxes[pictureBoxIdx].GetType())
                     {
-                        Graphics g = Video1_pictureBox.CreateGraphics();
-                        if (_VideoPointsCounts[0] == 4)
+                        PictureBox pic = (PictureBox)sender;
+                        if (((MouseEventArgs)e).Button == MouseButtons.Left)
                         {
-                            return;
-                            //_VideoPoints[0].Clear();
-                            //Video1_pictureBox.Image = null;
-                            //_VideoPointsCounts[0] = 0;
-                            //_VideoPointsFlag = false;
-                            //btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
-                            //btnVideoPoints.Enabled = true;
+                            Graphics g = _PictureBoxes[pictureBoxIdx].CreateGraphics();
+                            if (_VideoPointsCounts[pictureBoxIdx] == 4)
+                            {
+                                return;
+                            }
+                            int x = Control.MousePosition.X;
+                            int y = Control.MousePosition.Y;
+
+                            System.Drawing.Point mousePos = new System.Drawing.Point(x, y); //프로그램 내 좌표
+                            System.Drawing.Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
+                            var test = _PictureBoxes[pictureBoxIdx].Size;
+                            var widthRate = (float)_PictureBoxes[pictureBoxIdx].Size.Width / (float)_PictureBoxes[pictureBoxIdx].BackgroundImage.Size.Width;
+                            var heightRate = (float)_PictureBoxes[pictureBoxIdx].Size.Height / (float)_PictureBoxes[pictureBoxIdx].BackgroundImage.Size.Height;
+
+                            var xPoint = (float)mousePosPtoClient.X / widthRate;
+                            var yPoint = (float)mousePosPtoClient.Y / heightRate;
+
+                            _VideoPoints.Add(new Tuple<float, float>(xPoint, yPoint));
+                            _VideoPointsCounts[pictureBoxIdx]++;
+                            g.FillEllipse(Brushes.Red, mousePosPtoClient.X - 5, mousePosPtoClient.Y - 5, 10, 10);
                         }
-                        int x = Control.MousePosition.X;
-                        int y = Control.MousePosition.Y;
-
-                        System.Drawing.Point mousePos = new System.Drawing.Point(x, y); //프로그램 내 좌표
-                        System.Drawing.Point mousePosPtoClient = pic.PointToClient(mousePos);  //picbox 내 좌표
-                        var test = Video1_pictureBox.Size;
-                        var widthRate = (float)Video1_pictureBox.Size.Width / (float)Video1_pictureBox.BackgroundImage.Size.Width;
-                        var heightRate = (float)Video1_pictureBox.Size.Height / (float)Video1_pictureBox.BackgroundImage.Size.Height;
-
-                        var xPoint = (float)mousePosPtoClient.X / widthRate;
-                        var yPoint = (float)mousePosPtoClient.Y / heightRate;
-
-                        _VideoPoints.Add(new Tuple<float, float>(xPoint, yPoint));
-                        _TargetVideoIdx = 0;
-                        _VideoPointsCounts[0]++;
-                        g.FillEllipse(Brushes.Red, mousePosPtoClient.X - 5, mousePosPtoClient.Y - 5, 10, 10);
-                    }
-                    if (((MouseEventArgs)e).Button == MouseButtons.Right)
-                    {
-                        //do something
+                        if (((MouseEventArgs)e).Button == MouseButtons.Right)
+                        {
+                            //do something
+                        }
                     }
                 }
             }
@@ -148,10 +167,18 @@ namespace HumanDT.UI
 
         private void Video_Points_Click(object sender, EventArgs e)
         {
+            if (_TargetVideoIdx != -1)
+                _PictureBoxes[_TargetVideoIdx].Image = null;
+            _TargetVideoIdx = -1;
+
             _VideoPointsFlag = true;
             _VideoPoints.Clear();
-            Video1_pictureBox.Image = null;
+            
             _VideoPointsCounts[0] = 0;
+            _VideoPointsCounts[1] = 0;
+            _VideoPointsCounts[2] = 0;
+            _VideoPointsCounts[3] = 0;
+
             btnVideoPoints.BackColor = Color.ForestGreen;
 
             _PlanPointsFlag = false;
@@ -203,12 +230,7 @@ namespace HumanDT.UI
                         if (_PlanPointsCount == 4)
                         {
                             return;
-                            //_PlanPoints.Clear();
-                            //planPictureBox.Image = null;
-                            //_PlanPointsCount = 0;
-                            //_PlanPointsFlag = false;
-                            //btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
-                            //btnVideoPoints.Enabled = true;
+                            
                         }
                         int x = Control.MousePosition.X;
                         int y = Control.MousePosition.Y;
@@ -244,12 +266,121 @@ namespace HumanDT.UI
                 srcPoint[2] = new Point2f(_VideoPoints[2].Item1, _VideoPoints[2].Item2);
                 srcPoint[3] = new Point2f(_VideoPoints[3].Item1, _VideoPoints[3].Item2);
 
-                //Point2f[] dstPoint = new Point2f[4];
+                Point2f[] dstPoint = new Point2f[4];
+                dstPoint[0] = new Point2f(_PlanPoints[0].Item1, _PlanPoints[0].Item2);
+                dstPoint[1] = new Point2f(_PlanPoints[1].Item1, _PlanPoints[1].Item2);
+                dstPoint[2] = new Point2f(_PlanPoints[2].Item1, _PlanPoints[2].Item2);
+                dstPoint[3] = new Point2f(_PlanPoints[3].Item1, _PlanPoints[3].Item2);
 
+                Mat matrix = Cv2.GetPerspectiveTransform(srcPoint, dstPoint);
+                double[] copied = new double[matrix.Total() * matrix.Channels()];
+                matrix.GetArray<double>(out copied);
 
-                //Mat matrix = Cv2.GetPerspectiveTransform()
+                _MappingMatrix[_TargetVideoIdx].Add(copied);
+                _FixedVideoPoints[_TargetVideoIdx].Add(srcPoint);
+                _FixedPlanPoints.Add(dstPoint);
+
+                _PictureBoxes[_TargetVideoIdx].Image = null;
+                planPictureBox.Image = null;
+                _TargetVideoIdx = -1;
+
+                _VideoPointsFlag = false;
+                _VideoPoints.Clear();
+                _VideoPointsCounts[_TargetVideoIdx] = 0;
+                btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
+
+                _PlanPointsFlag = false;
+                btnPlanPoints.Enabled = true;
+                btnPlanPoints.BackColor = Color.FromArgb(210, 210, 210);
+            }
+        }
+
+        private void Analysis_button_Click(object sender, EventArgs e)
+        {
+            foreach (var matrices in _MappingMatrix.Values)
+            {
+                if (matrices.Count == 0) return;
+            }
+            var division = GetDivision();
+            var mappingMatrices = GetMatrices();
+            
+            MappingMatrix mappingMatrix = new MappingMatrix()
+            {
+                Division = division,
+                Matrices = mappingMatrices
+            };
+            var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
+            var yaml = serializer.Serialize(mappingMatrix);
+            System.IO.File.WriteAllText(_MatrixPath + "\\MappingMatrix.yaml", yaml);
+            
+            List<double[]> docksInfo = new List<double[]>();
+            foreach (var points in _FixedPlanPoints)
+            {
+                docksInfo.Add(new double[] { points[1].X, points[0].Y, points[3].X, points[2].Y});
+            }
+            DockInfo dockInfo = new DockInfo() { DockRegion = docksInfo };
+            var dockYaml = serializer.Serialize(dockInfo);
+            System.IO.File.WriteAllText(_MatrixPath + "\\DockEntrance.yaml", dockYaml);
+        }
+        private Dictionary<int, List<float[]>> GetDivision()
+        {
+            float[] parameter = null;
+            Dictionary<int, List<float[]>> divisions = new Dictionary<int, List<float[]>>();
+            divisions[0] = new List<float[]>();
+            divisions[1] = new List<float[]>();
+            divisions[2] = new List<float[]>();
+            divisions[3] = new List<float[]>();
+
+            foreach (var idx in _FixedVideoPoints.Keys)
+            {
+                if (_FixedVideoPoints[idx].Count == 2)
+                {
+                    parameter = GetParameter(_FixedVideoPoints[idx][0], _FixedVideoPoints[idx][1]);
+                    divisions[idx].Add(parameter);
+                }
+                else if (_FixedVideoPoints[idx].Count == 3)
+                {
+                    parameter = GetParameter(_FixedVideoPoints[idx][0], _FixedVideoPoints[idx][1]);
+                    divisions[idx].Add(parameter);
+                    parameter = GetParameter(_FixedVideoPoints[idx][1], _FixedVideoPoints[idx][2]);
+                    divisions[idx].Add(parameter);
+                }
             }
             
+
+            return divisions;
+        }
+
+        private Dictionary<int, List<double[]>> GetMatrices()
+        {
+            Dictionary<int, List<double[]>> matrices = new Dictionary<int, List<double[]>>();
+            matrices[0] = new List<double[]>();
+            matrices[1] = new List<double[]>();
+            matrices[2] = new List<double[]>();
+            matrices[3] = new List<double[]>();
+
+            foreach (var idx in _MappingMatrix.Keys)
+            {
+                foreach (var mat in _MappingMatrix[idx])
+                {
+                    matrices[idx].Add(mat);
+                }
+            }
+            return matrices;
+        }
+        
+        private float[] GetParameter(Point2f[] points1, Point2f[] points2)
+        {
+            var xCenter1 = (points1[2].X + points2[2].X) / 2;
+            var yCenter1 = (points1[2].Y + points2[2].Y) / 2;
+
+            var xCenter2 = (points1[3].X + points2[3].X) / 2;
+            var yCenter2 = (points1[3].Y + points2[3].Y) / 2;
+
+            var gradient = (yCenter1 - yCenter2) / (xCenter1 - xCenter2);
+            var constant = yCenter1 - gradient * xCenter1;
+
+            return new float[] { gradient, constant };
         }
 
         private void Analysis_button_Click(object sender, EventArgs e)

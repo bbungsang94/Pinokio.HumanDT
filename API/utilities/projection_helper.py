@@ -58,14 +58,14 @@ class ProjectionManager:
     video_list = dict()
     whole_image_size = tuple
     single_image_size = tuple
-    matrices = dict()
+    mapping_info = dict()
     ColorChecker = None
 
-    def __new__(cls, video_list, whole_image_size, single_image_size, matrices):
+    def __new__(cls, video_list, whole_image_size, single_image_size, mapping_info):
         cls.video_list = video_list
         cls.whole_image_size = whole_image_size
         cls.single_image_size = single_image_size
-        cls.matrices = matrices
+        cls.mapping_info = mapping_info
         cls.ColorChecker = ColorMeasureMeter(save_path=r"../temp/")
         if not hasattr(cls, 'instance'):
             cls.instance = super(ProjectionManager, cls).__new__(cls)
@@ -83,11 +83,15 @@ class ProjectionManager:
         img_height = cls.single_image_size[1]
         yPt = img_height - yPt
 
-        matrix = get_matrix(xPt, yPt, video_idx, cls.matrices)
+        matrix = get_matrix(xPt, yPt, video_idx, cls.mapping_info)
 
-        w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
-        x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
-        y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
+        w = (xPt * matrix[6]) + (yPt * matrix[7]) + matrix[8]
+        x = ((xPt * matrix[0]) + (yPt * matrix[1]) + matrix[2]) / w
+        y = ((xPt * matrix[3]) + (yPt * matrix[4]) + matrix[5]) / w
+
+        # w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
+        # x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
+        # y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
 
         return x, y
 
@@ -105,11 +109,16 @@ class ProjectionManager:
 
         xPt, yPt, video_name = cls.get_video_name_in_merge(xPt, yPt)
 
-        matrix = get_matrix_in_merge(xPt, yPt, video_name, cls.matrices)
+        matrix = get_matrix_in_merge(xPt, yPt, video_name, cls.mapping_info)
 
-        w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
-        x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
-        y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
+        w = (xPt * matrix[6]) + (yPt * matrix[7]) + matrix[8]
+        x = ((xPt * matrix[0]) + (yPt * matrix[1]) + matrix[2]) / w
+        y = ((xPt * matrix[3]) + (yPt * matrix[4]) + matrix[5]) / w
+
+
+        # w = (xPt * matrix[2][0]) + (yPt * matrix[2][1]) + matrix[2][2]
+        # x = ((xPt * matrix[0][0]) + (yPt * matrix[0][1]) + matrix[0][2]) / w
+        # y = ((xPt * matrix[1][0]) + (yPt * matrix[1][1]) + matrix[1][2]) / w
 
         return x, y
 
@@ -152,40 +161,82 @@ def hex_to_rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def get_matrix(xPt, yPt, video_idx: int, matrix_list):
-    matrices = matrix_list[video_idx]
-    if video_idx == 0:  # Shorts Test
-        if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
-            matrix = matrices[0]
-        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
-            matrix = matrices[1]
-        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) < yPt):
-            matrix = matrices[2]
-        return matrix
-    # if video_idx == 0:
-    #     if ((-988 / 400 * xPt + 1852.5) >= yPt) and ((-123 / 157 * xPt + 1497) > yPt):
+def get_matrix(xPt, yPt, video_idx: int, mapping_info):
+    division = mapping_info['Division']
+    matrices = mapping_info['Matrices']
+    if len(division[video_idx]) == 1:
+        if division[video_idx][0][0] >= 0:
+            if division[video_idx][0][0] * xPt + division[video_idx][0][1] <= yPt:
+                return matrices[video_idx][0]
+            else:
+                return matrices[video_idx][1]
+        else:  # 기울기 음수
+            if division[video_idx][0][0] * xPt + division[video_idx][0][1] > yPt:
+                return matrices[video_idx][0]
+            else:
+                return matrices[video_idx][1]
+
+    elif len(division[video_idx]) == 2:
+        if (division[video_idx][0][0] >= 0) and (division[video_idx][1][0] >= 0):
+            if (division[video_idx][0][0] * xPt + division[video_idx][0][1] <= yPt) and (
+                    division[video_idx][1][0] * xPt + division[video_idx][1][1] <= yPt):
+                return matrices[video_idx][0]
+            elif (division[video_idx][0][0] * xPt + division[video_idx][0][1] > yPt) and (
+                    division[video_idx][1][0] * xPt + division[video_idx][1][1] <= yPt):
+                return matrices[video_idx][1]
+            else:
+                return matrices[video_idx][2]
+        elif (division[video_idx][0][0] >= 0) and (division[video_idx][1][0] < 0):
+            if (division[video_idx][0][0] * xPt + division[video_idx][0][1] <= yPt) and (
+                    division[video_idx][1][0] * xPt + division[video_idx][1][1] > yPt):
+                return matrices[video_idx][0]
+            elif (division[video_idx][0][0] * xPt + division[video_idx][0][1] > yPt) and (
+                    division[video_idx][1][0] * xPt + division[video_idx][1][1] > yPt):
+                return matrices[video_idx][1]
+            else:
+                return matrices[video_idx][2]
+        else:
+            if (division[video_idx][0][0] * xPt + division[video_idx][0][1] > yPt) and (
+                    division[video_idx][1][0] * xPt + division[video_idx][1][1] > yPt):
+                return matrices[video_idx][0]
+            elif (division[video_idx][0][0] * xPt + division[video_idx][0][1] <= yPt) and (
+                    division[video_idx][1][0] * xPt + division[video_idx][1][1] > yPt):
+                return matrices[video_idx][1]
+            else:
+                return matrices[video_idx][2]
+    # matrices = matrix_list[video_idx]
+    # if video_idx == 0:  # Shorts Test
+    #     if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
     #         matrix = matrices[0]
-    #     elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) >= yPt):
+    #     elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
     #         matrix = matrices[1]
-    #     elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) < yPt):
+    #     elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) < yPt):
     #         matrix = matrices[2]
     #     return matrix
-    elif video_idx == 1:
-        if ((-24.7 * xPt + 16450) >= yPt) and ((-222 / 163 * xPt + 2268) > yPt):
-            matrix = matrices[0]
-        elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) >= yPt):
-            matrix = matrices[1]
-        elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) < yPt):
-            matrix = matrices[2]
-        return matrix
-    elif video_idx == 2:
-        if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
-            matrix = matrices[0]
-        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
-            matrix = matrices[1]
-        elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) < yPt):
-            matrix = matrices[2]
-        return matrix
+    # # if video_idx == 0:
+    # #     if ((-988 / 400 * xPt + 1852.5) >= yPt) and ((-123 / 157 * xPt + 1497) > yPt):
+    # #         matrix = matrices[0]
+    # #     elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) >= yPt):
+    # #         matrix = matrices[1]
+    # #     elif ((-988 / 400 * xPt + 1852.5) < yPt) and ((-123 / 157 * xPt + 1497) < yPt):
+    # #         matrix = matrices[2]
+    # #     return matrix
+    # elif video_idx == 1:
+    #     if ((-24.7 * xPt + 16450) >= yPt) and ((-222 / 163 * xPt + 2268) > yPt):
+    #         matrix = matrices[0]
+    #     elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) >= yPt):
+    #         matrix = matrices[1]
+    #     elif ((-24.7 * xPt + 16450) < yPt) and ((-222 / 163 * xPt + 2268) < yPt):
+    #         matrix = matrices[2]
+    #     return matrix
+    # elif video_idx == 2:
+    #     if ((247 / 105 * xPt - 188) <= yPt) and ((-988 / 85 * xPt + 10461) > yPt):
+    #         matrix = matrices[0]
+    #     elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) >= yPt):
+    #         matrix = matrices[1]
+    #     elif ((247 / 105 * xPt - 188) > yPt) and ((-988 / 85 * xPt + 10461) < yPt):
+    #         matrix = matrices[2]
+    #     return matrix
 
 
 def get_matrix_in_merge(xPt, yPt, video_name: str, matrix_list):

@@ -31,9 +31,11 @@ class CascadeRunner(AbstractRunner):
         self.SingleImageSize = None
         self.WholeImageSize = None
         self.MaxWidthIdx = 0
-        self.DockInRegion = dict()
+        self.DockInRegion = get_yaml(args['projection_path'] + "DockEntrance.yaml")['DockRegion']
+        self.MappingInfo = get_yaml(args['projection_path'] + "MappingMatrix.yaml")
+
         with open(args['projection_path'] + "DockEntrance.pickle", 'rb') as f:
-            self.DockInRegion = pickle.load(f)
+            test = pickle.load(f)
         self.Matrices = dict()
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': plan_image}
@@ -79,7 +81,7 @@ class CascadeRunner(AbstractRunner):
 
         self.WholeImageSize = (self.WholeImageSize[0], self.WholeImageSize[1])
         ProjectionManager(video_list=args[self.__Provide]['list'], whole_image_size=self.WholeImageSize,
-                          single_image_size=self.SingleImageSize, matrices=self.Matrices)
+                          single_image_size=self.SingleImageSize, mapping_info=self.MappingInfo)
         self.__PlanHandle = PipeliningVideoManager()
         height, width, _ = plan_image.shape
         self.__PlanHandle.activate_video_object(args['output_base_path'] + args['run_name'] + 'plan.avi',

@@ -27,7 +27,19 @@ namespace HumanDT.UI
         public double FrameRate { get; set; }
         public string VideoName { get; set; }
         public List<int> VideoSize { get; set; }
+        public int StartCount { get; set; }
     }
+    public struct MappingMatrix
+    {
+        public Dictionary<int, List<float[]>> Division { get; set; }
+        public Dictionary<int, List<double[]>> Matrices { get; set; }
+    }
+    
+    public struct DockInfo
+    {
+        public List<double[]> DockRegion { get; set; }
+    }
+
     internal class CustomStructures
     {
     }

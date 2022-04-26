@@ -157,6 +157,7 @@
             this.Video2_pictureBox.Size = new System.Drawing.Size(590, 524);
             this.Video2_pictureBox.TabIndex = 0;
             this.Video2_pictureBox.TabStop = false;
+            this.Video2_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // splitContainerControl4
             // 
@@ -187,6 +188,7 @@
             this.Video3_pictureBox.Size = new System.Drawing.Size(600, 522);
             this.Video3_pictureBox.TabIndex = 0;
             this.Video3_pictureBox.TabStop = false;
+            this.Video3_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // Video4_pictureBox
             // 
@@ -198,6 +200,7 @@
             this.Video4_pictureBox.Size = new System.Drawing.Size(590, 522);
             this.Video4_pictureBox.TabIndex = 0;
             this.Video4_pictureBox.TabStop = false;
+            this.Video4_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // planPictureBox
             // 

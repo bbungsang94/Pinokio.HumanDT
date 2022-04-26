@@ -26,7 +26,8 @@ class ImageExtractor:
         video_name = path_split[len(path_split)-2]
         txt_path = save_path.replace(video_name + "\\", "")
 
-        video_info = {'VideoName': video_name, 'VideoSize': list(self.ImageSize), 'FrameRate': self.FrameRate}
+        video_info = {'VideoName': video_name, 'VideoSize': list(self.ImageSize), 'FrameRate': self.FrameRate,
+                      'StartCount': 0}
         with open(txt_path + video_name + ".yaml", 'w') as f:
             yaml.dump(video_info, f)
 
