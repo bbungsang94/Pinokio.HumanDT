@@ -18,9 +18,11 @@ namespace HumanDT.UI
         private readonly List<bool> _ImageRead = new();
         readonly List<PictureBox> _PictureBoxes = new();
         private List<object> _GuideButtons = new();
-        
+        private string _MatrixPath;
         private int _Focused = 0;
         private int _Selected = 0;
+        private List<VideoInfo> _VideoInfoList;
+
 
         public VideoForm()
         {
@@ -78,9 +80,16 @@ namespace HumanDT.UI
             directory = GetParent(6, directory);
             System.IO.FileInfo[] filepath = directory.GetFiles("image_extractor.py", System.IO.SearchOption.AllDirectories);
             _Config.FilePath = filepath[0].DirectoryName;
+            _VideoInfoList = new List<VideoInfo>();
+
+            directory = new System.IO.DirectoryInfo(program_path);
+            directory = GetParent(6, directory);
+            _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
             //_Config.CondaEnv = "VDT";
             _Config.CondaEnv = "";
+
+            
 
             pnlView.Visible = false;
             pnlProperty.Visible = false;
@@ -378,52 +387,102 @@ namespace HumanDT.UI
 
         private void BtnSyncClick(object sender, EventArgs e)
         {
+            System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_Config.SavePath);
+            List<string> yamlList = new List<string>();
+            foreach (System.IO.FileInfo file in di.GetFiles("*.yaml"))
+            {
+                using (var input = new System.IO.StreamReader(file.FullName))
+                {
+                    yamlList.Add(file.FullName);
+                    var yaml = new YamlDotNet.Serialization.Deserializer();
+                    _VideoInfoList.Add(yaml.Deserialize<VideoInfo>(input));
+                }
+            }
             for (int i = 0; i < _Config.VideoPath.Count; i++)
             {
                 var obj = _ImageObjects[i];
                 obj.StartCount = obj.FrameCount;
                 _ImageObjects[i] = obj;
+                _VideoInfoList[i] = new VideoInfo()
+                {
+                    FrameRate =  _VideoInfoList[i].FrameRate,
+                    StartCount = obj.StartCount,
+                    VideoName = _VideoInfoList[i].VideoName,
+                    VideoSize = _VideoInfoList[i].VideoSize
+                };
             }
             _Selected = ++_Selected % _GuideButtons.Count;
+
+            var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
+            for (int i = 0; i < _VideoInfoList.Count; i++)
+            {
+                var videoInfoYaml = serializer.Serialize(_VideoInfoList[i]);
+                System.IO.File.WriteAllText(yamlList[i], videoInfoYaml); 
+            }
+
         }
 
         private void AnalysisButtonClick(object sender, EventArgs e)
         {
-            MappingForm mappingForm = new MappingForm(_Config, _ImageObjects);
-            mappingForm.ShowDialog();
-            this.Close();
-
-            #region Python 실행
-            _Process.Start();
-
-            _Process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
-            _Process.StandardInput.WriteLine("conda activate FLOM");
-            _Process.StandardInput.WriteLine("D:");
-            _Process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
-            _Process.StandardInput.WriteLine("python main.py");
-
-            _Process.StandardInput.Close();
-
-            Thread.Sleep(5000);
-
-            string resultValue = _Process.StandardOutput.ReadToEnd();
-
-            _Process.WaitForExit();
-
-            _Process.Close();
-            #endregion
-
-            if (btnVisible.Text.Equals("Visible Mode"))
+            if (System.IO.File.Exists(_MatrixPath + "\\MappingMatrix.yaml"))
             {
-                AnalysisForm mainForm = new(_ImageObjects);
-                mainForm.ShowDialog();
-                this.Close();
+                var result = MessageBox.Show("Mapping Matrix가 존재합니다. 기존 Matrix를 사용하시겠습니까?", "새롭게 Matrix를 설정하려면 No를 눌러주세요", MessageBoxButtons.YesNo);
+                if (result == DialogResult.Yes)
+                {
+                    if (btnVisible.Text.Equals("Visible Mode"))
+                    {
+                        AnalysisForm mainForm = new(_ImageObjects);
+                        mainForm.ShowDialog();
+                        this.Close();
+                    }
+                    else
+                    {
+                        ProgressBar progressBar = new(_Process);
+                        progressBar.Show();
+                    }
+                }
+                else if (result == DialogResult.No)
+                {
+                    if (_Config.VideoPath.Count > 0)
+                    {
+                        MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath);
+                        mappingForm.ShowDialog();
+                        this.Close();
+                    }
+                    else
+                        MessageBox.Show("Save Path와 Video Path를 먼저 설정해주세요.", "Video Path가 설정되지 않았습니다.");
+                }
             }
             else
             {
-                ProgressBar progressBar = new(_Process);
-                progressBar.Show();
+                MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath);
+                mappingForm.ShowDialog();
+                this.Close();
             }
+            
+            
+
+            #region Python 실행
+            //_Process.Start();
+
+            //_Process.StandardInput.Write(@"ipconfig" + Environment.NewLine);
+            //_Process.StandardInput.WriteLine("conda activate FLOM");
+            //_Process.StandardInput.WriteLine("D:");
+            //_Process.StandardInput.WriteLine(@"cd D:\source-D\respos-D\Pinokio.HumanDT\API");
+            //_Process.StandardInput.WriteLine("python main.py");
+
+            //_Process.StandardInput.Close();
+
+            //Thread.Sleep(5000);
+
+            //string resultValue = _Process.StandardOutput.ReadToEnd();
+
+            //_Process.WaitForExit();
+
+            //_Process.Close();
+            #endregion
+
+            
         }
 
         private void BtnPlay1Click(object sender, EventArgs e)

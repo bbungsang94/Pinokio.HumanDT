@@ -157,6 +157,7 @@
             this.Video2_pictureBox.Size = new System.Drawing.Size(590, 524);
             this.Video2_pictureBox.TabIndex = 0;
             this.Video2_pictureBox.TabStop = false;
+            this.Video2_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // splitContainerControl4
             // 
@@ -187,6 +188,7 @@
             this.Video3_pictureBox.Size = new System.Drawing.Size(600, 522);
             this.Video3_pictureBox.TabIndex = 0;
             this.Video3_pictureBox.TabStop = false;
+            this.Video3_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // Video4_pictureBox
             // 
@@ -198,6 +200,7 @@
             this.Video4_pictureBox.Size = new System.Drawing.Size(590, 522);
             this.Video4_pictureBox.TabIndex = 0;
             this.Video4_pictureBox.TabStop = false;
+            this.Video4_pictureBox.Click += new System.EventHandler(this.Video_pictureBox_Click);
             // 
             // planPictureBox
             // 
@@ -247,13 +250,13 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.BtnPlanImportClick);
             // 
-            // btnReset
+            // btnAnalysis
             // 
             this.btnAnalysis.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.btnAnalysis.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.btnAnalysis.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.btnAnalysis.Location = new System.Drawing.Point(47, 477);
-            this.btnAnalysis.Name = "btnReset";
+            this.btnAnalysis.Name = "btnAnalysis";
             this.btnAnalysis.Size = new System.Drawing.Size(227, 55);
             this.btnAnalysis.TabIndex = 4;
             this.btnAnalysis.Text = "Apply";
@@ -270,6 +273,7 @@
             this.Analysis_button.TabIndex = 5;
             this.Analysis_button.Text = "Analysis";
             this.Analysis_button.UseVisualStyleBackColor = true;
+            this.Analysis_button.Click += new System.EventHandler(this.Analysis_button_Click);
             // 
             // button4
             // 
