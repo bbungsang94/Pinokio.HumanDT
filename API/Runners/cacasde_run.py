@@ -238,3 +238,4 @@ class CascadeRunner(AbstractRunner):
     def interaction_clear(self):
         for tracker_id in range(0, self.TrackerManager.IdLength + 1):
             self.__interactor.Processor.dequeue(tracker_id)
+        self.__interactor.Processor.save(self.__interactor.Processor.output_path)

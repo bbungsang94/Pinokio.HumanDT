@@ -157,10 +157,9 @@ class StateDecisionMaker:
             for deleted_id in single_deleted_list:
                 self.Processor.dequeue(deleted_id)
 
-        self.Processor.save(self.output_path)
-
     def update_decision(self, image_name, results):
         for result in results:
             (state, idx) = result
             self.Processor.enqueue(idx, state, image_name)
         self.Processor.update_time(image_name)
+        self.Processor.save(self.output_path)
