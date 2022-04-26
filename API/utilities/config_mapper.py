@@ -41,7 +41,7 @@ def get_config():
             config = yaml.load(f, Loader=yaml.FullLoader)
         except yaml.YAMLError as exc:
             assert False, "default.yaml error: {}".format(exc)
-    video_path = config['Image']['path']
+    video_path = config['Video']['path']
     file_list = os.listdir(video_path)
     video_list = [video_name for video_name in file_list if
                   video_name.endswith(".avi") or video_name.endswith(".mp4") or video_name.endswith(".mkv")]
