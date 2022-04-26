@@ -48,7 +48,6 @@ class CascadeRunner(AbstractRunner):
                 else:
                     name = video_name
                 video_handle = PipeliningVideoManager()
-                frame_count = -1
                 if self.__Provide == "Image":
                     config = get_yaml(args[self.__Provide]['path'] + name + ".yaml")
                     frame_rate = config['FrameRate']
@@ -59,11 +58,12 @@ class CascadeRunner(AbstractRunner):
                     video_handle.input_path = args[self.__Provide]['path'] + name + "/"
                 else:
                     config = get_yaml(args["Image"]['path'] + name + ".yaml")
-                    frame_rate = config['FrameRate']
-                    image_size = tuple(config['VideoSize'])
                     frame_count = config['StartCount']
                     frame_rate, image_size = video_handle.load_video(args[self.__Provide]['path'] + video_name)
                     v_info = None
+                    for iteration in range(frame_count):
+                        video_handle.pop()
+                    frame_count = -1
 
                 video_handle.activate_video_object(args['output_base_path'] + args['run_name'] + video_name,
                                                    v_info=v_info)
