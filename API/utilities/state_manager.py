@@ -150,7 +150,7 @@ class StateDecisionMaker:
             second_condition = min_y <= y <= max_y
             enter = first_condition and second_condition
             if not enter:
-                if x > max_x:
+                if x > max_x and second_condition:
                     return "Ready"
                 else:
                     state = "Move"

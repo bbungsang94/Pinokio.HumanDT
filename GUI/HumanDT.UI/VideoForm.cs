@@ -86,10 +86,10 @@ namespace HumanDT.UI
             directory = GetParent(6, directory);
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
-            _Config.CondaEnv = "VDT";
-            //_Config.CondaEnv = "";
+            //_Config.CondaEnv = "VDT";
+            _Config.CondaEnv = "";
 
-            
+
 
             pnlView.Visible = false;
             pnlProperty.Visible = false;

@@ -13,7 +13,7 @@ Video:
     - LOADING DOCK F3 Rampa 13 - 14.avi
     - LOADING DOCK F3 Rampa 15-16.avi
     - LOADING DOCK F3 Rampa 9-10.avi
-  path: video\
+  path: video\targetVideo\
 box_model_name: ''
 citation: true
 debug: false
@@ -31,7 +31,7 @@ provide: Video
 recovery_model_name: ssd_mobile
 run_mode: Cascade
 run_name: ''
-save: false
+save: true
 tracker_model_name: sort_color
 tracking_path: tracking_result/
 trajectory_path: plan_result/

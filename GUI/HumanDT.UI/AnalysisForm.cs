@@ -100,7 +100,7 @@ namespace HumanDT.UI
         private void TimerStart()
         {
             Timer timer = new();
-            timer.Interval = 66;
+            timer.Interval = 5000;
             timer.Tick += new EventHandler(Image_reader);
             timer.Start();
         }
@@ -148,7 +148,7 @@ namespace HumanDT.UI
 
             try
             {
-                obj.CurrentName = GetImageName(obj.FrameCount + 1, obj.FrameRate);
+                obj.CurrentName = GetImageName(obj.FrameCount, obj.FrameRate);
                 Image image = Image.FromFile(obj.VideoPath + obj.CurrentName);
                 if (increase)
                 {
