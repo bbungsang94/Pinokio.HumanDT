@@ -1,5 +1,6 @@
 import torchvision
 
+from utils.general import check_img_size, check_requirements, non_max_suppression, scale_coords, xyxy2xywh
 from Detectors.Abstract.AbstractDetector import AbstractDetector
 from utilities.media_handler import *
 import torch
@@ -43,17 +44,16 @@ class Yolov5Detector(AbstractDetector):
             self.Detector = attempt_load(self.model_handle, map_location=torch.device('cuda:0'))
             # self.Detector.eval()
 
-    def detection(self, image0):
+    def detection(self, input_image):
         """Determines the locations of the vehicle in the image
 
                 Args:
-                    image: image(tensor)
+                    input_image: image(tensor)
                 Returns:
                     list of bounding boxes: coordinates [y_up, x_left, y_down, x_right]
 
                 """
-        from utils.general import check_img_size, check_requirements, non_max_suppression, scale_coords, xyxy2xywh
-        image = image0.permute(2, 0, 1)
+        image = input_image.permute(2, 0, 1)
         # converted_img = tf.image.convert_image_dtype(image, tf.float32)
         device = torch.device('cuda:0')
         image = image.float().to(device)
@@ -80,7 +80,7 @@ class Yolov5Detector(AbstractDetector):
         detection_class = []
         if len(det):
             # Rescale boxes from img_size to img0 size
-            det[:, :4] = scale_coords(converted_img.shape[2:], det[:, :4], image0.shape).round()
+            det[:, :4] = scale_coords(converted_img.shape[2:], det[:, :4], input_image.shape).round()
 
             # Print results
             # for c in det[:, -1].unique():
@@ -102,7 +102,7 @@ class Yolov5Detector(AbstractDetector):
 
             # print(f'Inferencing and Processing Done. ({time.time() - t0:.3f}s)')
             # result = {key: value.numpy() for key, value in result.items()}
-        info = tf.shape(image0)
+        info = tf.shape(input_image)
         veh_info, box_info, person_info = self.__post_process(result, info)
         return converted_img, veh_info, box_info, person_info
 
