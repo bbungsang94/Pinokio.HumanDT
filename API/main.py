@@ -39,7 +39,8 @@ if __name__ == "__main__":
                           "LOADING DOCK F3 Rampa 11-12.avi",
                           "LOADING DOCK F3 Rampa 9-10.avi"]
                       }
-        config['video_list'] = video_list
+        provide = config['provide']
+        config[provide]['list'] = video_list
     clear_folder(folder_list=[config['image_path'],
                               config['detected_path'],
                               config['tracking_path'],

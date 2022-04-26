@@ -22,6 +22,7 @@ class VideoManger:
         self._frame_count = -1
 
         self.video_name = ''
+        self.input_path = ''
 
     def scan_video(self, path):
         """ Scanning videos(mp4 and avi) of path
@@ -105,8 +106,10 @@ class VideoManger:
             out.write(self.__frame_list[i])
         out.release()
 
-    def make_image_name(self):
-        time_val = self._frame_count / self._frame_rate
+    def make_image_name(self, frame_count=-1):
+        if frame_count is -1:
+            frame_count = self._frame_count
+        time_val = frame_count / self._frame_rate
         time_str = "{:011.5f}".format(time_val)
         time_str = time_str.replace('.', '-')
         time_str = time_str + '.jpeg'

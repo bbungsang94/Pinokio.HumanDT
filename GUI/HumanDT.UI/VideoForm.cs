@@ -87,7 +87,7 @@ namespace HumanDT.UI
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
             //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "";
+            _Config.CondaEnv = "VDT";
 
             
 
@@ -411,7 +411,8 @@ namespace HumanDT.UI
                     VideoSize = _VideoInfoList[i].VideoSize
                 };
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 3)
+                _Selected = ++_Selected % _GuideButtons.Count;
 
             var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
             for (int i = 0; i < _VideoInfoList.Count; i++)
@@ -515,7 +516,8 @@ namespace HumanDT.UI
             {
                 _ImageRead[i] = true;
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 2)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnImportClick(object sender, EventArgs e)
@@ -555,7 +557,8 @@ namespace HumanDT.UI
                 pnlView.Visible = true;
                 pnlProperty.Visible = true;
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 1)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnSavePathClick(object sender, EventArgs e)
@@ -570,7 +573,8 @@ namespace HumanDT.UI
                     _Config.SavePath = folderBrowserDialog.SelectedPath + "\\";
                 }
             }
-            _Selected = ++_Selected % _GuideButtons.Count;
+            if (_Selected == 0)
+                _Selected = ++_Selected % _GuideButtons.Count;
         }
 
         private void BtnResetClick(object sender, EventArgs e)
