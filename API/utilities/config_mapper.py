@@ -1,6 +1,7 @@
 import collections
 from copy import deepcopy
 import yaml
+import os
 
 
 def config_copy(config):
@@ -38,6 +39,15 @@ def get_config():
     with open(config_dir.format('config', "{}.yaml".format('default')), "r") as f:
         try:
             config = yaml.load(f, Loader=yaml.FullLoader)
+        except yaml.YAMLError as exc:
+            assert False, "default.yaml error: {}".format(exc)
+    image_path = config['Image']['path']
+    file_list = os.listdir(image_path)
+    image_list = [image_name.replace('.yaml', "") for image_name in file_list if image_name.endswith(".yaml")]
+    config['Image']['list'][0] = image_list
+    with open(config_dir.format('config', "{}.yaml".format('default')), "w") as f:
+        try:
+            yaml.dump(config, f)
         except yaml.YAMLError as exc:
             assert False, "default.yaml error: {}".format(exc)
     detection_names = [config['primary_model_name'], config['recovery_model_name']]

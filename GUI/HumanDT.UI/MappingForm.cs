@@ -382,10 +382,5 @@ namespace HumanDT.UI
 
             return new float[] { gradient, constant };
         }
-
-        private void Analysis_button_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
