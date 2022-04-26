@@ -36,7 +36,6 @@ class CascadeRunner(AbstractRunner):
 
         with open(args['projection_path'] + "DockEntrance.pickle", 'rb') as f:
             test = pickle.load(f)
-        self.Matrices = dict()
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': plan_image}
 
@@ -44,7 +43,10 @@ class CascadeRunner(AbstractRunner):
         count = 0
         for row, videos in self.__VideoMap.items():
             for idx, video_name in enumerate(videos):
-                (name, _) = video_name.split('.')
+                if "." in video_name:
+                    (name, _) = video_name.split('.')
+                else:
+                    name = video_name
                 video_handle = PipeliningVideoManager()
                 frame_count = -1
                 if self.__Provide == "Image":
@@ -69,11 +71,6 @@ class CascadeRunner(AbstractRunner):
                     self.SingleImageSize = image_size
                 self.__VideoHandles.append((frame_count, video_handle))
                 self.__OldReservedTrkLen[idx] = 0
-
-                self.Matrices[idx] = []
-                for local_cnt in range(args['num_of_projection']):
-                    with open(args['projection_path'] + name + '-' + str(local_cnt + 1) + '.pickle', 'rb') as matrix:
-                        self.Matrices[idx].append(pickle.load(matrix))
 
                 if args['save']:
                     Runners.general_runner.make_save_folders(args=args, name=name)

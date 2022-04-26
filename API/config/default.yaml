@@ -1,38 +1,33 @@
-
-# Models
-primary_model_name: "Yolov5"       # "primary model args"
-recovery_model_name: "ssd_mobile"     # "recovery model args"
-box_model_name: ""                    # "box model args"
-tracker_model_name: "sort_color"         # "tracker model args"
-
-# DataSet path
-run_mode: "Cascade" # Single / Parallel / Merge / Cascade
-provide: 'Image' # Video or Image
-Video:
-  list: [] # video list
-  path: "./video/" # target video path
 Image:
-  list: [0: ["LOADING DOCK F3 Rampa 13 - 14.avi",
-             "LOADING DOCK F3 Rampa 11-12.avi",
-             "LOADING DOCK F3 Rampa 9-10.avi"]]
-  path: "./temp/" # target image path
-image_path: "test_images/" # test images path
-plan_path: "./params/plan3-15.png"
-projection_path: "./params/projection/"
+  list:
+    0:
+    - LOADING DOCK F3 Rampa 11-12
+    - LOADING DOCK F3 Rampa 13 - 14
+    - LOADING DOCK F3 Rampa 5-6
+    - LOADING DOCK F3 Rampa 9-10
+  path: temp/
+Video:
+  list: []
+  path: ./video/
+box_model_name: ''
+citation: true
+debug: false
+detected_path: detected_images/
+history: false
+image_path: test_images/
+log: true
 num_of_projection: 3
-
-# Output path
-output_base_path: "./output/" # 
-run_name: "" # 
-detected_path: "detected_images/" #
-tracking_path: "tracking_result/" #
-trajectory_path: "plan_result/" #
-
-# Developer menu
-debug: False
-log: True
-visible: False
-save: True
-pipeline: True
-citation: True
-history: False
+output_base_path: ./output/
+pipeline: true
+plan_path: ./params/plan3-15.png
+primary_model_name: Yolov5
+projection_path: ./params/projection/
+provide: Image
+recovery_model_name: ssd_mobile
+run_mode: Cascade
+run_name: ''
+save: true
+tracker_model_name: sort_color
+tracking_path: tracking_result/
+trajectory_path: plan_result/
+visible: false

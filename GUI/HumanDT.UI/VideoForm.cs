@@ -87,7 +87,7 @@ namespace HumanDT.UI
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
             //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "VDT";
+            _Config.CondaEnv = "";
 
             
 
