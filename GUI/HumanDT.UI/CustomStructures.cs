@@ -47,6 +47,16 @@ namespace HumanDT.UI
     {
         public List<double[]> DockRegion { get; set; }
     }
+    public struct FolkliftInfo
+    {
+        public string Name { get; set; }
+        public string In { get; set; }
+        public string Ready { get; set; }
+        public string LoadedMove { get; set; }
+        public string EmptyMove { get; set; }
+        public string NA { get; set; }
+        public string Put { get; set; }
+    }
 
     internal class CustomStructures
     {

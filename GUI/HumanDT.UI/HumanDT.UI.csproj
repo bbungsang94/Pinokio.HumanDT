@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="DevExpress.Win.Design" Version="21.2.*-*" />
     <PackageReference Include="OpenCvSharp4" Version="4.5.5.20211231" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     <PackageReference Include="YamlDotNet.NetCore" Version="1.0.0" />
   </ItemGroup>
 

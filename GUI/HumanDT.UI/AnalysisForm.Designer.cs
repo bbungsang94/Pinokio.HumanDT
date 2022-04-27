@@ -42,6 +42,8 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.lbHeader = new System.Windows.Forms.Label();
+            this.pictureBox5 = new System.Windows.Forms.PictureBox();
+            this.dataGridView1 = new System.Windows.Forms.DataGridView();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1.Panel1)).BeginInit();
             this.splitContainerControl1.Panel1.SuspendLayout();
@@ -65,12 +67,14 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             this.pnlHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainerControl1
             // 
             this.splitContainerControl1.Horizontal = false;
-            this.splitContainerControl1.Location = new System.Drawing.Point(368, 166);
+            this.splitContainerControl1.Location = new System.Drawing.Point(281, 166);
             this.splitContainerControl1.Name = "splitContainerControl1";
             // 
             // splitContainerControl1.Panel1
@@ -176,21 +180,22 @@
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Left;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(326, 1080);
+            this.pnlHeader.Size = new System.Drawing.Size(263, 1080);
             this.pnlHeader.TabIndex = 5;
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(47, 315);
+            this.button5.Location = new System.Drawing.Point(19, 315);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(227, 55);
             this.button5.TabIndex = 5;
             this.button5.Text = "Tracking trajectory";
             this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(47, 886);
+            this.button4.Location = new System.Drawing.Point(19, 886);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(227, 55);
             this.button4.TabIndex = 4;
@@ -199,7 +204,7 @@
             // 
             // Close_button
             // 
-            this.Close_button.Location = new System.Drawing.Point(47, 947);
+            this.Close_button.Location = new System.Drawing.Point(19, 947);
             this.Close_button.Name = "Close_button";
             this.Close_button.Size = new System.Drawing.Size(227, 55);
             this.Close_button.TabIndex = 3;
@@ -209,7 +214,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(47, 230);
+            this.button2.Location = new System.Drawing.Point(19, 230);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(227, 55);
             this.button2.TabIndex = 2;
@@ -218,12 +223,13 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(47, 145);
+            this.button6.Location = new System.Drawing.Point(19, 145);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(227, 55);
             this.button6.TabIndex = 1;
             this.button6.Text = "Analysis Graph";
             this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // lbHeader
             // 
@@ -237,6 +243,24 @@
             this.lbHeader.Text = "Analysis";
             this.lbHeader.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // pictureBox5
+            // 
+            this.pictureBox5.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureBox5.Location = new System.Drawing.Point(1444, 166);
+            this.pictureBox5.Name = "pictureBox5";
+            this.pictureBox5.Size = new System.Drawing.Size(454, 793);
+            this.pictureBox5.TabIndex = 6;
+            this.pictureBox5.TabStop = false;
+            // 
+            // dataGridView1
+            // 
+            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView1.Location = new System.Drawing.Point(1444, 166);
+            this.dataGridView1.Name = "dataGridView1";
+            this.dataGridView1.RowTemplate.Height = 25;
+            this.dataGridView1.Size = new System.Drawing.Size(454, 793);
+            this.dataGridView1.TabIndex = 7;
+            // 
             // AnalysisForm
             // 
             this.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
@@ -244,6 +268,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1920, 1080);
+            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.pictureBox5);
             this.Controls.Add(this.pnlHeader);
             this.Controls.Add(this.splitContainerControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -274,6 +300,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -293,5 +321,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Label lbHeader;
+        private System.Windows.Forms.PictureBox pictureBox5;
+        private System.Windows.Forms.DataGridView dataGridView1;
     }
 }
