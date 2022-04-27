@@ -86,8 +86,8 @@ namespace HumanDT.UI
             directory = GetParent(6, directory);
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
-            //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "";
+            _Config.CondaEnv = "VDT";
+            //_Config.CondaEnv = "";
 
 
 
@@ -439,8 +439,7 @@ namespace HumanDT.UI
                     if (btnVisible.Text.Equals("Visible Mode"))
                     {
                         AnalysisForm mainForm = new(_ImageObjects, _Config, _Process);
-                        mainForm.ShowDialog();
-                        this.Close();
+                        mainForm.Show();
                     }
                     else
                     {

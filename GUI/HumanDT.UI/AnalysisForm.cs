@@ -50,19 +50,21 @@ namespace HumanDT.UI
             System.IO.FileInfo[] filepath = directory.GetFiles("main.py", System.IO.SearchOption.AllDirectories);
             _Config.FilePath = filepath[0].DirectoryName;
 
-            
-            _Process = new Process();
             _ProcessInfo.FileName = "cmd.exe";
 
             _ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
             _ProcessInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
             _ProcessInfo.UseShellExecute = false;
+
             _ProcessInfo.RedirectStandardInput = true;
             _ProcessInfo.RedirectStandardOutput = true;
             _ProcessInfo.RedirectStandardError = true;
 
             _Process.StartInfo = _ProcessInfo;
+
             _Process.Start();
+            _Process.PriorityBoostEnabled = true;
+            _Process.PriorityClass = ProcessPriorityClass.RealTime;
 
             _Process.StandardInput.WriteLine($"conda activate {_Config.CondaEnv}");
             if (_Config.FilePath.Contains("D:"))
@@ -92,7 +94,7 @@ namespace HumanDT.UI
                     FrameRate = 15,
                     VideoPath = _TrackingPath + "\\" + _VideoList[i] + "\\",
                     FrameCount = _ImageObjects[i].FrameCount,
-                    CurrentName = GetImageName(0, 30)
+                    CurrentName = GetImageName(_ImageObjects[i].FrameCount, 15)
                 };
                 _TrackingObjects.Add(temp_object);
                 _ImageRead.Add(true);
