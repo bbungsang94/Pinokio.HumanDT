@@ -173,7 +173,6 @@ namespace HumanDT.UI
             catch
             {
                 obj.FrameCount -= 1;
-                _ImageRead[idx] = false;
             }
         }
     }
