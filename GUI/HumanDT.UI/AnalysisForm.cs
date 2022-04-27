@@ -37,7 +37,7 @@ namespace HumanDT.UI
             _PictureBoxes.Add(pictureBox2);
             _PictureBoxes.Add(pictureBox3);
             _PictureBoxes.Add(pictureBox4);
-            _Process = process;
+            _Process = new Process();
             _Config = config;
             _ImageObjects = imageObjects;
             SplashScreenManager.ShowForm(typeof(ProgressForm));
@@ -75,7 +75,7 @@ namespace HumanDT.UI
             _Process.StandardInput.WriteLine("python main.py");
 
             _Process.StandardInput.Close();
-            Thread.Sleep(10000);
+            Thread.Sleep(15000);
             #endregion
             _OutputPath = _Config.FilePath + "\\output";
             System.IO.DirectoryInfo di = new System.IO.DirectoryInfo(_OutputPath);
@@ -145,6 +145,7 @@ namespace HumanDT.UI
                     LoadImage(i, true);
                 }
             }
+            _Process.StandardOutput.ReadLine();
         }
         private void LoadResult()
         {
