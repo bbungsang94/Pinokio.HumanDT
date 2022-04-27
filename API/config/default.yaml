@@ -13,7 +13,7 @@ Video:
     - LOADING DOCK F3 Rampa 13 - 14.avi
     - LOADING DOCK F3 Rampa 15-16.avi
     - LOADING DOCK F3 Rampa 9-10.avi
-  path: video\targetVideo\
+  path: video\
 box_model_name: ''
 citation: true
 debug: false

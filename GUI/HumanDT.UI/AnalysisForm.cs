@@ -35,7 +35,7 @@ namespace HumanDT.UI
             _PictureBoxes.Add(pictureBox2);
             _PictureBoxes.Add(pictureBox3);
             _PictureBoxes.Add(pictureBox4);
-            _Process = process;
+            _Process = new Process();
             _Config = config;
             _ImageObjects = imageObjects;
             SplashScreenManager.ShowForm(typeof(ProgressForm));
@@ -48,18 +48,21 @@ namespace HumanDT.UI
             System.IO.FileInfo[] filepath = directory.GetFiles("main.py", System.IO.SearchOption.AllDirectories);
             _Config.FilePath = filepath[0].DirectoryName;
 
-            //_ProcessInfo.FileName = "cmd.exe";
+            _ProcessInfo.FileName = "cmd.exe";
 
-            //_ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            //_ProcessInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
-            //_ProcessInfo.UseShellExecute = false;
-            //_ProcessInfo.RedirectStandardInput = true;
-            //_ProcessInfo.RedirectStandardOutput = true;
-            //_ProcessInfo.RedirectStandardError = true;
+            _ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            _ProcessInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
+            _ProcessInfo.UseShellExecute = false;
 
-            //_Process.StartInfo = _ProcessInfo;
+            _ProcessInfo.RedirectStandardInput = true;
+            _ProcessInfo.RedirectStandardOutput = true;
+            _ProcessInfo.RedirectStandardError = true;
+
+            _Process.StartInfo = _ProcessInfo;
+
             _Process.Start();
-
+            _Process.PriorityBoostEnabled = true;
+            _Process.PriorityClass = ProcessPriorityClass.RealTime;
             _Process.StandardInput.WriteLine($"conda activate {_Config.CondaEnv}");
             if (_Config.FilePath.Contains("D:"))
             {
@@ -88,7 +91,7 @@ namespace HumanDT.UI
                     FrameRate = 15,
                     VideoPath = _TrackingPath + "\\" + _VideoList[i] + "\\",
                     FrameCount = _ImageObjects[i].FrameCount,
-                    CurrentName = GetImageName(0, 30)
+                    CurrentName = GetImageName(_ImageObjects[i].FrameCount, 15)
                 };
                 _TrackingObjects.Add(temp_object);
                 _ImageRead.Add(true);
@@ -100,10 +103,18 @@ namespace HumanDT.UI
         private void TimerStart()
         {
             Timer timer = new();
-            timer.Interval = 5000;
+            timer.Interval = 400;
             timer.Tick += new EventHandler(Image_reader);
             timer.Start();
         }
+        //    Task taskA = Task.Factory.StartNew(FuncA);
+        //}
+
+        //static void FuncA()
+        //{
+            
+        //}
+
         private static string GetImageName(int count, int frame_rate)
         {
             double time_val = (double)count / (double)frame_rate;
@@ -136,6 +147,8 @@ namespace HumanDT.UI
                 {
                     LoadImage(i, true);
                 }
+
+                _ = _Process.StandardOutput.ReadLine();
             }
         }
         private void LoadImage(int idx, bool increase, int framecount = -1)
