@@ -49,11 +49,13 @@ class StateMonitor:
 
     def save_file(self, path):
         temp_raw = pd.DataFrame(self.Calculator, index=self.Object_list)
-        transposed = temp_raw.T  # or df1.transpose()
+        idle_idx = temp_raw[temp_raw["이동 거리"] == 0.0].index
+        active_raw = temp_raw.drop(idle_idx)
+        transposed = active_raw.T  # or df1.transpose()
         normalized_df = (transposed - transposed.min()) / (transposed.max() - transposed.min())
         ratio_df = normalized_df.T
 
-        temp_raw.to_csv(path + 'raw_data.csv', mode='w', encoding='euc-kr')
+        active_raw.to_csv(path + 'raw_data.csv', mode='w', encoding='euc-kr')
         ratio_df.to_csv(path + 'ratio_data.csv', mode='w', encoding='euc-kr')
 
         # print(self.Calculator)
