@@ -1,0 +1,10 @@
+sort_dock:
+  model_name: "sort_dock"
+  max_age: 4
+  iou_thrd: 0.3
+  reassign_buffer: 0.3
+  exist_division: 7
+  image_size: []
+  max_trackers: 255555
+  video_idx: 0
+  video_len: 4
