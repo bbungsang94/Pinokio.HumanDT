@@ -49,6 +49,12 @@ namespace HumanDT.UI
             this.DetailedChart.Series.Add(new Series("Detailed Utilization", ViewType.StackedBar));
             this.DetailedChart.Titles.Add(new ChartTitle { Text = "Detailed Utillization Chart", TextColor = Color.White });
             this.DetailedChart.BackColor = Color.FromArgb(60, 60, 60);
+            this.DockinfoChart.Series.Add(new Series("DockInfo", ViewType.Bar));
+            this.DockinfoChart.Titles.Add(new ChartTitle { Text = "DockInfo Chart", TextColor = Color.White });
+            this.DockinfoChart.BackColor = Color.FromArgb(60, 60, 60);
+            this.DistanceChart.Series.Add(new Series("Detailed Utilization", ViewType.Bar));
+            this.DistanceChart.Titles.Add(new ChartTitle { Text = "Distance Chart", TextColor = Color.White });
+            this.DistanceChart.BackColor = Color.FromArgb(60, 60, 60);
 
             //this.ChartStackBar.Series.Add(new Series("DetailedUtiliztion", ViewType.StackedBar));
             //InitializeChartControl(this.ChartStackBar);
@@ -184,6 +190,9 @@ namespace HumanDT.UI
                 case "DockinfoChart":
                     chart.DataSource = ConvertDockinfo(dt);
                     break;
+                case "DistanceChart":
+                    chart.DataSource = ConvertDistance(dt);
+                    break;
             }
             chart.SeriesTemplate.SeriesDataMember = "Item";
             chart.SeriesTemplate.SetDataMembers("Name", "Values");
@@ -214,7 +223,7 @@ namespace HumanDT.UI
             diagram.AxisX.Label.ResolveOverlappingOptions.AllowRotate = true;
             diagram.AxisX.Label.ResolveOverlappingOptions.MinIndent = 1;
             diagram.AxisX.QualitativeScaleOptions.AutoGrid = false;
-            
+
             chart.Legend.Visibility = DevExpress.Utils.DefaultBoolean.False;
         }
         private void UpdateDetailChart(ChartControl chart, DataTable dt)
@@ -243,9 +252,11 @@ namespace HumanDT.UI
         private DataTable ConvertSimple(DataTable dt)
         {
             DataTable newDT = new DataTable();
-            newDT.Columns.AddRange(new DataColumn[] {new DataColumn("Item",typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
-            foreach(DataRow dr in dt.Rows)
+            newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
+            foreach (DataRow dr in dt.Rows)
             {
+                if (double.Parse(dr["VVARatio"].ToString()) == 0)
+                    continue;
                 newDT.Rows.Add("Utilization", dr["Name"], dr["VVARatio"]);
             }
             return newDT;
@@ -256,6 +267,9 @@ namespace HumanDT.UI
             newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
             foreach (DataRow dr in dt.Rows)
             {
+                if (double.Parse(dr["도크 진입"].ToString()) == 0 && double.Parse(dr["트레일러 작업"].ToString()) == 0 && double.Parse(dr["지게차 적재이동"].ToString()) == 0
+                    && double.Parse(dr["1차 하역"].ToString()) == 0 && double.Parse(dr["빈 지게차 이동"].ToString()) == 0 && double.Parse(dr["N/A"].ToString()) == 0)
+                    continue;
                 newDT.Rows.Add("In", dr["Name"], double.Parse(dr["도크 진입"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
                 newDT.Rows.Add("Ready", dr["Name"], double.Parse(dr["트레일러 작업"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
                 newDT.Rows.Add("LoadedMove", dr["Name"], double.Parse(dr["지게차 적재이동"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
@@ -272,13 +286,25 @@ namespace HumanDT.UI
         {
             DataTable newDT = new DataTable();
             newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
-            
+
             foreach (DataRow dr in dt.Rows)
             {
-                if (double.Parse(dr["이동 거리"].ToString()) == 0 && double.Parse(dr["도크 작업 수"].ToString()) == 0)
+                if (double.Parse(dr["도크 작업 수"].ToString()) == 0)
+                    continue;
+                newDT.Rows.Add("도크 작업 수", dr["Name"], double.Parse(dr["도크 작업 수"].ToString()));
+            }
+            return newDT;
+        }
+        private DataTable ConvertDistance(DataTable dt)
+        {
+            DataTable newDT = new DataTable();
+            newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (double.Parse(dr["이동 거리"].ToString()) == 0)
                     continue;
                 newDT.Rows.Add("이동 거리", dr["Name"], double.Parse(dr["이동 거리"].ToString()));
-                newDT.Rows.Add("도크 작업 수", dr["Name"], double.Parse(dr["도크 작업 수"].ToString()));
             }
             return newDT;
         }
@@ -324,7 +350,7 @@ namespace HumanDT.UI
                     LoadImage(i, true);
                 }
             }
-            
+
         }
         private void LoadResult()
         {
@@ -391,9 +417,10 @@ namespace HumanDT.UI
                 this.UpdateSimpleChart(this.SimpleChart, dt);
                 this.UpdateSimpleChart(this.DetailedChart, dt);
                 this.UpdateSimpleChart(this.DockinfoChart, dt);
+                this.UpdateSimpleChart(this.DistanceChart, dt);
             }
             catch { }
-            
+
         }
         private void LoadPlanImage()
         {
@@ -402,7 +429,7 @@ namespace HumanDT.UI
             {
                 obj.CurrentName = GetImageName(obj.FrameCount, obj.FrameRate);
                 Image image = Image.FromFile(_PlanPath + obj.CurrentName);
-                
+
                 pictureBox5.BackgroundImage = image;
             }
             catch
@@ -441,6 +468,7 @@ namespace HumanDT.UI
             DetailedChart.Visible = false;
             pictureBox5.Visible = false;
             DockinfoChart.Visible = false;
+            DistanceChart.Visible = false;
         }
 
         private void Trajectory_Click(object sender, EventArgs e)
@@ -449,6 +477,7 @@ namespace HumanDT.UI
             DetailedChart.Visible = false;
             pictureBox5.Visible = true;
             DockinfoChart.Visible = false;
+            DistanceChart.Visible = false;
         }
 
         private void DetailChart_Click(object sender, EventArgs e)
@@ -457,6 +486,7 @@ namespace HumanDT.UI
             DetailedChart.Visible = true;
             pictureBox5.Visible = false;
             DockinfoChart.Visible = false;
+            DistanceChart.Visible = false;
         }
 
         private void DockinfoChart_Click(object sender, EventArgs e)
@@ -465,6 +495,16 @@ namespace HumanDT.UI
             DetailedChart.Visible = false;
             pictureBox5.Visible = false;
             DockinfoChart.Visible = true;
+            DistanceChart.Visible = false;
+        }
+
+        private void DistanceChart_Click(object sender, EventArgs e)
+        {
+            SimpleChart.Visible = false;
+            DetailedChart.Visible = false;
+            pictureBox5.Visible = false;
+            DockinfoChart.Visible = false;
+            DistanceChart.Visible = true;
         }
     }
 }

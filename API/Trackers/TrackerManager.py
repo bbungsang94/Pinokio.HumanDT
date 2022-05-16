@@ -278,7 +278,8 @@ class DockWrapper:
                 if self.__overlap_check(tempTrk, new_tracker):
                     if updated is False:
                         tempTrk.id = new_tracker.id
-                        tempTrk.history.append(tempTrk.box)
+                        tr_x, tr_y = ProjectionManager.transform(tempTrk.box, tempTrk.video_idx)
+                        tempTrk.history.append([tr_x, tr_y])
                         tempTrk.box = new_tracker.box
                         updated = True
                     new_del_trks.append(new_tracker)
@@ -335,6 +336,7 @@ class DockWrapper:
                 tracker.history = old_tracker.history + tracker.history
                 self.__DockTrackers[dock_id] = (tracker, tracker.Distance + mileage)
             self.__ElseTrackers.remove(tracker)
+            tracker.id = dock_id
             return True
         else:
             return False
