@@ -5,6 +5,9 @@
     <Compile Update="AnalysisForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="FinalResultForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="MappingForm.cs">
       <SubType>Form</SubType>
     </Compile>

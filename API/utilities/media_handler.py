@@ -107,7 +107,7 @@ class VideoManger:
         out.release()
 
     def make_image_name(self, frame_count=-1):
-        if frame_count is -1:
+        if frame_count == -1:
             frame_count = self._frame_count
         time_val = frame_count / self._frame_rate
         time_str = "{:011.5f}".format(time_val)

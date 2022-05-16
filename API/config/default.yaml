@@ -18,6 +18,7 @@ box_model_name: ''
 citation: true
 debug: false
 detected_path: detected_images/
+drawing_scale: 0.06579
 history: false
 image_path: test_images/
 log: true
@@ -32,7 +33,7 @@ recovery_model_name: ssd_mobile
 run_mode: Cascade
 run_name: ''
 save: true
-tracker_model_name: sort_color
+tracker_model_name: sort_dock
 tracking_path: tracking_result/
 trajectory_path: plan_result/
 visible: false

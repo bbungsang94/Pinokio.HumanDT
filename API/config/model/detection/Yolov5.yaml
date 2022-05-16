@@ -4,7 +4,7 @@ Yolov5:
   model_handle: "./config/model/weights/yolov5_0325.pt"
   label_path: "./params/label/yolov5_label_map.yaml" # model label path
   box_min_score: 0.3
-  vehicle_min_score: 0.3
+  vehicle_min_score: 0.5
   person_min_score: 0.3
   iou_score: 0.3
   offset_score: 0.3

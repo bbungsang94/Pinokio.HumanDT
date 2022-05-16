@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
 using DevExpress.XtraSplashScreen;
+using DevExpress.XtraCharts;
 using Timer = System.Windows.Forms.Timer;
 
 namespace HumanDT.UI
@@ -42,6 +43,17 @@ namespace HumanDT.UI
             _ImageObjects = imageObjects;
             SplashScreenManager.ShowForm(typeof(ProgressForm));
 
+            this.SimpleChart.Series.Add(new Series("Utilization", ViewType.Bar));
+            this.SimpleChart.Titles.Add(new ChartTitle { Text = "Simple Utillization Chart", TextColor = Color.White });
+            this.SimpleChart.BackColor = Color.FromArgb(60, 60, 60);
+            this.DetailedChart.Series.Add(new Series("Detailed Utilization", ViewType.StackedBar));
+            this.DetailedChart.Titles.Add(new ChartTitle { Text = "Detailed Utillization Chart", TextColor = Color.White });
+            this.DetailedChart.BackColor = Color.FromArgb(60, 60, 60);
+
+            //this.ChartStackBar.Series.Add(new Series("DetailedUtiliztion", ViewType.StackedBar));
+            //InitializeChartControl(this.ChartStackBar);
+            this.DetailedChart.Visible = false;
+
 
             #region Python 실행
             string program_path = Application.StartupPath;
@@ -50,31 +62,38 @@ namespace HumanDT.UI
             System.IO.FileInfo[] filepath = directory.GetFiles("main.py", System.IO.SearchOption.AllDirectories);
             _Config.FilePath = filepath[0].DirectoryName;
 
-            _ProcessInfo.FileName = "cmd.exe";
-
-            _ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            _ProcessInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
-            _ProcessInfo.UseShellExecute = false;
-
-            _ProcessInfo.RedirectStandardInput = true;
-            _ProcessInfo.RedirectStandardOutput = true;
-            _ProcessInfo.RedirectStandardError = true;
-
+            _ProcessInfo.FileName = @"D:\test\pythontest.bat";
             _Process.StartInfo = _ProcessInfo;
-
             _Process.Start();
-            _Process.PriorityBoostEnabled = true;
-            _Process.PriorityClass = ProcessPriorityClass.RealTime;
+            //new Thread(new ThreadStart(StartAnalyse)).Start();
+            //var analyseThread = new Thread(() => StartAnalyse());
+            //analyseThread.Start();
 
-            _Process.StandardInput.WriteLine($"conda activate {_Config.CondaEnv}");
-            if (_Config.FilePath.Contains("D:"))
-            {
-                _Process.StandardInput.WriteLine("D:");
-            }
-            _Process.StandardInput.WriteLine("cd " + _Config.FilePath);
-            _Process.StandardInput.WriteLine("python main.py");
+            //_ProcessInfo.FileName = "cmd.exe";
 
-            _Process.StandardInput.Close();
+            //_ProcessInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            //_ProcessInfo.CreateNoWindow = true; //flase가 띄우기, true가 안 띄우기
+            //_ProcessInfo.UseShellExecute = false;
+
+            //_ProcessInfo.RedirectStandardInput = true;
+            //_ProcessInfo.RedirectStandardOutput = true;
+            //_ProcessInfo.RedirectStandardError = true;
+
+            //_Process.StartInfo = _ProcessInfo;
+
+            //_Process.Start();
+            //_Process.PriorityBoostEnabled = true;
+            //_Process.PriorityClass = ProcessPriorityClass.RealTime;
+
+            //_Process.StandardInput.WriteLine($"conda activate {_Config.CondaEnv}");
+            //if (_Config.FilePath.Contains("D:"))
+            //{
+            //    _Process.StandardInput.WriteLine("D:");
+            //}
+            //_Process.StandardInput.WriteLine("cd " + _Config.FilePath);
+            //_Process.StandardInput.WriteLine("python main.py");
+
+            //_Process.StandardInput.Close();
             Thread.Sleep(15000);
             #endregion
             _OutputPath = _Config.FilePath + "\\output";
@@ -102,6 +121,149 @@ namespace HumanDT.UI
             SplashScreenManager.CloseForm();
 
             TimerStart();
+        }
+        private void StartAnalyse()
+        {
+            //_ProcessInfo.FileName = @"C:\Users\MNS\anaconda3\python.exe";
+            //_ProcessInfo.Arguments = @"D:\source-D\respos-D\Pinokio.HumanDT\API\main.py";
+            //_ProcessInfo.Arguments = $"\"{path}\\{file}";
+
+            _ProcessInfo.FileName = @"D:\test\pythontest.bat";
+            _ProcessInfo.WindowStyle = ProcessWindowStyle.Normal;
+            _ProcessInfo.CreateNoWindow = false; //flase가 띄우기, true가 안 띄우기
+            _ProcessInfo.UseShellExecute = false;
+
+            _ProcessInfo.RedirectStandardInput = true;
+            _ProcessInfo.RedirectStandardOutput = true;
+            _ProcessInfo.RedirectStandardError = true;
+            _ProcessInfo.Verb = "runas";
+
+            //var process = Process.Start(_ProcessInfo);
+            _Process.StartInfo = _ProcessInfo;
+
+            _Process.Start();
+            _Process.PriorityBoostEnabled = true;
+            _Process.PriorityClass = ProcessPriorityClass.RealTime;
+
+            _Process.StandardInput.WriteLine($"conda activate {_Config.CondaEnv}");
+            Thread.Sleep(1000);
+            if (_Config.FilePath.Contains("D:"))
+            {
+                _Process.StandardInput.WriteLine("D:");
+            }
+            _Process.StandardInput.WriteLine("cd " + _Config.FilePath);
+            _Process.StandardInput.WriteLine("python main.py");
+
+            _Process.StandardInput.Close();
+            while (true)
+            {
+                try
+                {
+                    //var test = _Process.StandardError.ReadLine();
+                    var output = _Process.StandardOutput.ReadLine();
+                    if (output == null)
+                        ;
+                }
+                catch (Exception ex)
+                {
+                    var exception = ex.ToString();
+                }
+            }
+        }
+        private void UpdateSimpleChart(ChartControl chart, DataTable dt)
+        {
+            switch (chart.Name)
+            {
+                case "SimpleChart":
+                    chart.DataSource = ConvertSimple(dt);
+                    break;
+                case "DetailedChart":
+                    chart.DataSource = ConvertDetailed(dt);
+                    chart.SeriesTemplate.ChangeView(ViewType.StackedBar);
+                    break;
+            }
+            chart.SeriesTemplate.SeriesDataMember = "Item";
+            chart.SeriesTemplate.SetDataMembers("Name", "Values");
+
+            chart.SeriesTemplate.LabelsVisibility = DevExpress.Utils.DefaultBoolean.True;
+            chart.SeriesTemplate.Label.TextPattern = "{V:F3}";
+            ((BarSeriesLabel)chart.SeriesTemplate.Label).Position = BarSeriesLabelPosition.Center;
+
+            //SideBySideBarSeriesView view = (SideBySideBarSeriesView)chart.SeriesTemplate.View;
+            //view.BarWidth = 0.5;
+
+            XYDiagram diagram = (XYDiagram)chart.Diagram;
+            diagram.DefaultPane.BackColor = Color.FromArgb(60, 60, 60);
+            //chart.LookAndFeel.SkinName = "Visual Studio 2013 Dark";
+            //chart.LookAndFeel.SkinMaskColor = Color.FromArgb(40, 40, 40);
+            //chart.LookAndFeel.SkinMaskColor2 = Color.FromArgb(40, 40, 40);
+            diagram.AxisX.Tickmarks.MinorVisible = false;
+            diagram.AxisX.Label.TextColor = Color.White;
+            diagram.AxisY.Label.TextColor = Color.White;
+            diagram.AxisY.WholeRange.SideMarginsValue = 0;
+            diagram.AxisY.WholeRange.SetMinMaxValues(0, 100);
+            diagram.AxisY.Tickmarks.MinorVisible = true;
+            diagram.AxisX.Tickmarks.MinorVisible = false;
+            diagram.AxisY.GridLines.Visible = false;
+            diagram.AxisX.Label.Angle = -60;
+            diagram.AxisX.Label.ResolveOverlappingOptions.AllowStagger = true;
+            diagram.AxisX.Label.ResolveOverlappingOptions.AllowHide = false;
+            diagram.AxisX.Label.ResolveOverlappingOptions.AllowRotate = true;
+            diagram.AxisX.Label.ResolveOverlappingOptions.MinIndent = 1;
+            diagram.AxisX.QualitativeScaleOptions.AutoGrid = false;
+            
+            chart.Legend.Visibility = DevExpress.Utils.DefaultBoolean.False;
+        }
+        private void UpdateDetailChart(ChartControl chart, DataTable dt)
+        {
+            chart.DataSource = ConvertDetailed(dt);
+            chart.SeriesTemplate.SeriesDataMember = "Item";
+            chart.SeriesTemplate.SetDataMembers("Name", "Values");
+
+            chart.SeriesTemplate.LabelsVisibility = DevExpress.Utils.DefaultBoolean.True;
+            ((BarSeriesLabel)chart.SeriesTemplate.Label).Position = BarSeriesLabelPosition.Center;
+
+            SideBySideBarSeriesView view = (SideBySideBarSeriesView)chart.SeriesTemplate.View;
+            view.BarWidth = 0.5;
+
+            XYDiagram diagram = (XYDiagram)chart.Diagram;
+            diagram.AxisX.Tickmarks.MinorVisible = false;
+            diagram.AxisX.Label.Angle = -60;
+            diagram.AxisX.Label.ResolveOverlappingOptions.AllowStagger = true;
+            diagram.AxisX.Label.ResolveOverlappingOptions.AllowHide = false;
+            diagram.AxisX.Label.ResolveOverlappingOptions.AllowRotate = true;
+            diagram.AxisX.Label.ResolveOverlappingOptions.MinIndent = 1;
+            diagram.AxisX.QualitativeScaleOptions.AutoGrid = false;
+
+            chart.Legend.Visibility = DevExpress.Utils.DefaultBoolean.False;
+        }
+        private DataTable ConvertSimple(DataTable dt)
+        {
+            DataTable newDT = new DataTable();
+            newDT.Columns.AddRange(new DataColumn[] {new DataColumn("Item",typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
+            foreach(DataRow dr in dt.Rows)
+            {
+                newDT.Rows.Add("Utilization", dr["Name"], dr["VVARatio"]);
+            }
+            return newDT;
+        }
+        private DataTable ConvertDetailed(DataTable dt)
+        {
+            DataTable newDT = new DataTable();
+            newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
+            foreach (DataRow dr in dt.Rows)
+            {
+                newDT.Rows.Add("In", dr["Name"], double.Parse(dr["도크 진입"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
+                newDT.Rows.Add("Ready", dr["Name"], double.Parse(dr["트레일러 작업"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
+                newDT.Rows.Add("LoadedMove", dr["Name"], double.Parse(dr["지게차 적재이동"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
+                newDT.Rows.Add("Put", dr["Name"], double.Parse(dr["1차 하역"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
+                newDT.Rows.Add("EmptyMove", dr["Name"], double.Parse(dr["빈 지게차 이동"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
+                newDT.Rows.Add("N/A", dr["Name"], double.Parse(dr["N/A"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
+                newDT.Rows.Add("이동 거리", dr["Name"], double.Parse(dr["이동 거리"].ToString()));
+                newDT.Rows.Add("도크 작업 수", dr["Name"], double.Parse(dr["도크 작업 수"].ToString()));
+            }
+            return newDT;
+
         }
         private void TimerStart()
         {
@@ -145,47 +307,57 @@ namespace HumanDT.UI
                     LoadImage(i, true);
                 }
             }
-            _Process.StandardOutput.ReadLine();
+            
         }
         private void LoadResult()
         {
             System.Text.Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             DataTable dt = new DataTable();
             List<FolkliftInfo> infoList = new List<FolkliftInfo>();
-            using (var sr = new System.IO.StreamReader(_OutputPath + "\\" + "ratio_data.csv", Encoding.GetEncoding(51949)))
+            try
             {
-                int count = 0;
-                while (!sr.EndOfStream)
+                //using (var sr = new System.IO.StreamReader(_OutputPath + "\\" + "raw_data.csv", Encoding.GetEncoding(51949)))
+                using (var fs = new System.IO.FileStream(_OutputPath + "\\" + "raw_data.csv", System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
                 {
-                    string array = sr.ReadLine();
-                    string[] values = array.Split(',');
-                    if (array.Contains("N/A"))
+                    using (var sr = new System.IO.StreamReader(fs, Encoding.GetEncoding(51949)))
                     {
-                        dt.Columns.Add("Name");
-                        for (int i = 1; i < values.Length; i++)
+                        int count = 0;
+                        while (!sr.EndOfStream)
                         {
-                            dt.Columns.Add(values[i]);
+                            string array = sr.ReadLine();
+                            string[] values = array.Split(',');
+                            if (array.Contains("N/A"))
+                            {
+                                dt.Columns.Add("Name");
+                                for (int i = 1; i < values.Length; i++)
+                                {
+                                    dt.Columns.Add(values[i]);
+                                }
+                                dt.Columns.Add("VVARatio");
+                                dt.Columns.Add("TotalTime");
+                                continue;
+                            }
+
+                            FolkliftInfo info = new FolkliftInfo()
+                            {
+                                Name = values[0],
+                                In = double.Parse(values[1]),
+                                Ready = double.Parse(values[2]),
+                                LoadedMove = double.Parse(values[3]),
+                                Put = double.Parse(values[4]),
+                                EmptyMove = double.Parse(values[5]),
+                                NA = double.Parse(values[6]),
+                                Distance = double.Parse(values[7]),
+                                DockCount = double.Parse(values[8])
+                            };
+                            infoList.Add(info);
                         }
-                        continue;
                     }
-                        
-                    FolkliftInfo info = new FolkliftInfo()
-                    {
-                        Name = values[0],
-                        In = values[1],
-                        Ready = values[2],
-                        LoadedMove = values[3],
-                        Put = values[4],
-                        EmptyMove = values[5],
-                        NA = values[6],
-                    };
-                    infoList.Add(info);
                 }
-            }
-            for (int i = 0; i < infoList.Count; i++)
-            {
-                dt.Rows.Add(new string[]
+                for (int i = 0; i < infoList.Count; i++)
                 {
+                    dt.Rows.Add(new object[]
+                    {
                     infoList[i].Name,
                     infoList[i].In,
                     infoList[i].Ready,
@@ -193,9 +365,17 @@ namespace HumanDT.UI
                     infoList[i].Put,
                     infoList[i].EmptyMove,
                     infoList[i].NA,
-                });
+                    infoList[i].Distance,
+                    infoList[i].DockCount,
+                    infoList[i].VVARatio,
+                    infoList[i].TotalTime,
+                    });
+                }
+                this.UpdateSimpleChart(this.SimpleChart, dt);
+                this.UpdateSimpleChart(this.DetailedChart, dt);
             }
-            dataGridView1.DataSource = dt;
+            catch { }
+            
         }
         private void LoadPlanImage()
         {
@@ -233,20 +413,34 @@ namespace HumanDT.UI
             catch
             {
                 obj.FrameCount -= 1;
-                _ImageRead[idx] = false;
+                //_ImageRead[idx] = false;
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void SimpleChart_Click(object sender, EventArgs e)
         {
-            dataGridView1.Visible = true;
+            SimpleChart.Visible = true;
+            DetailedChart.Visible = false;
             pictureBox5.Visible = false;
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        private void Trajectory_Click(object sender, EventArgs e)
         {
-            dataGridView1.Visible = false;
+            SimpleChart.Visible = false;
+            DetailedChart.Visible = false;
             pictureBox5.Visible = true;
+        }
+
+        private void DetailChart_Click(object sender, EventArgs e)
+        {
+            SimpleChart.Visible = false;
+            DetailedChart.Visible = true;
+            pictureBox5.Visible = false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

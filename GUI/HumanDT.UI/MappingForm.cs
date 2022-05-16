@@ -22,7 +22,7 @@ namespace HumanDT.UI
         private List<Tuple<float, float>> _VideoPoints;
         private List<Tuple<float, float>> _PlanPoints;
         private Dictionary<int, List<Point2f[]>> _FixedVideoPoints;
-        private List<Point2f[]> _FixedPlanPoints;
+        private Dictionary<int, Point2f[]> _FixedPlanPoints;
         private int _TargetVideoIdx;
         private Dictionary<int, List<double[]>> _MappingMatrix;
         private ConfigStruct _Config;
@@ -76,7 +76,7 @@ namespace HumanDT.UI
             _FixedVideoPoints[2] = new List<Point2f[]>();
             _FixedVideoPoints[3] = new List<Point2f[]>();
 
-            _FixedPlanPoints = new List<Point2f[]>();
+            _FixedPlanPoints = new();
         }
 
         private void InitializeImages()
@@ -178,7 +178,7 @@ namespace HumanDT.UI
 
             _VideoPointsFlag = true;
             _VideoPoints.Clear();
-            
+
             _VideoPointsCounts[0] = 0;
             _VideoPointsCounts[1] = 0;
             _VideoPointsCounts[2] = 0;
@@ -205,7 +205,8 @@ namespace HumanDT.UI
 
         private void BtnCloseClick(object sender, EventArgs e)
         {
-            Application.Exit();
+            this.Close();
+            //Application.Exit();
         }
 
         private void BtnPlanPointsClick(object sender, EventArgs e)
@@ -235,7 +236,7 @@ namespace HumanDT.UI
                         if (_PlanPointsCount == 4)
                         {
                             return;
-                            
+
                         }
                         int x = Control.MousePosition.X;
                         int y = Control.MousePosition.Y;
@@ -265,38 +266,50 @@ namespace HumanDT.UI
         {
             if (_VideoPoints.Count == 4 && _PlanPoints.Count == 4)
             {
-                Point2f[] srcPoint = new Point2f[4];
-                srcPoint[0] = new Point2f(_VideoPoints[0].Item1, _VideoPoints[0].Item2);
-                srcPoint[1] = new Point2f(_VideoPoints[1].Item1, _VideoPoints[1].Item2);
-                srcPoint[2] = new Point2f(_VideoPoints[2].Item1, _VideoPoints[2].Item2);
-                srcPoint[3] = new Point2f(_VideoPoints[3].Item1, _VideoPoints[3].Item2);
+                try
+                {
+                    var dockIdStr = XtraInputBox.Show("도크 번호를 입력해주세요.", "도크 매핑", "");
+                    int dockIdInt = int.Parse(dockIdStr);
 
-                Point2f[] dstPoint = new Point2f[4];
-                dstPoint[0] = new Point2f(_PlanPoints[0].Item1, _PlanPoints[0].Item2);
-                dstPoint[1] = new Point2f(_PlanPoints[1].Item1, _PlanPoints[1].Item2);
-                dstPoint[2] = new Point2f(_PlanPoints[2].Item1, _PlanPoints[2].Item2);
-                dstPoint[3] = new Point2f(_PlanPoints[3].Item1, _PlanPoints[3].Item2);
+                    Point2f[] srcPoint = new Point2f[4];
+                    srcPoint[0] = new Point2f(_VideoPoints[0].Item1, _VideoPoints[0].Item2);
+                    srcPoint[1] = new Point2f(_VideoPoints[1].Item1, _VideoPoints[1].Item2);
+                    srcPoint[2] = new Point2f(_VideoPoints[2].Item1, _VideoPoints[2].Item2);
+                    srcPoint[3] = new Point2f(_VideoPoints[3].Item1, _VideoPoints[3].Item2);
 
-                Mat matrix = Cv2.GetPerspectiveTransform(srcPoint, dstPoint);
-                double[] copied = new double[matrix.Total() * matrix.Channels()];
-                matrix.GetArray<double>(out copied);
+                    Point2f[] dstPoint = new Point2f[4];
+                    dstPoint[0] = new Point2f(_PlanPoints[0].Item1, _PlanPoints[0].Item2);
+                    dstPoint[1] = new Point2f(_PlanPoints[1].Item1, _PlanPoints[1].Item2);
+                    dstPoint[2] = new Point2f(_PlanPoints[2].Item1, _PlanPoints[2].Item2);
+                    dstPoint[3] = new Point2f(_PlanPoints[3].Item1, _PlanPoints[3].Item2);
 
-                _MappingMatrix[_TargetVideoIdx].Add(copied);
-                _FixedVideoPoints[_TargetVideoIdx].Add(srcPoint);
-                _FixedPlanPoints.Add(dstPoint);
+                    Mat matrix = Cv2.GetPerspectiveTransform(srcPoint, dstPoint);
+                    double[] copied = new double[matrix.Total() * matrix.Channels()];
+                    matrix.GetArray<double>(out copied);
 
-                _PictureBoxes[_TargetVideoIdx].Image = null;
-                planPictureBox.Image = null;
-                _TargetVideoIdx = -1;
+                    _MappingMatrix[_TargetVideoIdx].Add(copied);
+                    _FixedVideoPoints[_TargetVideoIdx].Add(srcPoint);
+                    if (!_FixedPlanPoints.ContainsKey(dockIdInt))
+                        _FixedPlanPoints.Add(dockIdInt, dstPoint);
 
-                _VideoPointsFlag = false;
-                _VideoPoints.Clear();
-                _VideoPointsCounts[_TargetVideoIdx] = 0;
-                btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
+                    _PictureBoxes[_TargetVideoIdx].Image = null;
+                    planPictureBox.Image = null;
+                    _TargetVideoIdx = -1;
 
-                _PlanPointsFlag = false;
-                btnPlanPoints.Enabled = true;
-                btnPlanPoints.BackColor = Color.FromArgb(210, 210, 210);
+                    _VideoPointsFlag = false;
+                    _VideoPoints.Clear();
+                    _VideoPointsCounts[_TargetVideoIdx] = 0;
+                    btnVideoPoints.BackColor = Color.FromArgb(210, 210, 210);
+
+                    _PlanPointsFlag = false;
+                    btnPlanPoints.Enabled = true;
+                    btnPlanPoints.BackColor = Color.FromArgb(210, 210, 210);
+                }
+                catch (FormatException)
+                {
+                    MessageBox.Show("도크 번호는 정수형이어야 합니다.");
+                }
+
             }
         }
 
@@ -308,7 +321,7 @@ namespace HumanDT.UI
             }
             var division = GetDivision();
             var mappingMatrices = GetMatrices();
-            
+
             MappingMatrix mappingMatrix = new MappingMatrix()
             {
                 Division = division,
@@ -317,11 +330,15 @@ namespace HumanDT.UI
             var serializer = new YamlDotNet.Serialization.SerializerBuilder().Build();
             var yaml = serializer.Serialize(mappingMatrix);
             System.IO.File.WriteAllText(_MatrixPath + "\\MappingMatrix.yaml", yaml);
-            
-            List<double[]> docksInfo = new List<double[]>();
-            foreach (var points in _FixedPlanPoints)
+
+            Dictionary<int, double[]> docksInfo = new();
+            foreach (var dockId in _FixedPlanPoints.Keys)
             {
-                docksInfo.Add(new double[] { points[1].X, points[0].Y, points[3].X, points[2].Y});
+                if (!docksInfo.ContainsKey(dockId))
+                {
+                    docksInfo.Add(dockId, new double[] { _FixedPlanPoints[dockId][1].X, _FixedPlanPoints[dockId][0].Y,
+                        _FixedPlanPoints[dockId][3].X, _FixedPlanPoints[dockId][2].Y });
+                }
             }
             DockInfo dockInfo = new DockInfo() { DockRegion = docksInfo };
             var dockYaml = serializer.Serialize(dockInfo);
@@ -354,9 +371,16 @@ namespace HumanDT.UI
                     parameter = GetParameter(_FixedVideoPoints[idx][1], _FixedVideoPoints[idx][2]);
                     divisions[idx].Add(parameter);
                 }
+                else if (_FixedVideoPoints[idx].Count == 4)
+                {
+                    parameter = GetParameter(_FixedVideoPoints[idx][0], _FixedVideoPoints[idx][1]);
+                    divisions[idx].Add(parameter);
+                    parameter = GetParameter(_FixedVideoPoints[idx][1], _FixedVideoPoints[idx][2]);
+                    divisions[idx].Add(parameter);
+                    parameter = GetParameter(_FixedVideoPoints[idx][2], _FixedVideoPoints[idx][3]);
+                    divisions[idx].Add(parameter);
+                }
             }
-            
-
             return divisions;
         }
 
@@ -377,7 +401,7 @@ namespace HumanDT.UI
             }
             return matrices;
         }
-        
+
         private float[] GetParameter(Point2f[] points1, Point2f[] points2)
         {
             var xCenter1 = (points1[2].X + points2[1].X) / 2;

@@ -6,3 +6,4 @@ sort_color:
   exist_division: 7
   image_size: []
   color_path: "./config/model/tracking/tracking_color.yaml"
+  max_trackers: 255

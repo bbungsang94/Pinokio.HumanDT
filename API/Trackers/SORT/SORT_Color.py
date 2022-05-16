@@ -92,6 +92,8 @@ class ColorTracker(AbstractTracker):
         self.__UnmatchedDet = np.array(unmatched_detections)
         self.__UnmatchedTrk = np.array(unmatched_trackers)
 
+
+
     def update_trackers(self, img=None):
         """ update tracker's attributes"""
         if img is None:
@@ -147,14 +149,17 @@ class ColorTracker(AbstractTracker):
 
         return assign_id
 
-    def sync(self, parents):
+    def sync(self, parents, overlap_dist):
         updated_trackers = []
         for current_tracker in self.__Trackers:
             if len(current_tracker.history) > 0:
                 for idx, old_tracker in enumerate(parents):
-                    if box_iou2(current_tracker.history[-1], old_tracker.box) > self.ReassignLim:
+                    transformed = ProjectionManager.transform(old_tracker.box, self.Video_idx)
+                    distance = get_distance(current_tracker.history[-1], transformed)
+                    if distance <= overlap_dist:
                         updated_trackers.append(current_tracker)
                         break
+
         return updated_trackers
 
     def __update_matched(self, input_image: np.array):
@@ -166,7 +171,8 @@ class ColorTracker(AbstractTracker):
             tmp_trk.kalman_filter(z)
             xx = tmp_trk.x_state.T[0].tolist()
             xx = [xx[0], xx[2], xx[4], xx[6]]
-            tmp_trk.history.append(tmp_trk.box)
+            transformed = ProjectionManager.transform(tmp_trk.box, self.Video_idx)
+            tmp_trk.history.append(list(transformed))
             tmp_trk.box = xx
             tmp_trk.no_losses = 0
             if tmp_trk.id is len(self.ColorID['hsv']):

@@ -50,6 +50,9 @@ class SingleTracker:  # class for Kalman Filter-based tracker
         self.R_diag_array = self.R_scaler * np.array([self.L, self.L, self.L, self.L])
         self.R = np.diag(self.R_diag_array)
         self.history = []
+        self.dockNumber = 0
+        self.state = ""
+        self.Distance = 0
 
     def update_r(self):
         R_diag_array = self.R_scaler * np.array([self.L, self.L, self.L, self.L])
@@ -64,6 +67,7 @@ class SingleTracker:  # class for Kalman Filter-based tracker
         # Predict
         x = dot(self.F, x)
         self.P = dot(self.F, self.P).dot(self.F.T) + self.Q
+        "/l5 6"
 
         # Update
         S = dot(self.H, self.P).dot(self.H.T) + self.R

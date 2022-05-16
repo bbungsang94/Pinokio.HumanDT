@@ -246,7 +246,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(227, 55);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Plan Import";
+            this.button1.Text = "Drawing Import";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.BtnPlanImportClick);
             // 
@@ -271,7 +271,7 @@
             this.Analysis_button.Name = "Analysis_button";
             this.Analysis_button.Size = new System.Drawing.Size(227, 55);
             this.Analysis_button.TabIndex = 5;
-            this.Analysis_button.Text = "Analysis";
+            this.Analysis_button.Text = "Analyze";
             this.Analysis_button.UseVisualStyleBackColor = true;
             this.Analysis_button.Click += new System.EventHandler(this.Analysis_button_Click);
             // 
@@ -295,7 +295,7 @@
             this.btnPlanPoints.Name = "btnPlanPoints";
             this.btnPlanPoints.Size = new System.Drawing.Size(227, 55);
             this.btnPlanPoints.TabIndex = 3;
-            this.btnPlanPoints.Text = "Plan Points";
+            this.btnPlanPoints.Text = "Drawing Points";
             this.btnPlanPoints.UseVisualStyleBackColor = true;
             this.btnPlanPoints.Click += new System.EventHandler(this.BtnPlanPointsClick);
             // 

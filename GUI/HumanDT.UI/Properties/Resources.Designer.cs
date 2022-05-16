@@ -63,6 +63,16 @@ namespace HumanDT.UI.Properties {
         /// <summary>
         ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
         /// </summary>
+        internal static System.Drawing.Bitmap _00359_06667 {
+            get {
+                object obj = ResourceManager.GetObject("00359-06667", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
         internal static System.Drawing.Bitmap plan {
             get {
                 object obj = ResourceManager.GetObject("plan", resourceCulture);
@@ -126,6 +136,56 @@ namespace HumanDT.UI.Properties {
         internal static System.Drawing.Bitmap StartImage {
             get {
                 object obj = ResourceManager.GetObject("StartImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap 가동률 {
+            get {
+                object obj = ResourceManager.GetObject("가동률", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap 가동률1 {
+            get {
+                object obj = ResourceManager.GetObject("가동률1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap 상세_가동률 {
+            get {
+                object obj = ResourceManager.GetObject("상세 가동률", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap 상세_가동률1 {
+            get {
+                object obj = ResourceManager.GetObject("상세 가동률1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   System.Drawing.Bitmap 형식의 지역화된 리소스를 찾습니다.
+        /// </summary>
+        internal static System.Drawing.Bitmap 상세_가동률2 {
+            get {
+                object obj = ResourceManager.GetObject("상세 가동률2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

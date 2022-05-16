@@ -43,7 +43,10 @@
             this.button6 = new System.Windows.Forms.Button();
             this.lbHeader = new System.Windows.Forms.Label();
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.SimpleChart = new DevExpress.XtraCharts.ChartControl();
+            this.DetailedChart = new DevExpress.XtraCharts.ChartControl();
+            this.DockControl = new DevExpress.XtraCharts.ChartControl();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1.Panel1)).BeginInit();
             this.splitContainerControl1.Panel1.SuspendLayout();
@@ -68,7 +71,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
             this.pnlHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SimpleChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DetailedChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DockControl)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainerControl1
@@ -171,6 +176,7 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlHeader.Controls.Add(this.button1);
             this.pnlHeader.Controls.Add(this.button5);
             this.pnlHeader.Controls.Add(this.button4);
             this.pnlHeader.Controls.Add(this.Close_button);
@@ -189,9 +195,9 @@
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(227, 55);
             this.button5.TabIndex = 5;
-            this.button5.Text = "Tracking trajectory";
+            this.button5.Text = "Live Tracking";
             this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.button5.Click += new System.EventHandler(this.Trajectory_Click);
             // 
             // button4
             // 
@@ -220,6 +226,7 @@
             this.button2.TabIndex = 2;
             this.button2.Text = "Detail Graph";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.DetailChart_Click);
             // 
             // button6
             // 
@@ -229,7 +236,7 @@
             this.button6.TabIndex = 1;
             this.button6.Text = "Analysis Graph";
             this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.button6.Click += new System.EventHandler(this.SimpleChart_Click);
             // 
             // lbHeader
             // 
@@ -252,14 +259,39 @@
             this.pictureBox5.TabIndex = 6;
             this.pictureBox5.TabStop = false;
             // 
-            // dataGridView1
+            // SimpleChart
             // 
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(1444, 166);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 25;
-            this.dataGridView1.Size = new System.Drawing.Size(454, 793);
-            this.dataGridView1.TabIndex = 7;
+            this.SimpleChart.Location = new System.Drawing.Point(1444, 166);
+            this.SimpleChart.Name = "SimpleChart";
+            this.SimpleChart.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
+            this.SimpleChart.Size = new System.Drawing.Size(454, 793);
+            this.SimpleChart.TabIndex = 8;
+            // 
+            // DetailedChart
+            // 
+            this.DetailedChart.Location = new System.Drawing.Point(1444, 166);
+            this.DetailedChart.Name = "DetailedChart";
+            this.DetailedChart.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
+            this.DetailedChart.Size = new System.Drawing.Size(454, 793);
+            this.DetailedChart.TabIndex = 9;
+            // 
+            // DockControl
+            // 
+            this.DockControl.Location = new System.Drawing.Point(1444, 166);
+            this.DockControl.Name = "DockControl";
+            this.DockControl.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
+            this.DockControl.Size = new System.Drawing.Size(454, 793);
+            this.DockControl.TabIndex = 10;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(19, 398);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(227, 55);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Dock Info";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // AnalysisForm
             // 
@@ -268,7 +300,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1920, 1080);
-            this.Controls.Add(this.dataGridView1);
+            this.Controls.Add(this.DockControl);
+            this.Controls.Add(this.DetailedChart);
+            this.Controls.Add(this.SimpleChart);
             this.Controls.Add(this.pictureBox5);
             this.Controls.Add(this.pnlHeader);
             this.Controls.Add(this.splitContainerControl1);
@@ -301,7 +335,9 @@
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SimpleChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DetailedChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DockControl)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -322,6 +358,9 @@
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Label lbHeader;
         private System.Windows.Forms.PictureBox pictureBox5;
-        private System.Windows.Forms.DataGridView dataGridView1;
+        private DevExpress.XtraCharts.ChartControl SimpleChart;
+        private DevExpress.XtraCharts.ChartControl DetailedChart;
+        private System.Windows.Forms.Button button1;
+        private DevExpress.XtraCharts.ChartControl DockControl;
     }
 }

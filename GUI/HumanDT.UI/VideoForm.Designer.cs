@@ -523,7 +523,7 @@
             this.AnalysisButton.Name = "AnalysisButton";
             this.AnalysisButton.Size = new System.Drawing.Size(227, 55);
             this.AnalysisButton.TabIndex = 4;
-            this.AnalysisButton.Text = "Analysis";
+            this.AnalysisButton.Text = "Analyze";
             this.AnalysisButton.UseVisualStyleBackColor = true;
             this.AnalysisButton.Click += new System.EventHandler(this.AnalysisButtonClick);
             // 
@@ -559,92 +559,92 @@
             // lbStartTime
             // 
             this.lbStartTime.AutoSize = true;
-            this.lbStartTime.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbStartTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbStartTime.ForeColor = System.Drawing.Color.RoyalBlue;
             this.lbStartTime.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbStartTime.Location = new System.Drawing.Point(54, 347);
             this.lbStartTime.Name = "lbStartTime";
-            this.lbStartTime.Size = new System.Drawing.Size(113, 26);
+            this.lbStartTime.Size = new System.Drawing.Size(104, 24);
             this.lbStartTime.TabIndex = 9;
             this.lbStartTime.Text = "Start Time";
             // 
             // lbCurrentTime
             // 
             this.lbCurrentTime.AutoSize = true;
-            this.lbCurrentTime.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbCurrentTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbCurrentTime.ForeColor = System.Drawing.Color.RoyalBlue;
             this.lbCurrentTime.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbCurrentTime.Location = new System.Drawing.Point(54, 277);
             this.lbCurrentTime.Name = "lbCurrentTime";
-            this.lbCurrentTime.Size = new System.Drawing.Size(139, 26);
+            this.lbCurrentTime.Size = new System.Drawing.Size(132, 24);
             this.lbCurrentTime.TabIndex = 8;
             this.lbCurrentTime.Text = "Current Time";
             // 
             // lbFrameRate
             // 
             this.lbFrameRate.AutoSize = true;
-            this.lbFrameRate.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbFrameRate.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbFrameRate.ForeColor = System.Drawing.Color.RoyalBlue;
             this.lbFrameRate.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbFrameRate.Location = new System.Drawing.Point(54, 207);
             this.lbFrameRate.Name = "lbFrameRate";
-            this.lbFrameRate.Size = new System.Drawing.Size(122, 26);
+            this.lbFrameRate.Size = new System.Drawing.Size(118, 24);
             this.lbFrameRate.TabIndex = 7;
             this.lbFrameRate.Text = "Frame Rate";
             // 
             // lbVideoLength
             // 
             this.lbVideoLength.AutoSize = true;
-            this.lbVideoLength.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbVideoLength.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbVideoLength.ForeColor = System.Drawing.Color.RoyalBlue;
             this.lbVideoLength.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbVideoLength.Location = new System.Drawing.Point(54, 137);
             this.lbVideoLength.Name = "lbVideoLength";
-            this.lbVideoLength.Size = new System.Drawing.Size(139, 26);
+            this.lbVideoLength.Size = new System.Drawing.Size(135, 24);
             this.lbVideoLength.TabIndex = 6;
             this.lbVideoLength.Text = "Video Length";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.label3.Location = new System.Drawing.Point(17, 313);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(113, 26);
+            this.label3.Size = new System.Drawing.Size(104, 24);
             this.label3.TabIndex = 5;
             this.label3.Text = "Start Time";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.label2.Location = new System.Drawing.Point(17, 243);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(139, 26);
+            this.label2.Size = new System.Drawing.Size(132, 24);
             this.label2.TabIndex = 4;
             this.label2.Text = "Current Time";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.label1.Location = new System.Drawing.Point(17, 173);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(122, 26);
+            this.label1.Size = new System.Drawing.Size(118, 24);
             this.label1.TabIndex = 3;
             this.label1.Text = "Frame Rate";
             // 
             // lbt
             // 
             this.lbt.AutoSize = true;
-            this.lbt.Font = new System.Drawing.Font("에스코어 드림 5 Medium", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.lbt.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.lbt.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.lbt.Location = new System.Drawing.Point(17, 103);
             this.lbt.Name = "lbt";
-            this.lbt.Size = new System.Drawing.Size(139, 26);
+            this.lbt.Size = new System.Drawing.Size(135, 24);
             this.lbt.TabIndex = 2;
             this.lbt.Text = "Video Length";
             // 

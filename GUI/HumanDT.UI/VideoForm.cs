@@ -453,7 +453,7 @@ namespace HumanDT.UI
                     {
                         MappingForm mappingForm = new MappingForm(_Config, _ImageObjects, _MatrixPath, _Process);
                         mappingForm.ShowDialog();
-                        this.Close();
+                        //this.Close();
                     }
                     else
                         MessageBox.Show("Save Path와 Video Path를 먼저 설정해주세요.", "Video Path가 설정되지 않았습니다.");
@@ -533,6 +533,7 @@ namespace HumanDT.UI
                     _ImageRead.Add(false);
 
                 }
+                Thread.Sleep(100);
                 SplashScreenManager.CloseForm();
                 TimerStart();
                 pnlView.Visible = true;

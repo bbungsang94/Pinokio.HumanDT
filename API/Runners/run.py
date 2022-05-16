@@ -42,14 +42,14 @@ def run_sequential(args, log=None):
         # if count < 2240 + 940:
         #     continue
         ProjectionManager.ColorChecker.new_folder(str(count))
-        begin = time.time()    
+        begin = time.time()
         detect_result, box_anchors = runner.detect(tensor_image=image)
         print("Detect time: ", (time.time() - begin) * 1000, "ms")
         begin = time.time()
-        runner.tracking(detect_result, image)
+        dock_losses = runner.tracking(detect_result, image)
         print("Tracking time: ", (time.time() - begin) * 1000, "ms")
         begin = time.time()
-        state_trackers = runner.interaction_processing(box_anchors, None)
+        state_trackers = runner.interaction_processing(box_anchors, dock_losses)
         print("Interaction time: ", (time.time() - begin) * 1000, "ms")
         begin = time.time()
         runner.post_processing(path=paths, state_trackers=state_trackers)

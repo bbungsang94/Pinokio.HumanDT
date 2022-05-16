@@ -1,3 +1,4 @@
+import math
 from collections import deque
 
 import numpy as np
@@ -19,7 +20,7 @@ class TrackerManager:
     def add_tracker(self, tracker, tracker_idx, max_trackers):
         self.__trackers[tracker_idx] = tracker
         self.__singleTrackersIds[tracker_idx] = deque(range(tracker_idx + 9, max_trackers, self.__video_len))
-        self.__trackers[tracker_idx].max_trackers = len(self.__singleTrackersIds[tracker_idx])
+        self.__trackers[tracker_idx].MaxTrackers = len(self.__singleTrackersIds[tracker_idx])
         self.__singleTrackers[tracker_idx] = []
 
     def get_single_trackers(self):
@@ -27,6 +28,9 @@ class TrackerManager:
 
     def get_trackers(self):
         return self.__trackers
+
+    def get_color(self):
+        return None
 
     def remove_tracker(self, tracker_idx):
         self.__trackers.pop(tracker_idx)
@@ -90,6 +94,15 @@ class TrackerManager:
         for i in range(len(self.__singleTrackers.values())):
             self.__singleTrackers[i] = [x for x in self.__singleTrackers[i] if x.id != None]
 
+    def get_distance(self):
+        return NotImplementedError
+
+    def set_dock_info(self, tracker, dock_id):
+        return NotImplementedError
+
+    def get_dock_trackers(self):
+        return NotImplementedError
+
 
 class ColorWrapper:
     def __init__(self, local_trackers=None):
@@ -121,7 +134,7 @@ class ColorWrapper:
             local_tracker.set_tracker_id(self.IdleIds)
             # Public tracker랑 동기화
             single_trackers = self.__extract_tracker(idx)
-            single_trackers = self.__LocalTrackers[idx].sync(single_trackers)
+            single_trackers = self.__LocalTrackers[idx].sync(single_trackers, self.__overlap_dist)
             for tracker in single_trackers:
                 self.__PublicTracker.append((idx, tracker))
                 if tracker.id in active_ids:
@@ -140,6 +153,7 @@ class ColorWrapper:
     def post_tracking(self, new_trackers: dict):
         new_public_trackers = []
         del_idx = []
+        overlap_idx = []
         for video_idx, new_trackers in new_trackers.items():
             for new_tracker in new_trackers:
                 if len(self.__PublicTracker) == 0:
@@ -151,9 +165,10 @@ class ColorWrapper:
                         if self.__overlap_check(alternative, (video_idx, new_tracker)):
                             (_, tracker) = alternative
                             new_tracker.id = tracker.id
-                            new_tracker.history = new_tracker.history + tracker.history
+                            new_tracker.history = tracker.history + new_tracker.history
                             new_public_trackers.append((video_idx, new_tracker))
                             del_idx.append(alternative)
+                            overlap_idx.append(new_tracker)
 
                         if new_tracker.id in self.IdleIds:
                             self.IdleIds.remove(new_tracker.id)
@@ -164,6 +179,7 @@ class ColorWrapper:
             self.__PublicTracker.remove(alternative)
 
         self.__PublicTracker += new_public_trackers
+        return overlap_idx
 
     def get_single_trackers(self):
         rtn_tracker = dict()
@@ -173,6 +189,9 @@ class ColorWrapper:
             rtn_tracker[idx].append(tracker)
         return rtn_tracker
 
+    def get_color(self):
+        return self.__LocalTrackers[0].ColorID['rgb']
+
     def __overlap_check(self, a_tracker_info, b_tracker_info):
         (a_video_idx, a_tracker) = a_tracker_info
         (b_video_idx, b_tracker) = b_tracker_info
@@ -180,6 +199,174 @@ class ColorWrapper:
         a_x, a_y = ProjectionManager.transform(a_tracker.box, a_video_idx)
         b_x, b_y = ProjectionManager.transform(b_tracker.box, b_video_idx)
         distance = get_distance((a_x, a_y), (b_x, b_y))
+        if distance < self.__overlap_dist:
+            return True
+        else:
+            return False
+
+    def __extract_tracker(self, matched_idx: int):
+        rtn_trackers = []
+        for idx, (video_idx, tracker) in enumerate(self.__PublicTracker):
+            if video_idx is matched_idx:
+                rtn_trackers.append(tracker)
+                del self.__PublicTracker[idx]
+        return rtn_trackers
+
+
+class DockWrapper:
+    def __init__(self, drawing_scale):
+        # 지역별로 존재하는 로컬 트랙커의 아이디를 관리해주는 Wrapper
+        self.model_name = 'DockWrapper'
+        self.IdLength = 0
+        self.__PublicTracker = []
+        self.__LocalTrackers = []
+        self.__overlap_dist = 20
+        self.__DrawingScale = drawing_scale
+        self.__DockTrackers = dict()
+        self.__ElseTrackers = []
+        self.__Distances = dict()
+
+    # Call Init section
+    def add_tracker(self, tracker, tracker_idx=None, max_trackers=None):
+        tracker.set_video_idx(len(self.__LocalTrackers))
+        self.__LocalTrackers.append(tracker)
+
+    # # Call Init section
+    # def sync_id(self):
+    #     for idx, local_tracker in enumerate(self.__LocalTrackers):
+    #         # Public tracker랑 동기화
+    #         single_trackers = self.__extract_tracker(idx)
+    #         single_trackers = self.__LocalTrackers[idx].sync(single_trackers, self.__overlap_dist)
+    #         for tracker in single_trackers:
+    #             if tracker.dockNumber != 0:
+    #                 self.__DockAssignedTracker.append((tracker.dockNumber, tracker))
+    #             self.__PublicTracker.append((idx, tracker))
+
+    # Call running section
+    def tracking(self, boxes, img: np.array, idx: int):
+        self.__LocalTrackers[idx].assign_detections_to_trackers(detections=boxes)
+        singleTrks = self.__LocalTrackers[idx].update_trackers(img=img)
+        return singleTrks
+
+    # def sync(self):
+    #     for idx, local_tracker in enumerate(self.__LocalTrackers):
+    #         # Public tracker랑 동기화
+    #         single_trackers = self.__extract_tracker(idx)
+    #         single_trackers = self.__LocalTrackers[idx].sync(single_trackers, self.__overlap_dist)
+    #         for tracker in single_trackers:
+    #             if tracker.dockNumber != 0:
+    #                 self.__DockTrackers[tracker.dockNumber] = tracker
+    #             else:
+    #                 self.__ElseTrackers.append(tracker)
+
+    # Call running section
+    def post_tracking(self, new_trackers: dict):
+        new_del_trks = []
+        ori_del_trks = []
+        overlap_trks = []
+        new_tracker_list = []
+        dock_losses = []
+        for trackers in new_trackers.values():
+            new_tracker_list += trackers
+        tempTrks = []
+        for (dock_tracker, _) in self.__DockTrackers.values():
+            tempTrks.append(dock_tracker)
+        tempTrks += self.__ElseTrackers
+        for tempTrk in tempTrks:
+            updated = False
+            for new_tracker in new_tracker_list:
+                if self.__overlap_check(tempTrk, new_tracker):
+                    if updated is False:
+                        tempTrk.id = new_tracker.id
+                        tempTrk.history.append(tempTrk.box)
+                        tempTrk.box = new_tracker.box
+                        updated = True
+                    new_del_trks.append(new_tracker)
+            if updated is False:
+                ori_del_trks.append(tempTrk)
+            overlap_trks += new_del_trks
+
+            while len(new_del_trks) > 0:
+                del_trk = new_del_trks.pop()
+                new_tracker_list.remove(del_trk)
+
+        while len(ori_del_trks) > 0:
+            del_trk = ori_del_trks.pop()
+            if del_trk.dockNumber != 0:
+                (trk, mileage) = self.__DockTrackers[del_trk.dockNumber]
+                trk.state = "NA"
+                self.__DockTrackers[del_trk.dockNumber] = (trk, mileage)
+                dock_losses.append(del_trk.dockNumber)
+            tempTrks.remove(del_trk)
+
+        self.__ElseTrackers.clear()
+        tempTrks += new_tracker_list
+        for tempTrk in tempTrks:
+            if tempTrk.dockNumber != 0:
+                (_, mileage) = self.__DockTrackers[tempTrk.dockNumber]
+                self.__DockTrackers[tempTrk.dockNumber] = (tempTrk, mileage)
+            else:
+                self.__ElseTrackers.append(tempTrk)
+
+        self.__calculate_dist()
+        return dock_losses
+
+    def get_single_trackers(self):
+        tempTrks = []
+        for (dock_tracker, _) in self.__DockTrackers.values():
+            tempTrks.append(dock_tracker)
+        tempTrks += self.__ElseTrackers
+        rtn_tracker = dict()
+        for tracker in tempTrks:
+            if tracker.video_idx not in rtn_tracker:
+                rtn_tracker[tracker.video_idx] = []
+            rtn_tracker[tracker.video_idx].append(tracker)
+        return rtn_tracker
+
+    def get_dock_trackers(self):
+        return self.__DockTrackers
+
+    def set_dock_info(self, tracker, dock_id):
+        if tracker in self.__ElseTrackers:
+            if dock_id not in self.__DockTrackers:
+                self.__DockTrackers[dock_id] = (tracker, tracker.Distance)
+            else:
+                (old_tracker, mileage) = self.__DockTrackers[dock_id]
+                tracker.history = old_tracker.history + tracker.history
+                self.__DockTrackers[dock_id] = (tracker, tracker.Distance + mileage)
+            self.__ElseTrackers.remove(tracker)
+            return True
+        else:
+            return False
+
+    def __calculate_dist(self):
+        tempTrks = []
+        for (dock_tracker, _) in self.__DockTrackers.values():
+            tempTrks.append(dock_tracker)
+        tempTrks += self.__ElseTrackers
+        for tracker in tempTrks:
+            if len(tracker.history) <= 1:
+                dist = 0
+            else:
+                pre_x = tracker.history[-1][0] - tracker.history[-2][0]
+                pre_y = tracker.history[-1][1] - tracker.history[-2][1]
+                pre_dist = math.sqrt(pre_x ** 2 + pre_y ** 2)
+                tr_x, tr_y = ProjectionManager.transform(tracker.box, tracker.video_idx)
+                x = tr_x - tracker.history[-1][0]
+                y = tr_y - tracker.history[-1][1]
+                dist = math.sqrt(x ** 2 + y ** 2)
+                if pre_dist + 1 < dist:
+                    dist = 0
+                tracker.Distance += dist * self.__DrawingScale
+
+    def __overlap_check(self, ori_tracker, new_tracker):
+        ori_video_idx = ori_tracker.video_idx
+        new_video_idx = new_tracker.video_idx
+
+        ori_x, ori_y = ProjectionManager.transform(ori_tracker.box, ori_video_idx)
+        new_x, new_y = ProjectionManager.transform(new_tracker.box, new_video_idx)
+
+        distance = get_distance((ori_x, ori_y), (new_x, new_y))
         if distance < self.__overlap_dist:
             return True
         else:
