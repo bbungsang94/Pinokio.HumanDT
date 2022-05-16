@@ -45,7 +45,7 @@
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.SimpleChart = new DevExpress.XtraCharts.ChartControl();
             this.DetailedChart = new DevExpress.XtraCharts.ChartControl();
-            this.DockControl = new DevExpress.XtraCharts.ChartControl();
+            this.DockinfoChart = new DevExpress.XtraCharts.ChartControl();
             this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1.Panel1)).BeginInit();
@@ -73,7 +73,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SimpleChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DetailedChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DockControl)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DockinfoChart)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainerControl1
@@ -277,11 +277,11 @@
             // 
             // DockControl
             // 
-            this.DockControl.Location = new System.Drawing.Point(1444, 166);
-            this.DockControl.Name = "DockControl";
-            this.DockControl.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
-            this.DockControl.Size = new System.Drawing.Size(454, 793);
-            this.DockControl.TabIndex = 10;
+            this.DockinfoChart.Location = new System.Drawing.Point(1444, 166);
+            this.DockinfoChart.Name = "DockControl";
+            this.DockinfoChart.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
+            this.DockinfoChart.Size = new System.Drawing.Size(454, 793);
+            this.DockinfoChart.TabIndex = 10;
             // 
             // button1
             // 
@@ -291,7 +291,7 @@
             this.button1.TabIndex = 6;
             this.button1.Text = "Dock Info";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.DockinfoChart_Click);
             // 
             // AnalysisForm
             // 
@@ -300,7 +300,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1920, 1080);
-            this.Controls.Add(this.DockControl);
+            this.Controls.Add(this.DockinfoChart);
             this.Controls.Add(this.DetailedChart);
             this.Controls.Add(this.SimpleChart);
             this.Controls.Add(this.pictureBox5);
@@ -337,7 +337,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SimpleChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DetailedChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DockControl)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DockinfoChart)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -361,6 +361,6 @@
         private DevExpress.XtraCharts.ChartControl SimpleChart;
         private DevExpress.XtraCharts.ChartControl DetailedChart;
         private System.Windows.Forms.Button button1;
-        private DevExpress.XtraCharts.ChartControl DockControl;
+        private DevExpress.XtraCharts.ChartControl DockinfoChart;
     }
 }

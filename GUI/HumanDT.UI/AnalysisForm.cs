@@ -181,6 +181,9 @@ namespace HumanDT.UI
                     chart.DataSource = ConvertDetailed(dt);
                     chart.SeriesTemplate.ChangeView(ViewType.StackedBar);
                     break;
+                case "DockinfoChart":
+                    chart.DataSource = ConvertDockinfo(dt);
+                    break;
             }
             chart.SeriesTemplate.SeriesDataMember = "Item";
             chart.SeriesTemplate.SetDataMembers("Name", "Values");
@@ -264,6 +267,20 @@ namespace HumanDT.UI
             }
             return newDT;
 
+        }
+        private DataTable ConvertDockinfo(DataTable dt)
+        {
+            DataTable newDT = new DataTable();
+            newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
+            
+            foreach (DataRow dr in dt.Rows)
+            {
+                if (double.Parse(dr["이동 거리"].ToString()) == 0 && double.Parse(dr["도크 작업 수"].ToString()) == 0)
+                    continue;
+                newDT.Rows.Add("이동 거리", dr["Name"], double.Parse(dr["이동 거리"].ToString()));
+                newDT.Rows.Add("도크 작업 수", dr["Name"], double.Parse(dr["도크 작업 수"].ToString()));
+            }
+            return newDT;
         }
         private void TimerStart()
         {
@@ -373,6 +390,7 @@ namespace HumanDT.UI
                 }
                 this.UpdateSimpleChart(this.SimpleChart, dt);
                 this.UpdateSimpleChart(this.DetailedChart, dt);
+                this.UpdateSimpleChart(this.DockinfoChart, dt);
             }
             catch { }
             
@@ -422,6 +440,7 @@ namespace HumanDT.UI
             SimpleChart.Visible = true;
             DetailedChart.Visible = false;
             pictureBox5.Visible = false;
+            DockinfoChart.Visible = false;
         }
 
         private void Trajectory_Click(object sender, EventArgs e)
@@ -429,6 +448,7 @@ namespace HumanDT.UI
             SimpleChart.Visible = false;
             DetailedChart.Visible = false;
             pictureBox5.Visible = true;
+            DockinfoChart.Visible = false;
         }
 
         private void DetailChart_Click(object sender, EventArgs e)
@@ -436,11 +456,15 @@ namespace HumanDT.UI
             SimpleChart.Visible = false;
             DetailedChart.Visible = true;
             pictureBox5.Visible = false;
+            DockinfoChart.Visible = false;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void DockinfoChart_Click(object sender, EventArgs e)
         {
-
+            SimpleChart.Visible = false;
+            DetailedChart.Visible = false;
+            pictureBox5.Visible = false;
+            DockinfoChart.Visible = true;
         }
     }
 }
