@@ -5,6 +5,8 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HumanDT.UI", "HumanDT.UI\HumanDT.UI.csproj", "{FA9D2AE8-044A-4806-8967-74861504DDD2}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "HumanDT_Installer", "HumanDT_Installer\HumanDT_Installer.vdproj", "{C333F728-BCAC-4F2C-AD45-65CEB98FD584}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|x64.ActiveCfg = Release|x64
 		{FA9D2AE8-044A-4806-8967-74861504DDD2}.Release|x64.Build.0 = Release|x64
+		{C333F728-BCAC-4F2C-AD45-65CEB98FD584}.Debug|Any CPU.ActiveCfg = Debug
+		{C333F728-BCAC-4F2C-AD45-65CEB98FD584}.Debug|x64.ActiveCfg = Debug
+		{C333F728-BCAC-4F2C-AD45-65CEB98FD584}.Release|Any CPU.ActiveCfg = Release
+		{C333F728-BCAC-4F2C-AD45-65CEB98FD584}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -110,7 +110,6 @@ class DockTracker(AbstractTracker):
         self.__Trackers = [x for x in self.__Trackers if x.no_losses <= self.MaxAge]
         return self.__Trackers
 
-
     def sync(self, parents, overlap_dist):
         updated_trackers = []
         for current_tracker in self.__Trackers:
@@ -196,14 +195,12 @@ class DockTracker(AbstractTracker):
         return key in self.__TrackerIDs
 
 
-
-
 if __name__ == "__main__":
     test = DockTracker(model_name='sort_color',
-                        max_age=4,
-                        iou_thrd=0.3,
-                        reassign_buffer=0.3,
-                        exist_division=7,
-                        image_size=[],
-                        color_path="D:/MnS/HumanDT/Pinokio.HumanDT/config/model/tracking/tracking_color.yaml")
+                       max_age=4,
+                       iou_thrd=0.3,
+                       reassign_buffer=0.3,
+                       exist_division=7,
+                       image_size=[],
+                       color_path="D:/MnS/HumanDT/Pinokio.HumanDT/config/model/tracking/tracking_color.yaml")
     test2 = None
