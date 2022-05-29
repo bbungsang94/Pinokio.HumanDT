@@ -263,6 +263,7 @@ class CascadeRunner(AbstractRunner):
             for dock_id, (tmp_trk, distance) in dock_trackers.items():
                 results.append((dock_id, tmp_trk.state, tmp_trk, distance))
         elif self.TrackerManager.model_name == 'ColorWrapper':
+            # Assign 되지 않은
             idle_trackers = list(range(self.TrackerManager.IdLength + 1))
             for _, single_trackers in active_trackers.items():
                 for tracker in single_trackers:

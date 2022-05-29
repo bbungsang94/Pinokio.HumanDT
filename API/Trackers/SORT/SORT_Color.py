@@ -7,6 +7,7 @@ from Trackers.GeneralTracker import AbstractTracker
 from utilities.config_mapper import get_yaml
 from utilities.helpers import box_iou2, get_distance
 from utilities.media_handler import ImageManager
+from collections import deque
 from utilities.projection_helper import ProjectionManager
 
 
@@ -19,6 +20,9 @@ class ColorTracker(AbstractTracker):
                  exist_division=9,
                  image_size=None,
                  color_path=None,
+                 max_trackers=255,
+                 video_len=4,
+                 video_idx=0,
                  ):
         if image_size is None:
             image_size = []
@@ -49,7 +53,10 @@ class ColorTracker(AbstractTracker):
         self.__Alternatives = []  # list for reserved trackers
         self.__TrackerIDs = []
 
-        self.Video_idx = 0
+        self.MaxTrackers = max_trackers
+        self.VideoLen = video_len
+        self.VideoIdx = video_idx
+        self.IdleIdList = deque(range(self.VideoIdx, self.MaxTrackers, self.VideoLen))
 
     def set_video_idx(self, idx):
         self.Video_idx = idx
@@ -161,6 +168,9 @@ class ColorTracker(AbstractTracker):
 
         return updated_trackers
 
+    def __get_new_id(self):
+        return self.IdleIdList.popleft()
+
     def __update_matched(self, input_image: np.array):
         changed_trackers = []
         for trk_idx, det_idx in self.__MatchedDet:
@@ -173,10 +183,13 @@ class ColorTracker(AbstractTracker):
             transformed = ProjectionManager.transform(tmp_trk.box, self.Video_idx)
             tmp_trk.history.append(list(transformed))
             tmp_trk.box = xx
+            tmp_trk.id = self.__get_new_id()
+            tmp_trk.video_idx = self.VideoIdx
             tmp_trk.no_losses = 0
-            if tmp_trk.id is len(self.ColorID['hsv']):
-                tmp_trk.id = self.match_color(img=input_image, box=self.__OlderBox[det_idx], thrd='optimized_ratio')
-                changed_trackers.append(tmp_trk)
+            changed_trackers.append(tmp_trk)
+            # if tmp_trk.id is len(self.ColorID['hsv']):
+            #     tmp_trk.id = self.match_color(img=input_image, box=self.__OlderBox[det_idx], thrd='optimized_ratio')
+            #     changed_trackers.append(tmp_trk)
 
         return changed_trackers
 
