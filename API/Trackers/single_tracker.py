@@ -53,6 +53,7 @@ class SingleTracker:  # class for Kalman Filter-based tracker
         self.dockNumber = 0
         self.state = ""
         self.Distance = 0
+        self.Mileage = 0
 
     def update_r(self):
         R_diag_array = self.R_scaler * np.array([self.L, self.L, self.L, self.L])

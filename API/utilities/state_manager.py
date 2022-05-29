@@ -31,7 +31,7 @@ class StateMonitor:
         target[idx] = value
 
     def update_distance(self, idx, value):
-        self.Calculator[self.Mapper['Dist']][idx] += value
+        self.Calculator[self.Mapper['Dist']][idx] = value
 
     def update_dock_count(self, dock_id, value):
         self.update_object(dock_id, 'Dock_Count', value)
@@ -156,30 +156,34 @@ class StateDecisionMaker:
         dock_info_results = []
         for idx, trackers in trackers_list.items():
             for tracker in trackers:
-                xPt, yPt = ProjectionManager.transform(tracker.box, idx)
-                if 357 < yPt < 380:
-                    if 140 < xPt:
-                        test = True
-                entrance, warning, (dockIn, dockId) = self.check_entrance(xPt, yPt)
-                tracker.dockNumber = dockId
-                if len(tracker.history) <= 1:
-                    dist = 0
-                else:
-                    pre_x = tracker.history[-1][0] - tracker.history[-2][0]
-                    pre_y = tracker.history[-1][1] - tracker.history[-2][1]
-                    pre_dist = math.sqrt(pre_x ** 2 + pre_y ** 2)
-                    x = xPt - tracker.history[-1][0]
-                    y = yPt - tracker.history[-1][1]
-                    dist = math.sqrt(x ** 2 + y ** 2)
-                    if pre_dist + 1 < dist:
+                if tracker.box is not None:
+                    xPt, yPt = ProjectionManager.transform(tracker.box, idx)
+                    if 357 < yPt < 380:
+                        if 140 < xPt:
+                            test = True
+                    entrance, warning, (dockIn, dockId) = self.check_entrance(xPt, yPt)
+                    if len(tracker.history) <= 1:
                         dist = 0
-                if entrance == "Move":
-                    if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
-                        state = ("Load_Move", warning)
                     else:
-                        state = ("Empty_Move", warning)
+                        pre_x = tracker.history[-1][0] - tracker.history[-2][0]
+                        pre_y = tracker.history[-1][1] - tracker.history[-2][1]
+                        pre_dist = math.sqrt(pre_x ** 2 + pre_y ** 2)
+                        x = xPt - tracker.history[-1][0]
+                        y = yPt - tracker.history[-1][1]
+                        dist = math.sqrt(x ** 2 + y ** 2)
+                        if pre_dist + 1 < dist:
+                            dist = 0
+                    if entrance == "Move":
+                        if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
+                            state = ("Load_Move", warning)
+                        else:
+                            state = ("Empty_Move", warning)
+                    else:
+                        state = (entrance, warning)
                 else:
-                    state = (entrance, warning)
+                    state = ("NA", False)
+                    (dockIn, dockId) = (False, 0)
+                    dist = 0
 
                 tracker.state = state
                 tracker_state = (state, tracker.id)

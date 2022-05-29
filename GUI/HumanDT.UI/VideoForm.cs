@@ -87,7 +87,7 @@ namespace HumanDT.UI
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
             //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "";
+            _Config.CondaEnv = "FLOM";
 
 
 
@@ -427,6 +427,24 @@ namespace HumanDT.UI
                 var videoInfoYaml = serializer.Serialize(_VideoInfoList[i]);
                 System.IO.File.WriteAllText(yamlList[i], videoInfoYaml); 
             }
+            // temp 이미지들 지우고파
+            //foreach (var directory in di.GetDirectories())
+            //{
+            //    var removeDi = new System.IO.DirectoryInfo(directory.FullName);
+            //    foreach (var file in removeDi.GetFiles())
+            //    {
+            //        file.IsReadOnly = false;
+            //        file.Delete();
+            //    }
+            //    removeDi.Attributes = System.IO.FileAttributes.Normal;
+            //    removeDi.Delete(true);
+            //    try
+            //    {
+            //        System.IO.Directory.Delete(directory.FullName, true);
+            //    }
+            //    catch { }
+
+            //}
         }
 
         private void AnalysisButtonClick(object sender, EventArgs e)

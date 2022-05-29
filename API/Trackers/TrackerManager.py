@@ -277,10 +277,12 @@ class DockWrapper:
             for new_tracker in new_tracker_list:
                 if self.__overlap_check(tempTrk, new_tracker):
                     if updated is False:
-                        tempTrk.id = new_tracker.id
-                        tr_x, tr_y = ProjectionManager.transform(tempTrk.box, tempTrk.video_idx)
-                        tempTrk.history.append([tr_x, tr_y])
-                        tempTrk.box = new_tracker.box
+                        if tempTrk is not new_tracker:
+                            if tempTrk.dockNumber == 0:
+                                tempTrk.id = new_tracker.id
+                            tr_x, tr_y = ProjectionManager.transform(tempTrk.box, tempTrk.video_idx)
+                            tempTrk.history.append([tr_x, tr_y])
+                            tempTrk.box = new_tracker.box
                         updated = True
                     new_del_trks.append(new_tracker)
             if updated is False:
@@ -296,6 +298,7 @@ class DockWrapper:
             if del_trk.dockNumber != 0:
                 (trk, mileage) = self.__DockTrackers[del_trk.dockNumber]
                 trk.state = "NA"
+                trk.box = None
                 self.__DockTrackers[del_trk.dockNumber] = (trk, mileage)
                 dock_losses.append(del_trk.dockNumber)
             tempTrks.remove(del_trk)
@@ -303,10 +306,7 @@ class DockWrapper:
         self.__ElseTrackers.clear()
         tempTrks += new_tracker_list
         for tempTrk in tempTrks:
-            if tempTrk.dockNumber != 0:
-                (_, mileage) = self.__DockTrackers[tempTrk.dockNumber]
-                self.__DockTrackers[tempTrk.dockNumber] = (tempTrk, mileage)
-            else:
+            if tempTrk.dockNumber == 0:
                 self.__ElseTrackers.append(tempTrk)
 
         self.__calculate_dist()
@@ -330,11 +330,13 @@ class DockWrapper:
     def set_dock_info(self, tracker, dock_id):
         if tracker in self.__ElseTrackers:
             if dock_id not in self.__DockTrackers:
-                self.__DockTrackers[dock_id] = (tracker, tracker.Distance)
+                tracker.dockNumber = dock_id
+                self.__DockTrackers[dock_id] = (tracker, tracker.Mileage)
             else:
                 (old_tracker, mileage) = self.__DockTrackers[dock_id]
                 tracker.history = old_tracker.history + tracker.history
-                self.__DockTrackers[dock_id] = (tracker, tracker.Distance + mileage)
+                tracker.dockNumber = dock_id
+                self.__DockTrackers[dock_id] = (tracker, tracker.Mileage + mileage)
             self.__ElseTrackers.remove(tracker)
             tracker.id = dock_id
             return True
@@ -353,26 +355,35 @@ class DockWrapper:
                 pre_x = tracker.history[-1][0] - tracker.history[-2][0]
                 pre_y = tracker.history[-1][1] - tracker.history[-2][1]
                 pre_dist = math.sqrt(pre_x ** 2 + pre_y ** 2)
+                if tracker.box is None:
+                    continue
                 tr_x, tr_y = ProjectionManager.transform(tracker.box, tracker.video_idx)
                 x = tr_x - tracker.history[-1][0]
                 y = tr_y - tracker.history[-1][1]
                 dist = math.sqrt(x ** 2 + y ** 2)
                 if pre_dist + 1 < dist:
                     dist = 0
-                tracker.Distance += dist * self.__DrawingScale
+                tracker.Distance = dist * self.__DrawingScale
+                tracker.Mileage += dist * self.__DrawingScale
+        for dock_id, (dock_tracker, dist) in self.__DockTrackers.items():
+            old_dist = dock_tracker.Distance
+            dock_tracker.Distance = 0
+            self.__DockTrackers[dock_id] = (dock_tracker, dist + old_dist)
 
     def __overlap_check(self, ori_tracker, new_tracker):
         ori_video_idx = ori_tracker.video_idx
         new_video_idx = new_tracker.video_idx
 
-        ori_x, ori_y = ProjectionManager.transform(ori_tracker.box, ori_video_idx)
-        new_x, new_y = ProjectionManager.transform(new_tracker.box, new_video_idx)
+        if ori_tracker.box is not None and new_tracker.box is not None:
+            ori_x, ori_y = ProjectionManager.transform(ori_tracker.box, ori_video_idx)
+            new_x, new_y = ProjectionManager.transform(new_tracker.box, new_video_idx)
 
-        distance = get_distance((ori_x, ori_y), (new_x, new_y))
-        if distance < self.__overlap_dist:
-            return True
-        else:
-            return False
+            distance = get_distance((ori_x, ori_y), (new_x, new_y))
+            if distance < self.__overlap_dist:
+                return True
+            else:
+                return False
+        return False
 
     def __extract_tracker(self, matched_idx: int):
         rtn_trackers = []

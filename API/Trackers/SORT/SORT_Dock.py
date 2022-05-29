@@ -8,6 +8,7 @@ from Trackers.single_tracker import SingleTracker
 from Trackers.GeneralTracker import AbstractTracker
 from utilities.config_mapper import get_yaml
 from utilities.helpers import box_iou2, get_distance
+from utilities.media_handler import ImageManager
 from utilities.projection_helper import ProjectionManager
 
 
@@ -52,6 +53,8 @@ class DockTracker(AbstractTracker):
         self.__TrackerIDs = []
 
         self.IdleIdList = deque(range(self.VideoIdx, self.MaxTrackers, self.VideoLen))
+
+        self.TestIdx = 0
 
     def set_video_idx(self, idx):
         self.VideoIdx = idx
@@ -106,6 +109,7 @@ class DockTracker(AbstractTracker):
         deleted_tracks = filter(lambda x: x.no_losses > self.MaxAge, self.__Trackers)
         self.__Trackers = [x for x in self.__Trackers if x.no_losses <= self.MaxAge]
         return self.__Trackers
+
 
     def sync(self, parents, overlap_dist):
         updated_trackers = []
@@ -190,6 +194,8 @@ class DockTracker(AbstractTracker):
 
     def __is_exist_tracker(self, key: int):
         return key in self.__TrackerIDs
+
+
 
 
 if __name__ == "__main__":

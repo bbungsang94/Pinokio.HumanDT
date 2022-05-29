@@ -68,9 +68,11 @@ namespace HumanDT.UI
             System.IO.FileInfo[] filepath = directory.GetFiles("main.py", System.IO.SearchOption.AllDirectories);
             _Config.FilePath = filepath[0].DirectoryName;
 
-            _ProcessInfo.FileName = @"D:\test\pythontest.bat";
-            _Process.StartInfo = _ProcessInfo;
-            _Process.Start();
+            this.StartAnalyse(_Config);
+
+            //_ProcessInfo.FileName = @"D:\test\pythontest.bat";
+            //_Process.StartInfo = _ProcessInfo;
+            //_Process.Start();
             //new Thread(new ThreadStart(StartAnalyse)).Start();
             //var analyseThread = new Thread(() => StartAnalyse());
             //analyseThread.Start();
@@ -128,52 +130,28 @@ namespace HumanDT.UI
 
             TimerStart();
         }
-        private void StartAnalyse()
+        private void StartAnalyse(ConfigStruct config)
         {
-            //_ProcessInfo.FileName = @"C:\Users\MNS\anaconda3\python.exe";
-            //_ProcessInfo.Arguments = @"D:\source-D\respos-D\Pinokio.HumanDT\API\main.py";
-            //_ProcessInfo.Arguments = $"\"{path}\\{file}";
-
-            _ProcessInfo.FileName = @"D:\test\pythontest.bat";
-            _ProcessInfo.WindowStyle = ProcessWindowStyle.Normal;
-            _ProcessInfo.CreateNoWindow = false; //flase가 띄우기, true가 안 띄우기
-            _ProcessInfo.UseShellExecute = false;
-
-            _ProcessInfo.RedirectStandardInput = true;
-            _ProcessInfo.RedirectStandardOutput = true;
-            _ProcessInfo.RedirectStandardError = true;
-            _ProcessInfo.Verb = "runas";
-
-            //var process = Process.Start(_ProcessInfo);
-            _Process.StartInfo = _ProcessInfo;
-
-            _Process.Start();
-            _Process.PriorityBoostEnabled = true;
-            _Process.PriorityClass = ProcessPriorityClass.RealTime;
-
-            _Process.StandardInput.WriteLine($"conda activate {_Config.CondaEnv}");
-            Thread.Sleep(1000);
-            if (_Config.FilePath.Contains("D:"))
+            try
             {
-                _Process.StandardInput.WriteLine("D:");
+                using (System.IO.StreamWriter sw = new System.IO.StreamWriter(config.FilePath + "\\main.bat"))
+                {
+                    sw.WriteLine("@echo off");
+                    sw.WriteLine($"call conda activate {config.CondaEnv}");
+                    if (config.FilePath.Contains("D:"))
+                        sw.WriteLine("d:");
+                    sw.WriteLine("cd " + config.FilePath);
+                    sw.WriteLine("python main.py");
+                    sw.WriteLine("call conda deactivate");
+                }
+                _ProcessInfo.FileName = config.FilePath + "\\main.bat";
+                _Process.StartInfo = _ProcessInfo;
+                _Process.Start();
+
             }
-            _Process.StandardInput.WriteLine("cd " + _Config.FilePath);
-            _Process.StandardInput.WriteLine("python main.py");
-
-            _Process.StandardInput.Close();
-            while (true)
+            catch (Exception ex)
             {
-                try
-                {
-                    //var test = _Process.StandardError.ReadLine();
-                    var output = _Process.StandardOutput.ReadLine();
-                    if (output == null)
-                        ;
-                }
-                catch (Exception ex)
-                {
-                    var exception = ex.ToString();
-                }
+                MessageBox.Show("Error", ex.Message);
             }
         }
         private void UpdateSimpleChart(ChartControl chart, DataTable dt)
@@ -311,7 +289,7 @@ namespace HumanDT.UI
         private void TimerStart()
         {
             Timer timer = new();
-            timer.Interval = 500;
+            timer.Interval = 200;
             timer.Tick += new EventHandler(Image_reader);
             timer.Start();
         }

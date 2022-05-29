@@ -154,10 +154,12 @@ class CascadeRunner(AbstractRunner):
         result_list = []
         box_anchors = []
         for image in tensor_image:
-            # begin = time.time()
+            begin = time.time()
             raw_image, veh_info, box_info, person_info = self._PrimaryDetector.detection(image)
-            # print("Inference time: ", (time.time() - begin) * 1000, "ms")
+            print("Inference time: ", (time.time() - begin) * 1000, "ms")
+
             detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
+
             (box_boxes, _, _) = box_info
             (veh_boxes, veh_classes, veh_scores) = veh_info
             results = {'raw_image': raw_image, 'boxes': veh_boxes, 'classes': veh_classes, 'scores': veh_scores}
@@ -182,7 +184,12 @@ class CascadeRunner(AbstractRunner):
 
     def post_processing(self, path, state_trackers):
         plan_image = self.OutputImages['plan_image']
-        for video_idx, np_image in enumerate(self.OutputImages['detected_image']):
+        for video_idx, tensor_image in enumerate(self.OutputImages['detected_image']):
+            # Detection Image 저장 안할 시 밑에 두줄 사용
+            # temp_image = tensor_image.numpy()
+            # np_image = temp_image[..., ::-1].copy()
+
+            np_image = tensor_image
             for idx, states, tracker in state_trackers:
                 state, warning = states
                 if idx is video_idx:
@@ -195,15 +202,16 @@ class CascadeRunner(AbstractRunner):
                         color = self.__ImageHandle.Colors[tracker.dockNumber + 2 % len(self.__ImageHandle.Colors)]
                     else:
                         color = self.__ImageHandle.Colors[tracker.id % len(self.__ImageHandle.Colors)]
-                    np_image = draw_box_label(np_image, tracker.box, trk_id=tracker.id, box_color=color, tag=state)
-                    # 히스토리 덮어찍기
-                    # if tracker in overlap_idx:
-                    #     ProjectionManager.draw_plan_history(tracker, plan_image, color)
-                    # else:
-                    #     x, y = ProjectionManager.transform(tracker.box, idx)
-                    #     plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
-                    x, y = ProjectionManager.transform(tracker.box, idx)
-                    plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
+                    if tracker.box is not None:
+                        np_image = draw_box_label(np_image, tracker.box, trk_id=tracker.id, box_color=color, tag=state)
+                        # 히스토리 덮어찍기
+                        # if tracker in overlap_idx:
+                        #     ProjectionManager.draw_plan_history(tracker, plan_image, color)
+                        # else:
+                        #     x, y = ProjectionManager.transform(tracker.box, idx)
+                        #     plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
+                        x, y = ProjectionManager.transform(tracker.box, idx)
+                        plan_image = ProjectionManager.draw_plan_image(x, y, plan_image, color)
             self.OutputImages['tracking_image'].append(np_image)
         self.OutputImages['plan_image'] = plan_image
 
@@ -214,9 +222,9 @@ class CascadeRunner(AbstractRunner):
                 # # Test
                 # ImageManager.save_tensor(self.OutputImages['raw_image'][iteration],
                 #                          path['test_path'] + file_name)
-                # # Detection
-                # ImageManager.save_image(self.OutputImages['detected_image'][iteration],
-                #                         path['detected_path'] + file_name)
+                # Detection
+                ImageManager.save_image(self.OutputImages['detected_image'][iteration],
+                                        path['detected_path'] + file_name)
                 # Tracking
                 ImageManager.save_image(self.OutputImages['tracking_image'][iteration],
                                         path['tracking_path'] + file_name)

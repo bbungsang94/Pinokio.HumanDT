@@ -6,6 +6,7 @@ from Trackers.single_tracker import SingleTracker
 from Trackers.GeneralTracker import AbstractTracker
 from utilities.config_mapper import get_yaml
 from utilities.helpers import box_iou2, get_distance
+from utilities.media_handler import ImageManager
 from utilities.projection_helper import ProjectionManager
 
 
@@ -91,8 +92,6 @@ class ColorTracker(AbstractTracker):
         self.__MatchedDet = matches
         self.__UnmatchedDet = np.array(unmatched_detections)
         self.__UnmatchedTrk = np.array(unmatched_trackers)
-
-
 
     def update_trackers(self, img=None):
         """ update tracker's attributes"""
