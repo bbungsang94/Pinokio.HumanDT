@@ -110,6 +110,7 @@ class ColorWrapper:
         self.model_name = 'ColorWrapper'
         self.IdleIds = []
         self.IdLength = 0
+        # self.ColorMatcher =
         self.__PublicTracker = []
         self.__LocalTrackers = []
         self.__overlap_dist = 20
