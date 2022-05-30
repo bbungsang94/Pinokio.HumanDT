@@ -75,7 +75,7 @@ namespace HumanDT.UI
             //_Config.VideoPath.Add("D:/MnS/HumanDT/Pinokio.HumanDT/API/video/LOADING DOCK F3 Rampa 15-16.avi");
             //_Config.SavePath = @"../../API/temp/";
 
-            string program_path = Application.StartupPath;
+            string program_path = System.Environment.CurrentDirectory;
             System.IO.DirectoryInfo directory = new System.IO.DirectoryInfo(program_path);
             directory = GetParent(6, directory);
             System.IO.FileInfo[] filepath = directory.GetFiles("image_extractor.py", System.IO.SearchOption.AllDirectories);
