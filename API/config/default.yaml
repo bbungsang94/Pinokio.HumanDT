@@ -33,7 +33,7 @@ recovery_model_name: ssd_mobile
 run_mode: Cascade
 run_name: ''
 save: true
-tracker_model_name: sort_dock
+tracker_model_name: sort_color
 tracking_path: tracking_result/
 trajectory_path: plan_result/
 visible: false

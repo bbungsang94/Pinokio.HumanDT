@@ -59,7 +59,7 @@ class roi:
         roi = convert_img[height_min:height_max, width_min:width_max]
         path = r"D:\source-D\respos-D\Pinokio.HumanDT\test"
 
-        save_path = path + "/" + str(idx) + "/"
+        save_path = path + "/anchor/" + str(idx) + "/"
         origin_path = save_path + str(self.TestIdx[idx]) + ".jpeg"
 
         ImageManager.save_image(roi, origin_path)

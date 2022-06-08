@@ -88,7 +88,7 @@ def post_iou_checker(target, candidates, thr=0.5, offset=0.2):
 def iou_checker(target, candidates, thr=0.5):
     for candidate in candidates:
         iou = box_iou2(target, candidate)
-        if iou >= thr:
+        if iou > thr:
             return True
     return False
 

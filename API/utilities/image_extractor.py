@@ -10,15 +10,15 @@ from config_mapper import get_yaml
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--video_path", type=str, default="", help="Video path"
+    "--video_path", type=str, default=r"D:\source-D\respos-D\Pinokio.HumanDT\API\temp", help="Video path"
 )
 parser.add_argument(
-    "--save_path", type=str, default="", help="Save path"
+    "--save_path", type=str, default=r"D:\source-D\respos-D\Pinokio.HumanDT\API\video\targetVideo", help="Save path"
 )
 
 
 class ImageExtractor:
-    def __init__(self, video_path, save_path:str):
+    def __init__(self, video_path, save_path: str):
         self._VideoHandle = PipeliningVideoManager()
         self.FrameRate, self.ImageSize = self._VideoHandle.load_video(video_path)
         self.VideoPath = video_path

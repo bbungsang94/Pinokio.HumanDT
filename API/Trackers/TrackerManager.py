@@ -110,7 +110,6 @@ class ColorWrapper:
         self.model_name = 'ColorWrapper'
         self.IdleIds = []
         self.IdLength = 0
-        # self.ColorMatcher =
         self.__PublicTracker = []
         self.__LocalTrackers = []
         self.__overlap_dist = 20
@@ -130,64 +129,39 @@ class ColorWrapper:
 
     # Call Init section
     def sync_id(self):
-        active_ids = [x for x in range(0, self.IdLength) if x not in self.IdleIds]
-        for idx, local_tracker in enumerate(self.__LocalTrackers):
-            local_tracker.set_tracker_id(self.IdleIds)
-            # Public tracker랑 동기화
-            single_trackers = self.__extract_tracker(idx)
-            single_trackers = self.__LocalTrackers[idx].sync(single_trackers, self.__overlap_dist)
-            for tracker in single_trackers:
-                self.__PublicTracker.append((idx, tracker))
-                if tracker.id in active_ids:
-                    active_ids.remove(tracker.id)
-
-        # 소멸된 ID 수집
-        self.IdleIds += active_ids
+        pass
 
     # Call running section
     def tracking(self, boxes, img: np.array, idx: int):
         self.__LocalTrackers[idx].assign_detections_to_trackers(detections=boxes)
-        new_trk, chg_trk = self.__LocalTrackers[idx].update_trackers(img=img)
-        return new_trk
+        cur_trk, _ = self.__LocalTrackers[idx].update_trackers(img=img)
+        return cur_trk
 
     # Call running section
-    def post_tracking(self, new_trackers: dict):
-        new_public_trackers = []
-        del_idx = []
-        overlap_idx = []
-        for video_idx, new_trackers in new_trackers.items():
-            for new_tracker in new_trackers:
-                if len(self.__PublicTracker) == 0:
-                    self.__PublicTracker.append((video_idx, new_tracker))
-                    if new_tracker.id in self.IdleIds:
-                        self.IdleIds.remove(new_tracker.id)
-                else:
-                    for idx, alternative in enumerate(self.__PublicTracker):
-                        if self.__overlap_check(alternative, (video_idx, new_tracker)):
-                            (_, tracker) = alternative
-                            new_tracker.id = tracker.id
-                            new_tracker.history = tracker.history + new_tracker.history
-                            new_public_trackers.append((video_idx, new_tracker))
-                            del_idx.append(alternative)
-                            overlap_idx.append(new_tracker)
+    def post_tracking(self, cur_trackers: dict):
+        public_trackers = []
+        idle_ids = list(range(0, self.IdLength))
+        for video_idx, cur_trackers in cur_trackers.items():
+            for origin_idx, cur_tracker in enumerate(cur_trackers):
+                for idx, alternative in enumerate(self.__PublicTracker):
+                    if self.__overlap_check(alternative, (video_idx, cur_tracker)):
+                        (_, tracker) = alternative
+                        if tracker.id < len(self.get_color()) <= cur_tracker.id:
+                            self.__LocalTrackers[video_idx].change_tracker_id(origin_idx, tracker.id)
 
-                        if new_tracker.id in self.IdleIds:
-                            self.IdleIds.remove(new_tracker.id)
-                        new_public_trackers.append((video_idx, new_tracker))
+                if cur_tracker.id in idle_ids:
+                    idle_ids.remove(cur_tracker.id)
+                    public_trackers.append((video_idx, cur_tracker))
 
-        while len(del_idx) > 0:
-            alternative = del_idx.pop()
-            self.__PublicTracker.remove(alternative)
-
-        self.__PublicTracker += new_public_trackers
-        return overlap_idx
+        self.__PublicTracker = public_trackers
+        return None
 
     def get_single_trackers(self):
         rtn_tracker = dict()
-        for (idx, tracker) in self.__PublicTracker:
+        for (idx, trackers) in self.__PublicTracker:
             if idx not in rtn_tracker:
                 rtn_tracker[idx] = []
-            rtn_tracker[idx].append(tracker)
+            rtn_tracker[idx].append(trackers)
         return rtn_tracker
 
     def get_color(self):

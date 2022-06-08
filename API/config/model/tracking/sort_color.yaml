@@ -6,6 +6,8 @@ sort_color:
   exist_division: 7
   image_size: []
   color_path: "./config/model/tracking/tracking_color.yaml"
+  color_model: "./config/model/color/ColorClassifier.pickle"
+  label_model: "./config/model/weights/yolov5_color_0529.pt"
   max_trackers: 255555
   video_idx: 0
   video_len: 4

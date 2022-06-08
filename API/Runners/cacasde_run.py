@@ -25,6 +25,7 @@ class CascadeRunner(AbstractRunner):
         self.__OldReservedTrkLen = dict()
         self.__VideoHandles = []
         self.__DrawingScale = args['drawing_scale']
+        self.__Visible = args['visible']
 
         # Public members (to use as an output)
         plan_image = ImageManager.load_cv(args['plan_path'])
@@ -39,6 +40,7 @@ class CascadeRunner(AbstractRunner):
             test = pickle.load(f)
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': plan_image}
+        self.DebugCount = 0
 
         # Initialize about Video
         count = 0
@@ -119,7 +121,7 @@ class CascadeRunner(AbstractRunner):
             self.TrackerManager.sync_id()
 
         self._PrimaryDetector = det_REGISTRY[primary_model_args['model_name']](**primary_model_args)
-        self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion, thr=0.4)
+        self.__interactor = StateDecisionMaker(args['output_base_path'] + args['run_name'], self.DockInRegion)
 
     def get_image(self):
         rtn_images = []
@@ -157,39 +159,89 @@ class CascadeRunner(AbstractRunner):
             begin = time.time()
             raw_image, veh_info, box_info, person_info = self._PrimaryDetector.detection(image)
             print("Inference time: ", (time.time() - begin) * 1000, "ms")
-
-            detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
-
             (box_boxes, _, _) = box_info
             (veh_boxes, veh_classes, veh_scores) = veh_info
             results = {'raw_image': raw_image, 'boxes': veh_boxes, 'classes': veh_classes, 'scores': veh_scores}
             results = DictToStruct(**results)
-            self.OutputImages['detected_image'].append(detected_image)
             box_anchors.append(box_boxes)
             result_list.append(results)
+
+            if self.__Visible:
+                detected_image = self.__ImageHandle.draw_boxes_info(image, (veh_info, box_info))
+                self.OutputImages['detected_image'].append(detected_image)
 
         return result_list, box_anchors
 
     def tracking(self, results, images):
         target_trackers = dict()
-        if self.TrackerManager.model_name == 'DockWrapper':
+
+        if self.TrackerManager.model_name == 'TrackerManager':
+            target_trackers = self.TrackerManager.tracking(boxes=results)
+        else:
             for idx, result in enumerate(results):
                 singleTrks = self.TrackerManager.tracking(boxes=result.boxes, img=images[idx].numpy(), idx=idx)
                 target_trackers[idx] = singleTrks
-        else:
-            target_trackers = self.TrackerManager.tracking(boxes=results)
 
-        dock_losses = self.TrackerManager.post_tracking(target_trackers)
-        return dock_losses
+        deleted_trackers = self.TrackerManager.post_tracking(target_trackers)
+        return deleted_trackers
+
+    def interaction_processing(self, box_anchors, deleted_trackers=None):
+        active_trackers = self.TrackerManager.get_single_trackers()
+        results, distances, state_trackers, dock_info_results = self.__interactor.get_decision(
+                                                                trackers_list=active_trackers, boxes_list=box_anchors)
+        distance_info = []
+        # for distance in distances:
+        #     (dist, idx) = distance
+        #     dist *= self.__DrawingScale
+        if self.TrackerManager.model_name == 'DockWrapper':
+            for dock_info in dock_info_results:
+                (dockId, dockIn, tracker) = dock_info
+                if dockIn:
+                    if self.TrackerManager.set_dock_info(tracker, dockId):
+                        self.__interactor.dock_count[dockId] += 1
+            results = []
+            dock_trackers = self.TrackerManager.get_dock_trackers()
+            for dock_id, (tmp_trk, distance) in dock_trackers.items():
+                results.append((dock_id, tmp_trk.state, tmp_trk, distance))
+
+        elif self.TrackerManager.model_name == 'ColorWrapper':
+            if self.DebugCount > 358:
+                debug = True
+            else:
+                self.DebugCount += 1
+            # Assign 되지 않은
+            pivot = 0
+            idle_trackers = list(range(self.TrackerManager.IdLength))
+            for _, single_trackers in active_trackers.items():
+                for _, tracker in enumerate(single_trackers):
+                    if tracker.id in idle_trackers:
+                        idle_trackers.remove(tracker.id)
+                    results[pivot] = (tracker.id, tracker.state, tracker, distances[tracker.id])
+                    pivot += 1
+            for idle in idle_trackers:
+                results.append((idle, ("NA", False), None, 0))
+
+        frame_count, handle = self.__VideoHandles[0]
+        self.__interactor.update_decision(image_name=handle.make_image_name(frame_count), results=results)
+
+        if deleted_trackers is not None:
+            self.__interactor.loss_tracker(deleted_trackers, handle.make_image_name(frame_count))
+
+        return state_trackers
 
     def post_processing(self, path, state_trackers):
         plan_image = self.OutputImages['plan_image']
-        for video_idx, tensor_image in enumerate(self.OutputImages['detected_image']):
+        target_name = 'raw_image'
+        if self.__Visible:
+            target_name = 'detected_image'
+        for video_idx, tensor_image in enumerate(self.OutputImages[target_name]):
             # Detection Image 저장 안할 시 밑에 두줄 사용
-            # temp_image = tensor_image.numpy()
-            # np_image = temp_image[..., ::-1].copy()
+            if self.__Visible:
+                np_image = tensor_image
+            else:
+                temp_image = tensor_image.numpy()
+                np_image = temp_image[..., ::-1].copy()
 
-            np_image = tensor_image
             for idx, states, tracker in state_trackers:
                 state, warning = states
                 if idx is video_idx:
@@ -222,9 +274,10 @@ class CascadeRunner(AbstractRunner):
                 # # Test
                 # ImageManager.save_tensor(self.OutputImages['raw_image'][iteration],
                 #                          path['test_path'] + file_name)
-                # Detection
-                ImageManager.save_image(self.OutputImages['detected_image'][iteration],
-                                        path['detected_path'] + file_name)
+                if self.__Visible:
+                    # Detection
+                    ImageManager.save_image(self.OutputImages['detected_image'][iteration],
+                                            path['detected_path'] + file_name)
                 # Tracking
                 ImageManager.save_image(self.OutputImages['tracking_image'][iteration],
                                         path['tracking_path'] + file_name)
@@ -241,44 +294,6 @@ class CascadeRunner(AbstractRunner):
 
         self.OutputImages = {'raw_image': [], 'detected_image': [],
                              'tracking_image': [], 'plan_image': self.OutputImages['plan_image']}
-
-    def interaction_processing(self, box_anchors, deleted_trackers=None):
-        active_trackers = self.TrackerManager.get_single_trackers()
-        results, distances, state_trackers, dock_info_results = self.__interactor.get_decision(
-                                                                trackers_list=active_trackers, boxes_list=box_anchors)
-        distance_info = []
-        # for distance in distances:
-        #     (dist, idx) = distance
-        #     dist *= self.__DrawingScale
-        if self.TrackerManager.model_name == 'DockWrapper':
-            for dock_info in dock_info_results:
-                (dockId, dockIn, tracker) = dock_info
-                if dockIn:
-                    if self.TrackerManager.set_dock_info(tracker, dockId):
-                        self.__interactor.dock_count[dockId] += 1
-            results = []
-            dock_trackers = self.TrackerManager.get_dock_trackers()
-            if len(dock_trackers.items()) != 0:
-                test = True
-            for dock_id, (tmp_trk, distance) in dock_trackers.items():
-                results.append((dock_id, tmp_trk.state, tmp_trk, distance))
-        elif self.TrackerManager.model_name == 'ColorWrapper':
-            # Assign 되지 않은
-            idle_trackers = list(range(self.TrackerManager.IdLength + 1))
-            for _, single_trackers in active_trackers.items():
-                for tracker in single_trackers:
-                    if tracker.id in idle_trackers:
-                        idle_trackers.remove(tracker.id)
-            for idle in idle_trackers:
-                results.append((("NA", False), idle))
-
-        frame_count, handle = self.__VideoHandles[0]
-        self.__interactor.update_decision(image_name=handle.make_image_name(frame_count), results=results)
-
-        if deleted_trackers is not None:
-            self.__interactor.loss_tracker(deleted_trackers, handle.make_image_name(frame_count))
-
-        return state_trackers
 
     def interaction_clear(self):
         for tracker_id in range(0, self.TrackerManager.IdLength + 1):

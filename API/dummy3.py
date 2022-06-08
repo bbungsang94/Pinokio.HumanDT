@@ -2,7 +2,7 @@ import copy
 
 import cv2
 import numpy as np
-
+import pandas as pd
 from models.experimental import attempt_load
 import torch
 import torch.nn.functional as nnf
@@ -13,27 +13,32 @@ from utilities.media_handler import ImageManager
 
 class dummy3:
     def __init__(self):
-        self.Detector = self.Detector = attempt_load(
+        self.Detector = attempt_load(
             r"D:\source-D\respos-D\Pinokio.HumanDT\API\config\model\weights\yolov5_color_0529.pt",
             map_location=torch.device('cuda:0'))
 
     def run(self):
-        for idx in range(0, 2400):
+        rgb_chart = pd.read_excel(r"D:\source-D\respos-D\Pinokio.HumanDT\test\RGB.xlsx")
+        new_raw = {"idx": "", "roi": "",
+                   "blue": 0, "green": 0, "red": 0,
+                   "hue": 0, "saturation": 0, "value": 0,
+                   "width": 0, "height": 0, "confidence": 0}
+        for idx in range(0, 2300):
             for folder in range(0, 4):
                 img = ImageManager.load_cv(r"D:/source-D/respos-D/Pinokio.HumanDT/test/anchor/" +
-                                 str(folder) + "/" + str(idx) + ".jpeg")
-                converted_img = ImageManager.convert_tensor(img)
+                                           str(folder) + "/" + str(idx) + ".jpeg")
 
-                ImageManager.save_tensor(converted_img, r"D:/source-D/respos-D/Pinokio.HumanDT/test/test.jpeg")
+                converted_img = ImageManager.convert_tensor(img)
 
                 raw_image, label_info = self.detection(converted_img)
 
                 temp_manager = ImageManager()
                 detected_image = temp_manager.draw_boxes_info(image=converted_img, info=(label_info, None))
-                ImageManager.save_image(detected_image, r"D:/source-D/respos-D/Pinokio.HumanDT/test/detect.jpeg")
+                ImageManager.save_image(detected_image, r"D:/source-D/respos-D/Pinokio.HumanDT/test/detect/" +
+                                        str(folder) + "-" + str(idx) + ".jpeg")
                 roi_boxes = label_info[0]
                 np_image = converted_img.cpu().numpy()
-                for roi_box in roi_boxes:
+                for roi_idx, roi_box in enumerate(roi_boxes):
                     height_min = int(min(roi_box[0], roi_box[2]))
                     height_max = int(max(roi_box[0], roi_box[2]))
                     width_min = int(min(roi_box[1], roi_box[3]))
@@ -41,16 +46,26 @@ class dummy3:
                     # convert_img = img[..., ::-1].copy()
 
                     roi = np_image[height_min:height_max, width_min:width_max]
-
-
-
-                    ImageManager.save_image(roi, r"D:/source-D/respos-D/Pinokio.HumanDT/test/roi.jpeg")
-                    debug = True
+                    roi_hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+                    roi_rgb = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
+                    ImageManager.save_image(roi_rgb, r"D:/source-D/respos-D/Pinokio.HumanDT/test/roi/" +
+                                            str(folder) + "-" + str(idx) + "-" + str(roi_idx) + ".jpeg")
+                    new_raw["idx"] = str(folder) + "-" + str(idx)
+                    new_raw["roi"] = str(roi_idx)
+                    new_raw["width"] = width_max - width_min
+                    new_raw["height"] = height_max - height_min
+                    new_raw["blue"] = np.mean(roi[:, :, 0])
+                    new_raw["green"] = np.mean(roi[:, :, 1])
+                    new_raw["red"] = np.mean(roi[:, :, 2])
+                    new_raw["hue"] = np.mean(roi_hsv[:, :, 0])
+                    new_raw["saturation"] = np.mean(roi_hsv[:, :, 1])
+                    new_raw["value"] = np.mean(roi_hsv[:, :, 2])
+                    new_raw["confidence"] = label_info[2][roi_idx]
+                    rgb_chart = rgb_chart.append(new_raw, ignore_index=True)
+                    rgb_chart.to_excel(r"D:\source-D\respos-D\Pinokio.HumanDT\test\RGB_log.xlsx")
 
                 np_image = raw_image.cpu().numpy()
                 np_image = np_image[:, :]
-
-
 
     def detection(self, input_image):
         """Determines the locations of the vehicle in the image
@@ -144,7 +159,6 @@ class dummy3:
 
         return label_info
 
-
     def get_zboxes(self, boxes, im_width, im_height):
         z_boxes = []
         for i in range(min(boxes.shape[0], 100)):
@@ -159,5 +173,3 @@ class dummy3:
 if __name__ == "__main__":
     test = dummy3()
     test.run()
-
-

@@ -138,9 +138,8 @@ class StateProcessor:
 
 
 class StateDecisionMaker:
-    def __init__(self, output_path, dock_info: dict, thr=0.4):
+    def __init__(self, output_path, dock_info: dict):
         self.dock_info = dock_info
-        self.Threshold = thr
         self.Processor = StateProcessor()
         self.StateSpace = self.Processor.Monitor.Keys
         self.Ref = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA']
@@ -158,9 +157,7 @@ class StateDecisionMaker:
             for tracker in trackers:
                 if tracker.box is not None:
                     xPt, yPt = ProjectionManager.transform(tracker.box, idx)
-                    if 357 < yPt < 380:
-                        if 140 < xPt:
-                            test = True
+
                     entrance, warning, (dockIn, dockId) = self.check_entrance(xPt, yPt)
                     if len(tracker.history) <= 1:
                         dist = 0
@@ -174,7 +171,7 @@ class StateDecisionMaker:
                         if pre_dist + 1 < dist:
                             dist = 0
                     if entrance == "Move":
-                        if iou_checker(tracker.box, boxes_list[idx], thr=self.Threshold):
+                        if iou_checker(tracker.box, boxes_list[idx], thr=0.0):
                             state = ("Load_Move", warning)
                         else:
                             state = ("Empty_Move", warning)
@@ -190,7 +187,7 @@ class StateDecisionMaker:
                 dock_info = (dockId, dockIn, tracker)
                 decision_results.append(tracker_state)
                 dock_info_results.append(dock_info)
-                distance_results[tracker] = dist
+                distance_results[tracker.id] = dist
                 state_trackers.append((idx, state, tracker))
         return decision_results, distance_results, state_trackers, dock_info_results
 
@@ -231,7 +228,7 @@ class StateDecisionMaker:
 
     def update_decision(self, image_name, results):
         for result in results:
-            (idx, states, tracker, distance) = result
+            (idx, states, _, distance) = result
             self.Processor.enqueue(states, image_name, idx, distance, self.dock_count)
         self.Processor.update_time(image_name)
         self.Processor.save(self.output_path)

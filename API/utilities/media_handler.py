@@ -178,8 +178,9 @@ class ImageManager:
         return converted_img
 
     @staticmethod
-    def convert_tensor(img: np.array):
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    def convert_tensor(img: np.array, bgr2rgb=True):
+        if bgr2rgb:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # converted_img = tf.image.convert_image_dtype(img, tf.uint8)[tf.newaxis, ...]
         converted_img = torch.from_numpy(img)
         return converted_img
@@ -191,6 +192,17 @@ class ImageManager:
     @staticmethod
     def save_tensor(img, path):
         imageio.imwrite(path, img)
+
+    @staticmethod
+    def get_roi(img: np.array, box):
+        # img: np image
+        height_min = int(min(box[0], box[2]))
+        height_max = int(max(box[0], box[2]))
+        width_min = int(min(box[1], box[3]))
+        width_max = int(max(box[1], box[3]))
+
+        roi = img[height_min:height_max, width_min:width_max]
+        return roi
 
     def draw_bounding_box_on_image(self, image,
                                    top, left, bottom, right, color,
