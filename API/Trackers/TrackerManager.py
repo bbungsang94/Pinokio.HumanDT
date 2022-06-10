@@ -105,7 +105,7 @@ class TrackerManager:
 
 
 class ColorWrapper:
-    def __init__(self, local_trackers=None):
+    def __init__(self, local_trackers=None, drawing_scale=0):
         # 지역별로 존재하는 로컬 트랙커의 아이디를 관리해주는 Wrapper
         self.model_name = 'ColorWrapper'
         self.IdleIds = []
@@ -113,6 +113,7 @@ class ColorWrapper:
         self.__PublicTracker = []
         self.__LocalTrackers = []
         self.__overlap_dist = 20
+        self.__DrawingScale = drawing_scale
         if local_trackers is not None:
             for local_tracker in local_trackers:
                 self.add_tracker(local_tracker)
@@ -147,13 +148,14 @@ class ColorWrapper:
                     if self.__overlap_check(alternative, (video_idx, cur_tracker)):
                         (_, tracker) = alternative
                         if tracker.id < len(self.get_color()) <= cur_tracker.id:
-                            self.__LocalTrackers[video_idx].change_tracker_id(origin_idx, tracker.id)
+                            self.__LocalTrackers[video_idx].change_tracker_id(origin_idx, tracker)
 
                 if cur_tracker.id in idle_ids:
                     idle_ids.remove(cur_tracker.id)
                     public_trackers.append((video_idx, cur_tracker))
 
         self.__PublicTracker = public_trackers
+        self.__calculate_dist()
         return None
 
     def get_single_trackers(self):
@@ -186,6 +188,31 @@ class ColorWrapper:
                 rtn_trackers.append(tracker)
                 del self.__PublicTracker[idx]
         return rtn_trackers
+
+    def __calculate_dist(self):
+        tempTrks = self.__PublicTracker
+        for video_idx, tracker in tempTrks:
+            if len(tracker.history) <= 1:
+                dist = 0
+            else:
+                pre_x = tracker.history[-1][0] - tracker.history[-2][0]
+                pre_y = tracker.history[-1][1] - tracker.history[-2][1]
+                pre_dist = math.sqrt(pre_x ** 2 + pre_y ** 2)
+                if tracker.box is None:
+                    continue
+                tr_x, tr_y = ProjectionManager.transform(tracker.box, video_idx)
+                x = tr_x - tracker.history[-1][0]
+                y = tr_y - tracker.history[-1][1]
+                dist = math.sqrt(x ** 2 + y ** 2)
+                if pre_dist + 1 < dist:
+                    dist = 0
+                tracker.Distance = dist * self.__DrawingScale
+                # tracker.Mileage += dist * self.__DrawingScale
+                print("Mileage Debug")
+        # for dock_id, (dock_tracker, dist) in self.__DockTrackers.items():
+        #     old_dist = dock_tracker.Distance
+        #     dock_tracker.Distance = 0
+        #     self.__DockTrackers[dock_id] = (dock_tracker, dist + old_dist)
 
 
 class DockWrapper:

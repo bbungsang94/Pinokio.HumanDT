@@ -8,10 +8,10 @@ from utilities.projection_helper import ProjectionManager
 
 class StateMonitor:
     def __init__(self):
-        self.Keys = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA', 'Dist', 'Dock_Count']
+        self.Keys = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA', 'Dist', 'Work_Count']
         self.Mapper = {'In': '도크 진입', 'Ready': '트레일러 작업', 'Load_Move': '지게차 적재이동',
                        'Put': '1차 하역', 'Empty_Move': '빈 지게차 이동', 'NA': 'N/A', 'Dist': '이동 거리',
-                       'Dock_Count': '도크 작업 수'}
+                       'Work_Count': '작업 수'}
         self.Object_list = []
         self.Calculator = dict()
         for key in self.Keys:
@@ -31,10 +31,10 @@ class StateMonitor:
         target[idx] = value
 
     def update_distance(self, idx, value):
-        self.Calculator[self.Mapper['Dist']][idx] = value
+        self.Calculator[self.Mapper['Dist']][idx] += value
 
-    def update_dock_count(self, dock_id, value):
-        self.update_object(dock_id, 'Dock_Count', value)
+    def update_work_count(self, dock_id, value):
+        self.update_object(dock_id, 'Work_Count', value)
 
     def cumtime_object(self, idx, state, value):
         self.Calculator[self.Mapper[state]][idx] += value
@@ -76,7 +76,7 @@ class StateProcessor:
         self.T_now = 0
         self.Monitor = StateMonitor()
 
-    def enqueue(self, states: tuple, pin_name: str, idx, distance, dock_info):
+    def enqueue(self, states: tuple, pin_name: str, idx, distance, work_info):
         (pin_time, _) = pin_name.split('.')
         pin_time = pin_time.replace('-', '.')
         real_time = float(pin_time)
@@ -86,8 +86,8 @@ class StateProcessor:
         if idx not in self.OldStates:
             self.Monitor.update_object(idx, state, 0.0)
             self.Monitor.update_distance(idx, distance)
-            for dock_id, dock_count in dock_info.items():
-                self.Monitor.update_dock_count(dock_id, dock_count)
+            for trk_id, work_count in work_info.items():
+                self.Monitor.update_work_count(trk_id, work_count)
             self.OldStates[idx] = (state, real_time, next_state)
             return
         else:
@@ -98,9 +98,9 @@ class StateProcessor:
                     return
             if state in predict_state:
                 self.Monitor.cumtime_object(idx, old_state, real_time - old_time)
-                self.Monitor.update_distance(idx, distance)
-                for dock_id, dock_count in dock_info.items():
-                    self.Monitor.update_dock_count(dock_id, dock_count)
+                # self.Monitor.update_distance(idx, distance)
+                for trk_id, work_count in work_info.items():
+                    self.Monitor.update_work_count(trk_id, work_count)
                 self.OldStates[idx] = (state, real_time, next_state)
                 return
             # Two-step over case
@@ -109,9 +109,9 @@ class StateProcessor:
                     (two_step_states, next_step) = self.Predict_state[key]
                     if state in two_step_states:
                         self.Monitor.cumtime_object(idx, next_step, real_time - old_time)
-                        self.Monitor.update_distance(idx, distance)
-                        for dock_id, dock_count in dock_info.items():
-                            self.Monitor.update_dock_count(dock_id, dock_count)
+                        # self.Monitor.update_distance(idx, distance)
+                        for trk_id, work_count in work_info.items():
+                            self.Monitor.update_work_count(trk_id, work_count)
                         self.OldStates[idx] = (state, real_time, next_state)
                         return
 
@@ -144,9 +144,9 @@ class StateDecisionMaker:
         self.StateSpace = self.Processor.Monitor.Keys
         self.Ref = ['In', 'Ready', 'Load_Move', 'Put', 'Empty_Move', 'NA']
         self.output_path = output_path
-        self.dock_count = dict()
-        for dock_id in self.dock_info.keys():
-            self.dock_count[dock_id] = 0
+        self.work_count = dict()
+        for trk_id in range(0, 10):
+            self.work_count[trk_id] = 0
 
     def get_decision(self, trackers_list: dict, boxes_list: list):
         decision_results = []
@@ -159,6 +159,10 @@ class StateDecisionMaker:
                     xPt, yPt = ProjectionManager.transform(tracker.box, idx)
 
                     entrance, warning, (dockIn, dockId) = self.check_entrance(xPt, yPt)
+                    if dockIn is True and tracker.dockNumber == 0:
+                        tracker.dockNumber = dockId
+                        # self.dock_last_tracker[dockId] = tracker.id
+                        self.work_count[tracker.id] += 1
                     if len(tracker.history) <= 1:
                         dist = 0
                     else:
@@ -229,6 +233,7 @@ class StateDecisionMaker:
     def update_decision(self, image_name, results):
         for result in results:
             (idx, states, _, distance) = result
-            self.Processor.enqueue(states, image_name, idx, distance, self.dock_count)
+            self.Processor.enqueue(states, image_name, idx, distance, self.work_count)
+            self.Processor.enqueue_dist(idx, distance)
         self.Processor.update_time(image_name)
         self.Processor.save(self.output_path)

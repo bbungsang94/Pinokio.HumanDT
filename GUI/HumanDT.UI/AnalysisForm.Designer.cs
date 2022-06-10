@@ -36,6 +36,7 @@
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.pnlHeader = new System.Windows.Forms.Panel();
+            this.button3 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.button5 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
@@ -46,8 +47,7 @@
             this.pictureBox5 = new System.Windows.Forms.PictureBox();
             this.SimpleChart = new DevExpress.XtraCharts.ChartControl();
             this.DetailedChart = new DevExpress.XtraCharts.ChartControl();
-            this.DockinfoChart = new DevExpress.XtraCharts.ChartControl();
-            this.button3 = new System.Windows.Forms.Button();
+            this.WorkinfoChart = new DevExpress.XtraCharts.ChartControl();
             this.DistanceChart = new DevExpress.XtraCharts.ChartControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1.Panel1)).BeginInit();
@@ -75,7 +75,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SimpleChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DetailedChart)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DockinfoChart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.WorkinfoChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DistanceChart)).BeginInit();
             this.SuspendLayout();
             // 
@@ -193,15 +193,25 @@
             this.pnlHeader.Size = new System.Drawing.Size(263, 1080);
             this.pnlHeader.TabIndex = 5;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(19, 479);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(227, 55);
+            this.button3.TabIndex = 7;
+            this.button3.Text = "Distance";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.DistanceChart_Click);
+            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(19, 398);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(227, 55);
             this.button1.TabIndex = 6;
-            this.button1.Text = "Dock Info";
+            this.button1.Text = "Work Info";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.DockinfoChart_Click);
+            this.button1.Click += new System.EventHandler(this.WorkinfoChart_Click);
             // 
             // button5
             // 
@@ -289,23 +299,13 @@
             this.DetailedChart.Size = new System.Drawing.Size(454, 793);
             this.DetailedChart.TabIndex = 9;
             // 
-            // DockinfoChart
+            // WorkinfoChart
             // 
-            this.DockinfoChart.Location = new System.Drawing.Point(1444, 166);
-            this.DockinfoChart.Name = "DockinfoChart";
-            this.DockinfoChart.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
-            this.DockinfoChart.Size = new System.Drawing.Size(454, 793);
-            this.DockinfoChart.TabIndex = 10;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(19, 479);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(227, 55);
-            this.button3.TabIndex = 7;
-            this.button3.Text = "Distance";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.DistanceChart_Click);
+            this.WorkinfoChart.Location = new System.Drawing.Point(1444, 166);
+            this.WorkinfoChart.Name = "WorkinfoChart";
+            this.WorkinfoChart.SeriesSerializable = new DevExpress.XtraCharts.Series[0];
+            this.WorkinfoChart.Size = new System.Drawing.Size(454, 793);
+            this.WorkinfoChart.TabIndex = 10;
             // 
             // DistanceChart
             // 
@@ -323,7 +323,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1920, 1080);
             this.Controls.Add(this.DistanceChart);
-            this.Controls.Add(this.DockinfoChart);
+            this.Controls.Add(this.WorkinfoChart);
             this.Controls.Add(this.DetailedChart);
             this.Controls.Add(this.SimpleChart);
             this.Controls.Add(this.pictureBox5);
@@ -360,7 +360,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SimpleChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DetailedChart)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DockinfoChart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.WorkinfoChart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.DistanceChart)).EndInit();
             this.ResumeLayout(false);
 
@@ -385,7 +385,7 @@
         private DevExpress.XtraCharts.ChartControl SimpleChart;
         private DevExpress.XtraCharts.ChartControl DetailedChart;
         private System.Windows.Forms.Button button1;
-        private DevExpress.XtraCharts.ChartControl DockinfoChart;
+        private DevExpress.XtraCharts.ChartControl WorkinfoChart;
         private System.Windows.Forms.Button button3;
         private DevExpress.XtraCharts.ChartControl DistanceChart;
     }
