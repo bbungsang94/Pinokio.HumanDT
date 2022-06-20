@@ -205,10 +205,6 @@ class CascadeRunner(AbstractRunner):
                 results.append((dock_id, tmp_trk.state, tmp_trk, distance))
 
         elif self.TrackerManager.model_name == 'ColorWrapper':
-            if self.DebugCount > 358:
-                debug = True
-            else:
-                self.DebugCount += 1
             # Assign 되지 않은
             pivot = 0
             idle_trackers = list(range(self.TrackerManager.IdLength))
