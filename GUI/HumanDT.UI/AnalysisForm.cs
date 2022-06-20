@@ -49,9 +49,9 @@ namespace HumanDT.UI
             this.DetailedChart.Series.Add(new Series("Detailed Utilization", ViewType.StackedBar));
             this.DetailedChart.Titles.Add(new ChartTitle { Text = "Detailed Utillization Chart", TextColor = Color.White });
             this.DetailedChart.BackColor = Color.FromArgb(60, 60, 60);
-            this.DockinfoChart.Series.Add(new Series("DockInfo", ViewType.Bar));
-            this.DockinfoChart.Titles.Add(new ChartTitle { Text = "DockInfo Chart", TextColor = Color.White });
-            this.DockinfoChart.BackColor = Color.FromArgb(60, 60, 60);
+            this.WorkinfoChart.Series.Add(new Series("WorkInfo", ViewType.Bar));
+            this.WorkinfoChart.Titles.Add(new ChartTitle { Text = "WorkInfo Chart", TextColor = Color.White });
+            this.WorkinfoChart.BackColor = Color.FromArgb(60, 60, 60);
             this.DistanceChart.Series.Add(new Series("Detailed Utilization", ViewType.Bar));
             this.DistanceChart.Titles.Add(new ChartTitle { Text = "Distance Chart", TextColor = Color.White });
             this.DistanceChart.BackColor = Color.FromArgb(60, 60, 60);
@@ -165,8 +165,8 @@ namespace HumanDT.UI
                     chart.DataSource = ConvertDetailed(dt);
                     chart.SeriesTemplate.ChangeView(ViewType.StackedBar);
                     break;
-                case "DockinfoChart":
-                    chart.DataSource = ConvertDockinfo(dt);
+                case "WorkinfoChart":
+                    chart.DataSource = ConvertWorkinfo(dt);
                     break;
                 case "DistanceChart":
                     chart.DataSource = ConvertDistance(dt);
@@ -255,21 +255,21 @@ namespace HumanDT.UI
                 newDT.Rows.Add("EmptyMove", dr["Name"], double.Parse(dr["빈 지게차 이동"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
                 newDT.Rows.Add("N/A", dr["Name"], double.Parse(dr["N/A"].ToString()) / double.Parse(dr["TotalTime"].ToString()) * 100);
                 newDT.Rows.Add("이동 거리", dr["Name"], double.Parse(dr["이동 거리"].ToString()));
-                newDT.Rows.Add("도크 작업 수", dr["Name"], double.Parse(dr["도크 작업 수"].ToString()));
+                newDT.Rows.Add("작업 수", dr["Name"], double.Parse(dr["작업 수"].ToString()));
             }
             return newDT;
 
         }
-        private DataTable ConvertDockinfo(DataTable dt)
+        private DataTable ConvertWorkinfo(DataTable dt)
         {
             DataTable newDT = new DataTable();
             newDT.Columns.AddRange(new DataColumn[] { new DataColumn("Item", typeof(string)), new DataColumn("Name", typeof(string)), new DataColumn("Values", typeof(double)) });
 
             foreach (DataRow dr in dt.Rows)
             {
-                if (double.Parse(dr["도크 작업 수"].ToString()) == 0)
+                if (double.Parse(dr["작업 수"].ToString()) == 0)
                     continue;
-                newDT.Rows.Add("도크 작업 수", dr["Name"], double.Parse(dr["도크 작업 수"].ToString()));
+                newDT.Rows.Add("작업 수", dr["Name"], double.Parse(dr["작업 수"].ToString()));
             }
             return newDT;
         }
@@ -369,7 +369,7 @@ namespace HumanDT.UI
                                 EmptyMove = double.Parse(values[5]),
                                 NA = double.Parse(values[6]),
                                 Distance = double.Parse(values[7]),
-                                DockCount = double.Parse(values[8])
+                                WorkCount = double.Parse(values[8])
                             };
                             infoList.Add(info);
                         }
@@ -387,14 +387,14 @@ namespace HumanDT.UI
                     infoList[i].EmptyMove,
                     infoList[i].NA,
                     infoList[i].Distance,
-                    infoList[i].DockCount,
+                    infoList[i].WorkCount,
                     infoList[i].VVARatio,
                     infoList[i].TotalTime,
                     });
                 }
                 this.UpdateSimpleChart(this.SimpleChart, dt);
                 this.UpdateSimpleChart(this.DetailedChart, dt);
-                this.UpdateSimpleChart(this.DockinfoChart, dt);
+                this.UpdateSimpleChart(this.WorkinfoChart, dt);
                 this.UpdateSimpleChart(this.DistanceChart, dt);
             }
             catch { }
@@ -445,7 +445,7 @@ namespace HumanDT.UI
             SimpleChart.Visible = true;
             DetailedChart.Visible = false;
             pictureBox5.Visible = false;
-            DockinfoChart.Visible = false;
+            WorkinfoChart.Visible = false;
             DistanceChart.Visible = false;
         }
 
@@ -454,7 +454,7 @@ namespace HumanDT.UI
             SimpleChart.Visible = false;
             DetailedChart.Visible = false;
             pictureBox5.Visible = true;
-            DockinfoChart.Visible = false;
+            WorkinfoChart.Visible = false;
             DistanceChart.Visible = false;
         }
 
@@ -463,16 +463,16 @@ namespace HumanDT.UI
             SimpleChart.Visible = false;
             DetailedChart.Visible = true;
             pictureBox5.Visible = false;
-            DockinfoChart.Visible = false;
+            WorkinfoChart.Visible = false;
             DistanceChart.Visible = false;
         }
 
-        private void DockinfoChart_Click(object sender, EventArgs e)
+        private void WorkinfoChart_Click(object sender, EventArgs e)
         {
             SimpleChart.Visible = false;
             DetailedChart.Visible = false;
             pictureBox5.Visible = false;
-            DockinfoChart.Visible = true;
+            WorkinfoChart.Visible = true;
             DistanceChart.Visible = false;
         }
 
@@ -481,7 +481,7 @@ namespace HumanDT.UI
             SimpleChart.Visible = false;
             DetailedChart.Visible = false;
             pictureBox5.Visible = false;
-            DockinfoChart.Visible = false;
+            WorkinfoChart.Visible = false;
             DistanceChart.Visible = true;
         }
     }

@@ -125,8 +125,13 @@ class ColorTracker(AbstractTracker):
         self.__Trackers = [x for x in self.__Trackers if x.no_losses <= self.MaxAge]
         return self.__Trackers, None
 
-    def change_tracker_id(self, idx, id_val):
-        self.__Trackers[idx].id = id_val
+    def change_tracker_id(self, idx, alter_trk):
+        self.__Trackers[idx].id = alter_trk.id
+        self.__Trackers[idx].history += alter_trk.history
+        self.__Trackers[idx].dockNumber = alter_trk.dockNumber
+
+        # self.__Trackers[idx].Mileage += alter_trk.Mileage
+        print("Mileage Debug1")
 
     def __get_new_id(self):
         return self.IdleIdList.popleft()

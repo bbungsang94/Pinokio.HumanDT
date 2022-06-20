@@ -97,7 +97,7 @@ class CascadeRunner(AbstractRunner):
         tracker_model_args['image_size'] = [self.WholeImageSize[0], self.WholeImageSize[1]]
 
         if args['tracker_model_name'] == 'sort_color':
-            self.TrackerManager = ColorWrapper()
+            self.TrackerManager = ColorWrapper(drawing_scale=self.__DrawingScale)
             max_trackers = None
         elif args['tracker_model_name'] == 'sort_dock':
             self.TrackerManager = DockWrapper(self.__DrawingScale)
@@ -193,18 +193,11 @@ class CascadeRunner(AbstractRunner):
         # for distance in distances:
         #     (dist, idx) = distance
         #     dist *= self.__DrawingScale
-        if self.TrackerManager.model_name == 'DockWrapper':
-            for dock_info in dock_info_results:
-                (dockId, dockIn, tracker) = dock_info
-                if dockIn:
-                    if self.TrackerManager.set_dock_info(tracker, dockId):
-                        self.__interactor.dock_count[dockId] += 1
-            results = []
-            dock_trackers = self.TrackerManager.get_dock_trackers()
-            for dock_id, (tmp_trk, distance) in dock_trackers.items():
-                results.append((dock_id, tmp_trk.state, tmp_trk, distance))
-
-        elif self.TrackerManager.model_name == 'ColorWrapper':
+        if self.TrackerManager.model_name == 'ColorWrapper':
+            if self.DebugCount > 358:
+                debug = True
+            else:
+                self.DebugCount += 1
             # Assign 되지 않은
             pivot = 0
             idle_trackers = list(range(self.TrackerManager.IdLength))
@@ -212,10 +205,20 @@ class CascadeRunner(AbstractRunner):
                 for _, tracker in enumerate(single_trackers):
                     if tracker.id in idle_trackers:
                         idle_trackers.remove(tracker.id)
-                    results[pivot] = (tracker.id, tracker.state, tracker, distances[tracker.id])
+                    results[pivot] = (tracker.id, tracker.state, tracker, tracker.Distance)
                     pivot += 1
             for idle in idle_trackers:
                 results.append((idle, ("NA", False), None, 0))
+        elif self.TrackerManager.model_name == 'DockWrapper':
+            for dock_info in dock_info_results:
+                (dockId, dockIn, tracker) = dock_info
+                if dockIn:
+                    if self.TrackerManager.set_dock_info(tracker, dockId):
+                        self.__interactor.work_count[dockId] += 1
+            results = []
+            dock_trackers = self.TrackerManager.get_dock_trackers()
+            for dock_id, (tmp_trk, distance) in dock_trackers.items():
+                results.append((dock_id, tmp_trk.state, tmp_trk, distance))
 
         frame_count, handle = self.__VideoHandles[0]
         self.__interactor.update_decision(image_name=handle.make_image_name(frame_count), results=results)

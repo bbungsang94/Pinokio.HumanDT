@@ -57,7 +57,7 @@ namespace HumanDT.UI
         public double NA { get; set; }
         public double Put { get; set; }
         public double Distance { get; set; }
-        public double DockCount { get; set; }
+        public double WorkCount { get; set; }
 
 
         public double TotalTime => In + Ready + LoadedMove + EmptyMove + NA + Put;
