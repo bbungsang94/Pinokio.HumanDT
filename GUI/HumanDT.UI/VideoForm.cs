@@ -6,6 +6,7 @@ using System.Threading;
 using Timer = System.Windows.Forms.Timer;
 using System.Drawing;
 using DevExpress.XtraSplashScreen;
+using DevExpress.XtraEditors;
 
 namespace HumanDT.UI
 {
@@ -86,9 +87,10 @@ namespace HumanDT.UI
             directory = GetParent(6, directory);
             _MatrixPath = directory.FullName + "\\API\\params\\projection";
 
+
             //_Config.CondaEnv = "VDT";
-            _Config.CondaEnv = "FLOM";
-            //_Config.CondaEnv = "HumanDT";
+            //_Config.CondaEnv = "FLOM";
+            _Config.CondaEnv = "HumanDT";
 
 
 
@@ -607,6 +609,13 @@ namespace HumanDT.UI
         private void PicIdx4Click(object sender, EventArgs e)
         {
             _Focused = 3;
+        }
+
+        private void CondaButton_Click(object sender, EventArgs e)
+        {
+            var condaStr = XtraInputBox.Show("Conda 환경 이름을 설정해주세요.", "환경 설정", "");
+            if (condaStr is not null)
+                _Config.CondaEnv = condaStr;
         }
     }
 }

@@ -10,10 +10,10 @@ from config_mapper import get_yaml
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--video_path", type=str, default=r"D:\source-D\respos-D\Pinokio.HumanDT\API\temp", help="Video path"
+    "--video_path", type=str, default=r"D:\source-D\respos-D\Pinokio.HumanDT\API\video\targetVideo\LOADING DOCK F3 Rampa 11-12.avi", help="Video path"
 )
 parser.add_argument(
-    "--save_path", type=str, default=r"D:\source-D\respos-D\Pinokio.HumanDT\API\video\targetVideo", help="Save path"
+    "--save_path", type=str, default=r"D:\source-D\respos-D\Pinokio.HumanDT\API\temp\LOADING DOCK F3 Rampa 11-12", help="Save path"
 )
 
 

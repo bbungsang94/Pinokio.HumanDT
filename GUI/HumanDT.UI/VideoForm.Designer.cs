@@ -78,6 +78,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.lbt = new System.Windows.Forms.Label();
             this.lbProperty = new System.Windows.Forms.Label();
+            this.CondaButton = new System.Windows.Forms.Button();
             this.pnlView.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl3.Properties)).BeginInit();
@@ -464,6 +465,7 @@
             // pnlHeader
             // 
             this.pnlHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(60)))), ((int)(((byte)(60)))));
+            this.pnlHeader.Controls.Add(this.CondaButton);
             this.pnlHeader.Controls.Add(this.SavePathButton);
             this.pnlHeader.Controls.Add(this.ImportButton);
             this.pnlHeader.Controls.Add(this.btnVisible);
@@ -480,7 +482,7 @@
             this.SavePathButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.SavePathButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.SavePathButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.SavePathButton.Location = new System.Drawing.Point(47, 117);
+            this.SavePathButton.Location = new System.Drawing.Point(47, 207);
             this.SavePathButton.Name = "SavePathButton";
             this.SavePathButton.Size = new System.Drawing.Size(227, 55);
             this.SavePathButton.TabIndex = 9;
@@ -493,7 +495,7 @@
             this.ImportButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
             this.ImportButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.ImportButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.ImportButton.Location = new System.Drawing.Point(47, 197);
+            this.ImportButton.Location = new System.Drawing.Point(47, 277);
             this.ImportButton.Name = "ImportButton";
             this.ImportButton.Size = new System.Drawing.Size(227, 55);
             this.ImportButton.TabIndex = 8;
@@ -660,6 +662,19 @@
             this.lbProperty.Text = "Property";
             this.lbProperty.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // CondaButton
+            // 
+            this.CondaButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(210)))), ((int)(((byte)(210)))), ((int)(((byte)(210)))));
+            this.CondaButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.CondaButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
+            this.CondaButton.Location = new System.Drawing.Point(47, 103);
+            this.CondaButton.Name = "CondaButton";
+            this.CondaButton.Size = new System.Drawing.Size(227, 55);
+            this.CondaButton.TabIndex = 10;
+            this.CondaButton.Text = "Conda Setting";
+            this.CondaButton.UseVisualStyleBackColor = false;
+            this.CondaButton.Click += new System.EventHandler(this.CondaButton_Click);
+            // 
             // VideoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -749,5 +764,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button CondaButton;
     }
 }
